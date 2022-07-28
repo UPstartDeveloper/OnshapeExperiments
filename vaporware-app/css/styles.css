@@ -1,0 +1,9 @@
+#custom-home-link {
+    margin-left: 1rem;
+}
+
+#truck-bg {
+    background-image: "./vaporware-app/static/caleb-ruiter-EmEQ6kK_5P0-unsplash.jpg"; 
+    background-position:center; 
+    height: 100%;
+}
