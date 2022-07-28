@@ -2,8 +2,14 @@
     margin-left: 1rem;
 }
 
-#truck-bg {
-    background-image: "./vaporware-app/static/caleb-ruiter-EmEQ6kK_5P0-unsplash.jpg"; 
-    background-position:center; 
-    height: 100%;
+body {
+    background: url("../static/seb-creativo-3jG-UM8IZ40-unsplash.jpg") no-repeat center center fixed; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+  background-size: cover;
+}
+
+#middle-section {
+    height: 45em;
 }
