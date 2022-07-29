@@ -1,4 +1,4 @@
-# **app-gltf-viewer**
+# [OLD README FROM ONSHAPE] **app-gltf-viewer**
 The GLTF Viewer is a sample application allowing for visualizing GLTF data translated from an Onshape model. It is a Node.JS application that runs as a tab inside an Onshape document. Onshape passes the document context to the viewer, which is used to help generate the GLTF visualization.
 
 This example could also be re-worked to make it a fully separate application, which would communicate with the Onshape API to obtain the document information (as opposed to Onshape providing that context for the application).

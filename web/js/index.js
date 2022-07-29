@@ -238,16 +238,25 @@ $elemSelector.addEventListener('change', async (evt) => {
     if (selectedOption.innerText !== '-- Select an Item --') {
         try {
             document.body.style.cursor = 'progress';
-            const resp = await fetch(`/api/gltf${evt.target.options[event.target.selectedIndex].getAttribute('href')}`);
-            const json = await resp.json();
-            poll(5, () => fetch(`/api/gltf/${json.id}`), (resp) => resp.status !== 202, (respJson) => {
-                if (respJson.error) {
-                    displayError('There was an error translating the model to GLTF.');
-                } else {
-                    console.log('Loading GLTF data...');
-                    loadGltf(respJson);
-                }
-            });
+            // trying out an idea from https://askjavascript.com/how-to-read-a-json-file-in-javascript/
+            fetch("../../static/People-Mover.gltf")
+                .then(response => {
+                return response.json();
+            })
+                .then(respJson => loadGltf(respJson)
+            );
+            
+            // TODO: turn these lines back on when I have the REST API working
+            // const resp = await fetch(`/api/gltf${evt.target.options[event.target.selectedIndex].getAttribute('href')}`);
+            // const json = await resp.json();
+            // poll(5, () => fetch(`/api/gltf/${json.id}`), (resp) => resp.status !== 202, (respJson) => {
+            //     if (respJson.error) {
+            //         displayError('There was an error translating the model to GLTF.');
+            //     } else {
+            //         console.log('Loading GLTF data...');
+            //         loadGltf(respJson);
+            //     }
+            // });
         } catch (err) {
             displayError(`Error requesting GLTF data translation: ${err}`);
         }
