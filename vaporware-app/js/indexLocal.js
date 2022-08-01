@@ -61,17 +61,18 @@ const initThreeJsElements = function() {
     /**
      * This is how much we scale the height of the scene by to make it fit the window.
      */
-    const heightScale = 0.9;
+    const heightScale = 0.3;
     
     /**
      * Handles resizing the window.
      */
     const handleResize = () => {
-        const width = window.innerWidth,
+        const width = window.innerWidth * heightScale,
             height = (window.innerHeight - $elemSelector.offsetHeight) * heightScale;
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
         renderer.setSize(width, height, false);
+        console.log("renderer dims: " + renderer.domElement.height, renderer.domElement.width);
         render(renderer, scene, camera);
         controls.handleResize();
     };
@@ -173,13 +174,16 @@ const initThreeJsElements = function() {
             // (4) read in the glTF scene from disk
             gltfLoader.load(gltfData,
                 (gltf) => { // onLoad
-                    // document.body.style.cursor = 'default';
-                    // const gltfScene = gltf.scene;
+                    document.body.style.cursor = 'default';
+                    const gltfScene = gltf.scene;
                     // (5) ensure the user can manipulate the model
-                    // setGltfContents(gltfScene);  // TODO[debug]
+                    setGltfContents(gltfScene);  // TODO[debug]
                     // (6) being render loop!
-                    // animate();
+                    animate();
                 },
+	            (xhr) => { // onProgress function, provided by Three.js example: https://threejs.org/docs/?q=gltfloader#examples/en/loaders/GLTFLoader
+		            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+	            },
                 (err) => { // onError
                     displayError(`Error loading GLTF: ${err}`);
                 });
@@ -219,7 +223,6 @@ const poll = (intervalInSeconds, promiseProducer, stopCondFunc, then) => {
  * @param {string} msg The error message to be displayed.
  */
 
-// (1) verifies the client for compatibility
 const displayError = (msg) => {
     console.log('Error:', msg);
     const $viewport = document.getElementById('gltf-viewport');
@@ -230,6 +233,7 @@ const displayError = (msg) => {
     $viewport.insertBefore($msgElem, $viewport.firstChild);
 }
 
+// (1) ✅ verifies the client for compatibility 
 if (!WEBGL.isWebGLAvailable()) {
     console.error('WebGL is not supported in this browser');
     document.getElementById('gltf-viewport').appendChild(WEBGL.getWebGLErrorMessage());
