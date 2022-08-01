@@ -21,6 +21,7 @@ app.use(bodyParser.json());
 
 app.set('trust proxy', 1); // To allow to run correctly behind Heroku
 
+// TODO: comment/uncomment this stuff below as appropiate
 app.use(session({
     store: new RedisStore({
         client: redisClient
@@ -75,7 +76,11 @@ app.get('/grantDenied', (req, res) => {
 })
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'html', 'index.html'));
+    res.sendFile(path.join(__dirname, 'vaporware', 'html', 'index.html'));
+});
+
+app.get('/truck-viewer', (req, res) => {
+    res.sendFile(path.join(__dirname, 'vaporware', 'html', 'viewer.html'));
 });
 
 app.use('/api', require('./api'));
