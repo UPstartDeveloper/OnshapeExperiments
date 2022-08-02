@@ -8,11 +8,12 @@ import {
     PMREMGenerator,
     sRGBEncoding,
     Box3,
-    Vector3
+    Vector3,
 } from 'three';
-import { WEBGL } from 'three/examples/jsm/WebGL.js';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
+import { WEBGL } from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/WebGL.js';
+import { GLTFLoader } from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/loaders/GLTFLoader.js';
+import { TrackballControls } from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/TrackballControls.js';
+
 
 /**
  * The <select> element that allows the user to pick an item to translate.
