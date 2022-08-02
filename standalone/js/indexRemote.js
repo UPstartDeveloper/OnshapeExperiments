@@ -9,10 +9,10 @@ import {
     sRGBEncoding,
     Box3,
     Vector3
-} from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/build/three.module.js';
-import { WEBGL } from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/WebGL.js';
-import { GLTFLoader } from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/loaders/GLTFLoader.js';
-import { TrackballControls } from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/TrackballControls.js';
+} from 'three';
+import { WEBGL } from 'three/examples/jsm/WebGL.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
 
 /**
  * The <select> element that allows the user to pick an item to translate.
@@ -171,19 +171,16 @@ const initThreeJsElements = function() {
          * @param {object} gltfData The GLTF data to be rendered.
          */
         loadGltf: (gltfData) => {
-            // (4) read in the glTF scene from disk
-            gltfLoader.load(gltfData,
+            // (4) read in the glTF data from the API
+            gltfLoader.parse(gltfData, '',
                 (gltf) => { // onLoad
                     document.body.style.cursor = 'default';
-                    const gltfScene = gltf.scene;
+                    const gltfScene = gltf.scene || gltf.scenes[0];
                     // (5) ensure the user can manipulate the model
-                    setGltfContents(gltfScene);  // TODO[debug]
-                    // (6) being render loop!
+                    setGltfContents(gltfScene);
+                    // begin render loop!
                     animate();
                 },
-	            (xhr) => { // onProgress function, provided by Three.js example: https://threejs.org/docs/?q=gltfloader#examples/en/loaders/GLTFLoader
-		            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-	            },
                 (err) => { // onError
                     displayError(`Error loading GLTF: ${err}`);
                 });
@@ -249,43 +246,47 @@ $elemSelector.addEventListener('change', async (evt) => {
     if (selectedOption.innerText !== '-- Select an Item --') {
         try {
             document.body.style.cursor = 'progress';
-            // trying out an idea from https://askjavascript.com/how-to-read-a-json-file-in-javascript/
-
-            // hardcoding the URL to the glTF for now
-            const gltfPath = "../static/People-Mover.gltf";
-            loadGltf(gltfPath);
-            
+            const resp = await fetch(`/api/gltf${evt.target.options[event.target.selectedIndex].getAttribute('href')}`);
+            const json = await resp.json();
+            poll(5, () => fetch(`/api/gltf/${json.id}`), (resp) => resp.status !== 202, (respJson) => {
+                if (respJson.error) {
+                    displayError('There was an error translating the model to GLTF.');
+                } else {
+                    console.log('Loading GLTF data...');
+                    loadGltf(respJson);
+                }
+            });
         } catch (err) {
             displayError(`Error requesting GLTF data translation: ${err}`);
         }
     }
 });
 
-// Get the Elements for the dropdown - NOT, because it's hardcoded on viewer.html for now
-// fetch(`/api/elements${window.location.search}`, { headers: { 'Accept': 'application/json' } })
-//     .then((resp) => resp.json())
-//     .then(async (json) => {
-//         for (const elem of json) {
-//             if (elem.elementType === 'PARTSTUDIO') {
-//                 const child = document.createElement('option');
-//                 child.setAttribute('href', `${window.location.search}&gltfElementId=${elem.id}`);
-//                 child.innerText = `Element - ${elem.name}`;
-//                 $elemSelector.appendChild(child);
-//                 // Get the Parts of each element for the dropdown
-//                 try {
-//                     const partsResp = await fetch(`/api/elements/${elem.id}/parts${window.location.search}`, { headers: { 'Accept': 'application/json' }});
-//                     const partsJson = await partsResp.json();
-//                     for (const part of partsJson) {
-//                         const partChild = document.createElement('option');
-//                         partChild.setAttribute('href', `${window.location.search}&gltfElementId=${part.elementId}&partId=${part.partId}`);
-//                         partChild.innerText = `Part - ${elem.name} - ${part.name}`;
-//                         $elemSelector.appendChild(partChild);
-//                     }
-//                 } catch(err) {
-//                     displayError(`Error while requesting element parts: ${err}`);
-//                 }
-//             }
-//         }
-//     }).catch((err) => {
-//         displayError(`Error while requesting document elements: ${err}`);
-//     });
+// Get the Elements for the dropdown
+fetch(`/api/elements${window.location.search}`, { headers: { 'Accept': 'application/json' } })
+    .then((resp) => resp.json())
+    .then(async (json) => {
+        for (const elem of json) {
+            if (elem.elementType === 'PARTSTUDIO') {
+                const child = document.createElement('option');
+                child.setAttribute('href', `${window.location.search}&gltfElementId=${elem.id}`);
+                child.innerText = `Element - ${elem.name}`;
+                $elemSelector.appendChild(child);
+                // Get the Parts of each element for the dropdown
+                try {
+                    const partsResp = await fetch(`/api/elements/${elem.id}/parts${window.location.search}`, { headers: { 'Accept': 'application/json' }});
+                    const partsJson = await partsResp.json();
+                    for (const part of partsJson) {
+                        const partChild = document.createElement('option');
+                        partChild.setAttribute('href', `${window.location.search}&gltfElementId=${part.elementId}&partId=${part.partId}`);
+                        partChild.innerText = `Part - ${elem.name} - ${part.name}`;
+                        $elemSelector.appendChild(partChild);
+                    }
+                } catch(err) {
+                    displayError(`Error while requesting element parts: ${err}`);
+                }
+            }
+        }
+    }).catch((err) => {
+        displayError(`Error while requesting document elements: ${err}`);
+    });
