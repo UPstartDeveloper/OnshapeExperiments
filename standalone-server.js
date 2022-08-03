@@ -84,6 +84,6 @@ app.get('/truck-viewer', (req, res) => {
     res.sendFile(path.join(__dirname, 'standalone', 'html', 'viewer.html'));
 });
 
-// app.use('/api', require('./api'));
+app.use('/api', require('./api'));
 
 module.exports = app;
