@@ -4,7 +4,7 @@ const WebhookService = require('./services/webhook-service');
 const TranslationService = require('./services/translation-service');
 const { onshapeApiUrl } = require('./config');
 const { forwardRequestToOnshape } = require('./utils');
-const redisClient = require('./redis-client');
+// const redisClient = require('./redis-client');
     
 const apiRouter = require('express').Router();
 
