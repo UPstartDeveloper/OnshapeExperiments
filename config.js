@@ -9,6 +9,13 @@ const redisHost = process.env.REDIS_HOST;                            // ❌
 const redisPort = process.env.REDIS_PORT;                            // ❌
 const sessionSecret = process.env.SESSION_SECRET;                    // ✅
 const webhookCallbackRootUrl = process.env.WEBHOOK_CALLBACK_ROOT_URL;// ✅
+// API keys
+const accessKey = process.env.ONSHAPE_API_ACCESSKEY;
+const secretKey = process.env.ONSHAPE_API_SECRETKEY;
+// Used for API request authorization
+const crypto = require('crypto');
+let nonce = crypto.randomBytes(16).toString('base64');
+
 
 /**
  * Checks if the given string is a URL. A string considered a URL if it can be parsed
@@ -152,5 +159,12 @@ module.exports = {
      * The URL of the webhook callback URL. This will be the `/api/event` endpoint on
      * this server, e.g. `https://your-machine.example.com`.
      */
-    webhookCallbackRootUrl
+    webhookCallbackRootUrl,
+
+    /** API keys + nonce - used for request authorization
+     * note for they keys - these are really only intended for dev purposes 
+     */
+    accessKey,
+    secretKey,
+    nonce,
 }
