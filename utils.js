@@ -1,8 +1,9 @@
 const fetch = require('node-fetch');
 const { onshapeApiUrl } = require('./config');
+const config = require("./config");
 
 module.exports = {
-    
+
     /**
      * Send a request to the Onshape API, and proxy the response back to the caller.
      * 
@@ -12,12 +13,18 @@ module.exports = {
      */
     forwardRequestToOnshape: async (apiPath, req, res) => {
         try {
+            // API request authorization
             const normalizedUrl = apiPath.indexOf(onshapeApiUrl) === 0 ? apiPath : `${onshapeApiUrl}/${apiPath}`;
-            const resp = await fetch(normalizedUrl, { headers: { Authorization: `Bearer ${req.user.accessToken}` }});
+            const encodedString = btoa(`${config.accessKey}:${config.secretKey}`);
+            console.log(`Encoded string: ${encodedString}`);
+            const resp = await fetch(normalizedUrl, { headers: { 
+                Authorization: `Basic ${encodedString}`,
+            }});
             const data = await resp.text();
             const contentType = resp.headers.get('Content-Type');
             res.status(resp.status).contentType(contentType).send(data);
         } catch (err) {
+            console.log("Error in forwarding request: " + err);
             res.status(500).json({ error: err });
         }
     }
