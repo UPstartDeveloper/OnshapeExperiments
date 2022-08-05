@@ -247,8 +247,11 @@ $elemSelector.addEventListener('change', async (evt) => {
     if (selectedOption.innerText !== '-- Select an Item --') {
         try {
             document.body.style.cursor = 'progress';
+            // sends a request to one of the glTF-related endpoints
             const resp = await fetch(`/api/gltf${evt.target.options[event.target.selectedIndex].getAttribute('href')}`);
+            // converts the translated data to JSON
             const json = await resp.json();
+            // sends the glTF data to appropiate func to display, or throws an error
             poll(5, () => fetch(`/api/gltf/${json.id}`), (resp) => resp.status !== 202, (respJson) => {
                 if (respJson.error) {
                     displayError('There was an error translating the model to GLTF.');
@@ -263,10 +266,13 @@ $elemSelector.addEventListener('change', async (evt) => {
     }
 });
 
-// Get the Elements for the dropdown
+// ✅ Get the Elements for the dropdown - works in Glassworks
 fetch(`/api/elements${window.location.search}`, { headers: { 'Accept': 'application/json' } })
-    .then((resp) => resp.json())
-    .then(async (json) => {
+    .then((resp) => {
+        console.log(resp);  // logging to check for HTTP 404's
+        resp.json();
+    })
+    .then(async (json) => {  
         for (const elem of json) {
             if (elem.elementType === 'PARTSTUDIO') {
                 const child = document.createElement('option');
