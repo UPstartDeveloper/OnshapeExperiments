@@ -172,6 +172,7 @@ const initThreeJsElements = function() {
          * @param {object} gltfData The GLTF data to be rendered.
          */
         loadGltf: (gltfData) => {
+            console.log(gltfData);
             // (4) read in the glTF data from the API
             gltfLoader.parse(gltfData, '',
                 (gltf) => { // onLoad
@@ -240,60 +241,61 @@ if (!WEBGL.isWebGLAvailable()) {
 // (2) init Three.js scene
 const { loadGltf } = initThreeJsElements();
 
-// (3) load options into the dropdown
-$elemSelector.addEventListener('change', async (evt) => {
-    // Trigger translation by getting /api/gltf
-    const selectedOption = evt.target.options[event.target.selectedIndex];
-    if (selectedOption.innerText !== '-- Select an Item --') {
-        try {
-            document.body.style.cursor = 'progress';
-            // sends a request to one of the glTF-related endpoints
-            const resp = await fetch(`/api/gltf${evt.target.options[event.target.selectedIndex].getAttribute('href')}`);
-            // converts the translated data to JSON
-            const json = await resp.json();
-            // sends the glTF data to appropiate func to display, or throws an error
-            poll(5, () => fetch(`/api/gltf/${json.id}`), (resp) => resp.status !== 202, (respJson) => {
-                if (respJson.error) {
-                    displayError('There was an error translating the model to GLTF.');
-                } else {
-                    console.log('Loading GLTF data...');
-                    loadGltf(respJson);
-                }
-            });
-        } catch (err) {
-            displayError(`Error requesting GLTF data translation: ${err}`);
-        }
+// (3) setup for loading glTF based on user selection
+document.getElementById('formSubmitButton').addEventListener('click', async (evt) => {
+    // retrieve form values + access the glTF
+    try {
+        document.body.style.cursor = 'progress';        
+        // requests the glTF
+        const did = document.getElementById("documentIdInput").value,
+              wvm = document.getElementById("wvmSingleChoiceSelect").value,
+              wvmid = document.getElementById("wvmIdInput").value,
+              eid = document.getElementById("elementIdInput").value;
+
+        poll(5, () => fetch(`/api/get-gltf/${did}/${wvm}/${wvmid}/${eid}`), 
+            (resp) => resp.status !== 200, (respJson) => {
+            if (respJson.error) {
+                displayError('There was an error translating the model to GLTF.');
+            } else {
+                console.log('Loading GLTF data...');
+                loadGltf(respJson);
+            }
+        });
+    } catch (err) {
+        displayError(`Error requesting GLTF data translation: ${err}`);
     }
 });
 
-// ✅ Get the Elements for the dropdown - works in Glassworks
-fetch(`/api/elements${window.location.search}`, { headers: { 'Accept': 'application/json' } })
-    .then((resp) => {
-        console.log(resp);  // logging to check for HTTP 404's
-        resp.json();
-    })
-    .then(async (json) => {  
-        for (const elem of json) {
-            if (elem.elementType === 'PARTSTUDIO') {
-                const child = document.createElement('option');
-                child.setAttribute('href', `${window.location.search}&gltfElementId=${elem.id}`);
-                child.innerText = `Element - ${elem.name}`;
-                $elemSelector.appendChild(child);
-                // Get the Parts of each element for the dropdown
-                try {
-                    const partsResp = await fetch(`/api/elements/${elem.id}/parts${window.location.search}`, { headers: { 'Accept': 'application/json' }});
-                    const partsJson = await partsResp.json();
-                    for (const part of partsJson) {
-                        const partChild = document.createElement('option');
-                        partChild.setAttribute('href', `${window.location.search}&gltfElementId=${part.elementId}&partId=${part.partId}`);
-                        partChild.innerText = `Part - ${elem.name} - ${part.name}`;
-                        $elemSelector.appendChild(partChild);
-                    }
-                } catch(err) {
-                    displayError(`Error while requesting element parts: ${err}`);
-                }
-            }
-        }
-    }).catch((err) => {
-        displayError(`Error while requesting document elements: ${err}`);
-    });
+// (4) [TODO] Get the Elements for the dropdown - works in Glassworks
+// fetch(`/api/elements${window.location.search}`, { headers: { 'Accept': 'application/json' } })
+//     .then((resp) => {
+//         console.log(resp);  // logging to check for HTTP 404's
+//         resp.json();
+//     })
+//     .then(async (json) => {  
+//         for (const elem of json) {
+//             if (elem.elementType === 'PARTSTUDIO') {
+//                 const child = document.createElement('option');
+//                 child.setAttribute('href', `${window.location.search}&gltfElementId=${elem.id}`);
+//                 child.innerText = `Element - ${elem.name}`;
+//                 $elemSelector.appendChild(child);
+//                 // Get the Parts of each element for the dropdown
+//                 try {
+//                     const partsResp = await fetch(`/api/elements/${elem.id}/parts${window.location.search}`, { headers: { 'Accept': 'application/json' }});
+//                     const partsJson = await partsResp.json();
+//                     for (const part of partsJson) {
+//                         const partChild = document.createElement('option');
+//                         partChild.setAttribute('href', `${window.location.search}&gltfElementId=${part.elementId}&partId=${part.partId}`);
+//                         partChild.innerText = `Part - ${elem.name} - ${part.name}`;
+//                         $elemSelector.appendChild(partChild);
+//                     }
+//                 } catch(err) {
+//                     displayError(`Error while requesting element parts: ${err}`);
+//                 }
+//             }
+//         }
+//     }).catch((err) => {
+//         displayError(`Error while requesting document elements: ${err}`);
+//     });
+
+// (5) Load a pre-made glTF by default 

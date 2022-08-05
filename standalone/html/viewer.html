@@ -36,11 +36,47 @@
         <div class="container">
             <div class="jumbotron justify-content-center">
                 <h1 class="row display-3">V1 Viewer</h1>
-                <div id='gltf-container'>
-                    <div>
-                        <select id='elem-selector'>
-                            <option href=''>-- Select an Item --</option>
-                        </select>
+                <div id="gltf-container">
+                    <!-- Form to "feed" API call to retrieve glTF -->
+                    <div id="elem-selector" class="mb-5">
+                        <div class="form-group">
+                            <label for="documentIdInput">Document ID</label>
+                            <input name="documentId" type="text" 
+                                   class="form-control" id="documentIdInput" 
+                                   aria-describedby="documentIdHelp" value="9215cbd70d8db4918d9d2cbf">
+                            <small id="documentIdHelp" class="form-text text-muted">Please enter the ID of your Onshape document.</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="wvmSingleChoiceSelect">Select which "Type" of ID you have:</label>
+                            <select class="form-control" id="wvmSingleChoiceSelect" name="idChoice">
+                              <option>w</option>
+                              <option>v</option>
+                              <option>m</option>
+                            </select>
+                            <small id="idChoiceHelp" class="form-text text-muted">
+                                w = "workspace ID"; v = "version ID"; m = "microversion ID"
+                            </small>
+                        </div>
+                        <div class="form-group">
+                            <label for="wvmIdInput">WVM ID</label>
+                            <input name="providedId" type="text" 
+                                   class="form-control" id="wvmIdInput" 
+                                   aria-describedby="providedIdHelp" value="6807b13c306a30f5e8220190">
+                            <small id="providedIdHelp" class="form-text text-muted">
+                                Please enter the ID of your workspace, current version, 
+                                or microversion (must correspond to the "type" of ID chosen above).
+                            </small>
+                        </div>
+                        <div class="form-group">
+                            <label for="elementIdInput">Element ID</label>
+                            <input name="elementId" type="text" 
+                                   class="form-control" id="elementIdInput" 
+                                   aria-describedby="eIdInputHelp" value="6c989fbb2995eaa4d0a394f4">
+                            <!-- <small id="elementIdHelp" class="form-text text-muted">
+                                Element ID
+                            </small> -->
+                        </div>
+                        <button id="formSubmitButton" type="submit" class="btn btn-primary">Submit</button>
                     </div>
                     <div id='gltf-viewport'></div>
                 </div>
