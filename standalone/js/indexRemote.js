@@ -252,13 +252,22 @@ document.getElementById('formSubmitButton').addEventListener('click', async (evt
               wvmid = document.getElementById("wvmIdInput").value,
               eid = document.getElementById("elementIdInput").value;
 
-        poll(5, () => fetch(`/api/get-gltf/${did}/${wvm}/${wvmid}/${eid}`), 
-            (resp) => resp.status !== 200, (respJson) => {
+        poll(5000, () => fetch(`/api/get-gltf/${did}/${wvm}/${wvmid}/${eid}`), 
+            (resp) => resp.status === 200, (respJson) => {
             if (respJson.error) {
                 displayError('There was an error translating the model to GLTF.');
             } else {
                 console.log('Loading GLTF data...');
-                loadGltf(respJson);
+                let respTrueJson;
+                try {
+                    respTrueJson = JSON.parse(respJson); 
+                } catch (error) {
+                    console.log('Failed to parse response.');
+                    // loadGltf(respJson);
+                    return;
+                }
+                loadGltf(respTrueJson);
+                
             }
         });
     } catch (err) {

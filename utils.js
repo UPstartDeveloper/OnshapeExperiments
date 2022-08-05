@@ -16,7 +16,6 @@ module.exports = {
             // API request authorization
             const normalizedUrl = apiPath.indexOf(onshapeApiUrl) === 0 ? apiPath : `${onshapeApiUrl}/${apiPath}`;
             const encodedString = Buffer.from(`${config.accessKey}:${config.secretKey}`).toString('base64');
-            console.log(`Encoded string: ${encodedString}`);
             const resp = await fetch(normalizedUrl, { headers: { 
                 Authorization: `Basic ${encodedString}`,
             }});

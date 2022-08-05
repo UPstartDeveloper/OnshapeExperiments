@@ -22,9 +22,6 @@ const apiRouter = require('express').Router();
         wvm = req.params.wvm,
         wvmid = req.params.wvmid,
         eid = req.params.eid;
-    
-    console.log("I hit the endpoint!!!");
-    console.log(`${onshapeApiUrl}/assemblies/d/${did}/${wvm}/${wvmid}/e/${eid}/gltf`);
     forwardRequestToOnshape(
         `${onshapeApiUrl}/assemblies/d/${did}/${wvm}/${wvmid}/e/${eid}/gltf`,
         req, res
