@@ -25,6 +25,8 @@ passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
 // Controller functions
+app.use('/api', require('./api'));
+
 app.get('/grantDenied', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'html', 'grantDenied.html'));
 })
@@ -36,7 +38,5 @@ app.get('/', (req, res) => {
 app.get('/truck-viewer', (req, res) => {
     res.sendFile(path.join(__dirname, 'standalone', 'html', 'viewer.html'));
 });
-
-app.use('/api', require('./api'));
 
 module.exports = app;

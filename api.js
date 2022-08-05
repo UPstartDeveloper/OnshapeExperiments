@@ -9,7 +9,35 @@ const { forwardRequestToOnshape } = require('./utils');
 const apiRouter = require('express').Router();
 
 /**
+ * Retrieve glTF for a given element in a document. 
+ * 
+ * GET /api/get-gltf?documentId=...&inputId=...&idChoice=...&gltfElementId=...
+ *      -> 200, { ... }
+ *      -or-
+ *      -> some error // TODO[add detail]
+ */
+ apiRouter.get('/get-gltf/:did/:wvm/:wvmid/:eid', async (req, res) => {
+    // Extract the necessary IDs from the querystring
+    const did = req.params.did,
+        wvm = req.params.wvm,
+        wvmid = req.params.wvmid,
+        eid = req.params.eid;
+    
+    console.log("I hit the endpoint!!!");
+    console.log(`${onshapeApiUrl}/assemblies/d/${did}/${wvm}/${wvmid}/e/${eid}/gltf`);
+    forwardRequestToOnshape(
+        `${onshapeApiUrl}/assemblies/d/${did}/${wvm}/${wvmid}/e/${eid}/gltf`,
+        req, res
+    );
+});
+
+/**
  * Get the Elements of the current document/workspace.
+ * 
+ * [Zain] 
+ *      The Onshape endpoint that's used below is found on the docs:
+ *           https://cad.onshape.com/glassworks/explorer#/Document/getElementsInDocument.
+ *      Confirmed that it works? - ✅
  * 
  * GET /api/elements
  *      -> 200, [ ...elements ]
@@ -17,11 +45,19 @@ const apiRouter = require('express').Router();
  *      -> 500, { error: '...' }
  */
 apiRouter.get('/elements', (req, res) => {
-    forwardRequestToOnshape(`${onshapeApiUrl}/documents/d/${req.query.documentId}/w/${req.query.workspaceId}/elements`, req, res);
+    console.log('I was called');
+    // console.log(`${onshapeApiUrl}/documents/d/${req.query.documentId}/w/${req.query.workspaceId}/elements`);
+    // forwardRequestToOnshape(`${onshapeApiUrl}/documents/d/${req.query.documentId}/w/${req.query.workspaceId}/elements`, req, res);
+    forwardRequestToOnshape(`${onshapeApiUrl}/documents`, req, res);
 });
 
 /**
  * Get the Parts of the given Element in the current document/workspace.
+ * 
+ * [Zain] 
+ *      The Onshape endpoint that's used below is found on the docs:
+ *           https://cad.onshape.com/glassworks/explorer#/Part/getPartsWMVE.
+ *      Confirmed that it works? - ✅
  * 
  * GET /api/elements/:eid/parts
  *      -> 200, [ ...parts ]
