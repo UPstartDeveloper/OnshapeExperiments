@@ -12,9 +12,6 @@ const webhookCallbackRootUrl = process.env.WEBHOOK_CALLBACK_ROOT_URL;// ✅
 // API keys
 const accessKey = process.env.ONSHAPE_API_ACCESSKEY;
 const secretKey = process.env.ONSHAPE_API_SECRETKEY;
-// Used for API request authorization
-const crypto = require('crypto');
-let nonce = crypto.randomBytes(16).toString('base64');
 
 
 /**
@@ -161,10 +158,9 @@ module.exports = {
      */
     webhookCallbackRootUrl,
 
-    /** API keys + nonce - used for request authorization
+    /** API keys - used for request authorization
      * note for they keys - these are really only intended for dev purposes 
      */
     accessKey,
     secretKey,
-    nonce,
 }
