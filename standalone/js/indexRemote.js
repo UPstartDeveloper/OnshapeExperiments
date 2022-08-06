@@ -120,7 +120,7 @@ const initThreeJsElements = function() {
             camera.far = size * 100;
             camera.updateProjectionMatrix();
             camera.position.copy(center);
-            const boxSize = box.getSize();
+            const boxSize = box.getSize(new Vector3());
             camera.position.x = boxSize.x * 2;
             camera.position.y = boxSize.y * 2;
             camera.position.z = boxSize.z * 2;
@@ -252,21 +252,22 @@ document.getElementById('formSubmitButton').addEventListener('click', async (evt
               wvmid = document.getElementById("wvmIdInput").value,
               eid = document.getElementById("elementIdInput").value;
 
-        poll(5000, () => fetch(`/api/get-gltf/${did}/${wvm}/${wvmid}/${eid}`), 
+        poll(5, () => fetch(`/api/get-gltf/${did}/${wvm}/${wvmid}/${eid}`), 
             (resp) => resp.status === 200, (respJson) => {
             if (respJson.error) {
-                displayError('There was an error translating the model to GLTF.');
+                displayError('There was an error in parsing the glTF to a JSON string.');
             } else {
                 console.log('Loading GLTF data...');
-                let respTrueJson;
-                try {
-                    respTrueJson = JSON.parse(respJson); 
-                } catch (error) {
+                // let respTrueJson;
+                // try {
+                    // respTrueJson = JSON.parse(respJson); 
+                // } catch (error) {
                     console.log('Failed to parse response.');
                     // loadGltf(respJson);
-                    return;
-                }
-                loadGltf(respTrueJson);
+                    // return;
+                // }
+                // loadGltf(respTrueJson);
+                loadGltf(respJson);
                 
             }
         });
