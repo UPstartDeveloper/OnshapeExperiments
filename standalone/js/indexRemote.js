@@ -14,11 +14,10 @@ import { WEBGL } from 'https://threejsfundamentals.org/threejs/resources/threejs
 import { GLTFLoader } from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/loaders/GLTFLoader.js';
 import { TrackballControls } from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/TrackballControls.js';
 
-
 /**
- * The <select> element that allows the user to pick an item to translate.
+ * The <button> element that lets us submit an API request to get the glTF.
  */
-const $elemSelector = document.getElementById('elem-selector');
+const formSubmitBtn = document.getElementById('formSubmitButton');
 
 /**
  * Initialize the THREE elements needed for rendering the GLTF data.
@@ -62,14 +61,14 @@ const initThreeJsElements = function() {
     /**
      * This is how much we scale the height of the scene by to make it fit the window.
      */
-    const heightScale = 0.3;
+    const heightScale = 0.4;
     
     /**
      * Handles resizing the window.
      */
     const handleResize = () => {
         const width = window.innerWidth * heightScale,
-            height = (window.innerHeight - $elemSelector.offsetHeight) * heightScale;
+            height = (window.innerHeight - formSubmitBtn.offsetHeight) * 1.25 * heightScale;
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
         renderer.setSize(width, height, false);
@@ -232,7 +231,7 @@ const displayError = (msg) => {
     $viewport.insertBefore($msgElem, $viewport.firstChild);
 }
 
-// (1) ✅ verifies the client for compatibility 
+// (1) verifies the client for compatibility 
 if (!WEBGL.isWebGLAvailable()) {
     console.error('WebGL is not supported in this browser');
     document.getElementById('gltf-viewport').appendChild(WEBGL.getWebGLErrorMessage());
@@ -242,7 +241,7 @@ if (!WEBGL.isWebGLAvailable()) {
 const { loadGltf } = initThreeJsElements();
 
 // (3) setup for loading glTF based on user selection
-document.getElementById('formSubmitButton').addEventListener('click', async (evt) => {
+formSubmitBtn.addEventListener('click', async (evt) => {
     // retrieve form values + access the glTF
     try {
         document.body.style.cursor = 'progress';        
@@ -258,54 +257,10 @@ document.getElementById('formSubmitButton').addEventListener('click', async (evt
                 displayError('There was an error in parsing the glTF to a JSON string.');
             } else {
                 console.log('Loading GLTF data...');
-                // let respTrueJson;
-                // try {
-                    // respTrueJson = JSON.parse(respJson); 
-                // } catch (error) {
-                    console.log('Failed to parse response.');
-                    // loadGltf(respJson);
-                    // return;
-                // }
-                // loadGltf(respTrueJson);
                 loadGltf(respJson);
-                
             }
         });
     } catch (err) {
         displayError(`Error requesting GLTF data translation: ${err}`);
     }
 });
-
-// (4) [TODO] Get the Elements for the dropdown - works in Glassworks
-// fetch(`/api/elements${window.location.search}`, { headers: { 'Accept': 'application/json' } })
-//     .then((resp) => {
-//         console.log(resp);  // logging to check for HTTP 404's
-//         resp.json();
-//     })
-//     .then(async (json) => {  
-//         for (const elem of json) {
-//             if (elem.elementType === 'PARTSTUDIO') {
-//                 const child = document.createElement('option');
-//                 child.setAttribute('href', `${window.location.search}&gltfElementId=${elem.id}`);
-//                 child.innerText = `Element - ${elem.name}`;
-//                 $elemSelector.appendChild(child);
-//                 // Get the Parts of each element for the dropdown
-//                 try {
-//                     const partsResp = await fetch(`/api/elements/${elem.id}/parts${window.location.search}`, { headers: { 'Accept': 'application/json' }});
-//                     const partsJson = await partsResp.json();
-//                     for (const part of partsJson) {
-//                         const partChild = document.createElement('option');
-//                         partChild.setAttribute('href', `${window.location.search}&gltfElementId=${part.elementId}&partId=${part.partId}`);
-//                         partChild.innerText = `Part - ${elem.name} - ${part.name}`;
-//                         $elemSelector.appendChild(partChild);
-//                     }
-//                 } catch(err) {
-//                     displayError(`Error while requesting element parts: ${err}`);
-//                 }
-//             }
-//         }
-//     }).catch((err) => {
-//         displayError(`Error while requesting document elements: ${err}`);
-//     });
-
-// (5) Load a pre-made glTF by default 
