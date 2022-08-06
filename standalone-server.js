@@ -20,10 +20,6 @@ app.use(bodyParser.json());
 
 app.set('trust proxy', 1); // To allow to run correctly behind Heroku
 
-// TODO[decide if we need to re-insert Redis & OAuth middleware]
-passport.serializeUser((user, done) => done(null, user));
-passport.deserializeUser((obj, done) => done(null, obj));
-
 // Controller functions
 app.use('/api', require('./api'));
 

@@ -1,14 +1,14 @@
-const port = process.env.PORT;                                       // ✅
-const onshapeApiUrl = process.env.API_URL;                           // ✅
-const oauthCallbackUrl = process.env.OAUTH_CALLBACK_URL;             // ❌
-const oauthClientId = process.env.OAUTH_CLIENT_ID;                   // ❌
-const oauthClientSecret = process.env.OAUTH_CLIENT_SECRET;           // ❌
-const oauthUrl = process.env.OAUTH_URL;                              // ❌
-const redisToGoUrl = process.env.REDISTOGO_URL;                      // ❌
-const redisHost = process.env.REDIS_HOST;                            // ❌
-const redisPort = process.env.REDIS_PORT;                            // ❌
-const sessionSecret = process.env.SESSION_SECRET;                    // ✅
-const webhookCallbackRootUrl = process.env.WEBHOOK_CALLBACK_ROOT_URL;// ✅
+const port = process.env.PORT;
+const onshapeApiUrl = process.env.API_URL;
+const oauthCallbackUrl = process.env.OAUTH_CALLBACK_URL;
+const oauthClientId = process.env.OAUTH_CLIENT_ID; 
+const oauthClientSecret = process.env.OAUTH_CLIENT_SECRET;
+const oauthUrl = process.env.OAUTH_URL;
+const redisToGoUrl = process.env.REDISTOGO_URL;
+const redisHost = process.env.REDIS_HOST; 
+const redisPort = process.env.REDIS_PORT;
+const sessionSecret = process.env.SESSION_SECRET;
+const webhookCallbackRootUrl = process.env.WEBHOOK_CALLBACK_ROOT_URL;
 // API keys
 const accessKey = process.env.ONSHAPE_API_ACCESSKEY;
 const secretKey = process.env.ONSHAPE_API_SECRETKEY;
@@ -80,7 +80,7 @@ const isValidString = function(stringToTest) {
     return true;
 }
 
-// We will check the entire configuration and only throw one error (if invalid).
+// We will check the config vars unrelated to OAuth/Redis, and only throw one error (if invalid).
 const errors = [];
 
 if (port && !isValidString(port))                           errors.push('PORT must have content');

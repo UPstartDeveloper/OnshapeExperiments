@@ -23,7 +23,6 @@ module.exports = {
             const contentType = resp.headers.get('Content-Type');
             res.status(resp.status).contentType(contentType).send(data);
         } catch (err) {
-            console.log("Error in forwarding request: " + err);
             res.status(500).json({ error: err });
         }
     }
