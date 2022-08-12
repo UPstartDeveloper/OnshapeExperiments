@@ -76,11 +76,11 @@ app.get('/grantDenied', (req, res) => {
 })
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'vaporware', 'html', 'index.html'));
+    res.sendFile(path.join(__dirname, 'standalone', 'html', 'index.html'));
 });
 
 app.get('/truck-viewer', (req, res) => {
-    res.sendFile(path.join(__dirname, 'vaporware', 'html', 'viewer.html'));
+    res.sendFile(path.join(__dirname, 'standalone', 'html', 'viewer.html'));
 });
 
 app.use('/api', require('./api'));

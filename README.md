@@ -1,61 +1,41 @@
-# [OLD README FROM ONSHAPE] **app-gltf-viewer**
-The GLTF Viewer is a sample application allowing for visualizing GLTF data translated from an Onshape model. It is a Node.JS application that runs as a tab inside an Onshape document. Onshape passes the document context to the viewer, which is used to help generate the GLTF visualization.
+# Onshape Experiments
 
-This example could also be re-worked to make it a fully separate application, which would communicate with the Onshape API to obtain the document information (as opposed to Onshape providing that context for the application).
+![Truck image](./standalone/static/seb-creativo-3jG-UM8IZ40-unsplash.jpg)
+
+This GLTF "Truck Viewer" is a sample application allowing for visualizing GLTF data translated from an Onshape model. It is a standalone Node.JS application. Onshape passes the glTF to the viewer, which is used to help generate a Three.js visualization.
+
+This project was inspired by an earlier [repo](https://github.com/onshape-public/app-gltf-viewer) by the incredibly talented, incorrigibly curious folks behind the public Onshape GitHub account. 
 
 ## Installation
 This section outlines how to deploy and configure the application on Heroku. If you are using another service, some of these steps will not apply to you, and the equivalent steps for the other service should be taken instead.
 
-These instructions assume that the following utilities are installed: git, npm, and [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) (e.g. `brew tap heroku/brew && brew install heroku` on macOS or `sudo snap install --classic heroku` on Linux distributions that support Snap applications).
+These instructions assume that the following utilities are installed: `git`, `npm`, and [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) (e.g. `brew tap heroku/brew && brew install heroku` on macOS or `sudo snap install --classic heroku` on Linux distributions that support Snap applications).
 
-1. ✅ Make a bare clone of the repository: `git clone --bare https://github.com/onshape-public/app-gltf-viewer.git`. 
-1. ✅ Push to a new mirror repository: `cd app-gltf-viewer.git && git push --mirror https://github.com/<youruser>/my-gltf-viewer.git`.
-1. ✅  Clean up the temporary repository: `cd .. && rm -rf app-gltf-viewer.git`.
-1. ✅ Clone your newly mirrored repository: `git clone https://github.com/<youruser>/my-gltf-viewer.git`.
-1. [TODO] Create a heroku app for your project: `cd my-gltf-viewer && heroku create`. Note the URL provided in the output of this command.
-1. [TODO] Go to the [Onshape Developer Portal](https://dev-portal.onshape.com/), create a new OAuth Application and Store entry with the following settings. Make sure that you copy the Client ID and Client Secret, as these will be needed later, and cannot be shown again.
-
-OAuth Application Setting | Value
-------------------------- | -----
-Redirect URL | https://<url-from-heroku-create.herokuapp.com>/oauthRedirect
-OAuth URL | https://<url-from-heroku-create.herokuapp.com>/oauthSignin
-7. [TODO] Update the `package.json` file with your new Heroku application URL:
-```json
-{
-  ...
-  "repository": {
-    "type": "git",
-    "url": “https://<url-from-heroku-create.herokuapp.com>”
-  },
-  ...
-}
-```
-8. Click on the “Extensions” tab and “Add extension” to specify a tab-based extension.
-	- Name: `<Enter extension name>`
-	- Description(Optional): `<Enter extension description>`
-	- Location: `Element Tab`
-	- Action URL: `https://<url-from-heroku-create.herokuapp.com>
-	- Icon(Optional): `<Drop an image to upload>`
-
-9. [TODO] Create a RedisTOGO add-on for you Heroku application: `heroku addons:create redistogo`
-10. [TODO] Configure the necessary environment variables:
+1. Make a bare clone of the repository: `git clone --bare https://github.com/UPstartDeveloper/OnshapeExperiments.git`. 
+1. Push to a new mirror repository: `cd app-gltf-viewer.git && git push --mirror https://github.com/<youruser>/my-gltf-viewer.git`.
+1. Clean up the temporary repository: `cd .. && rm -rf app-gltf-viewer.git`.
+1. Clone your newly mirrored repository: `git clone https://github.com/<youruser>/my-gltf-viewer.git`.
+1. Go to the [Onshape Developer Portal](https://dev-portal.onshape.com/signin), and log in with the same credentials as the account that has the Onshape model you wish to visualize. Go to the "API keys" tab, and create a pair of new API keys to use. And save them somewhere safe, like in a `.env` file!
+1. Configure all the necessary environment variables in the `.env` file. For Heroku deployment, you can do the same using `heroku config:set <var name>=<value>` in the CLI:
 ```Shell
-heroku config:set API_URL=https://cad.onshape.com/api
-heroku config:set OAUTH_CALLBACK_URL=https://<url-from-heroku-create.herokuapp.com>/oauthRedirect
-heroku config:set OAUTH_CLIENT_ID=<client-id-from-created-app-in-dev-portal>
-heroku config:set OAUTH_CLIENT_SECRET=<client-secret-from-created-app-in-dev-portal>
-heroku config:set OAUTH_URL=https://oauth.onshape.com
-heroku config:set WEBHOOK_CALLBACK_ROOT_URL=https://<url-from-heroku-create.herokuapp.com>
-heroku config:set SESSION_SECRET=<a-cryptographically-secure-string>
+ONSHAPE_API_ACCESSKEY=...  
+ONSHAPE_API_SECRETKEY=...
+PORT=3000  # or could be 5000, 8000, 8080, etc.
+API_URL=https://cad.onshape.com/api  # may also need to specify the version you want, e.g. by placing "/v4" at the end of this URL 
+SESSION_SECRET=... # some long, hard to guess string you create with no spaces
+WEBHOOK_CALLBACK_ROOT_URL=...  # same as host name
 ```
-11.[TODO]  You can confirm your configuration settings by running `heroku config`. You should see all of the above, plus a `REDISTOGO_URL` variable created by the add-on.
-12. Commit your (local) configuration changes, and push to Heroku. This will start a build process, after which your application will be up and running.
-`git commit -am "Updated configuration." && git push heroku master`. If you would like to watch the log as the build is running you can run `heroku logs --tail`.
 
 ## Usage
-Once your application is deployed and configured, you can subscribe to it through the [Onshape App Store](https://appstore.onshape.com), and add it to your document. You can then use the dropdown menu at the top to select the element to translate and render, and it will be shown in the page.
+You can start the server by installing the dependencies (one time) and then running the `www` script (each time):
 
-Note that if you have a complex model with a lot of parts there are two implications: the dropdown list can be quite long; and translating the model to GLTF can be time consuming. If you think there is an issue loading or rendering your model, you can open the Javascript console of your browser to check for any errors.
+```bash
+# in the root directory
+$ npm install
+$ bin/www
+```
+
+If you think there is an issue loading or rendering your model, you can open the JavaScript console of your browser to check for any errors.
 
 Once the model is rendered, the following controls are available to you:
 Control | How to Use
@@ -65,6 +45,7 @@ Rotate | Left-click and move mouse
 Pan | Right-click and move mouse
 
 ## References
+* Original [glTF viewer sample app](https://github.com/onshape-public/app-gltf-viewer) by Onshape's GitHub organization
 * [Onshape Developer Portal](https://dev-portal.onshape.com)
     * [Help / Documentation](https://dev-portal.onshape.com/help)
 * [Heroku](https://heroku.com)
