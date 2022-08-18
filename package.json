@@ -7,7 +7,7 @@
     "start": "bin/www",
     "heroku-postbuild": "rollup -c"
   },
-  "author": "Ron Gajdos <rgajdos@ptc.com>",
+  "author": "Zain Raza <sraza@onshape.com> (based on prior work by Ron Gajdos)",
   "license": "MIT",
   "dependencies": {
     "connect-redis": "^5.0.0",
