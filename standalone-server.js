@@ -13,9 +13,7 @@ const config = require('./config');
 
 const app = express();
 
-app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'standalone')));
-app.use(express.static(path.join(__dirname, 'dist')));
 app.use(bodyParser.json());
 
 app.set('trust proxy', 1); // To allow to run correctly behind Heroku
