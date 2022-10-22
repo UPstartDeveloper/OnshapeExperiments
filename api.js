@@ -4,12 +4,14 @@ const { forwardRequestToOnshape } = require('./utils');
 const apiRouter = require('express').Router();
 
 /**
- * Retrieve glTF for a given element in a document. 
+ * Retrieve glTF from a given Part Studio tab in an Onshape document. 
  * 
  * GET /api/get-gltf?documentId=...&inputId=...&idChoice=...&gltfElementId=...
  *      -> 200, { ... }
  *      -or-
- *      -> some error // TODO[add detail]
+ *      -> some error e.g. 400
+ * 
+ * Read more/try out this endpoint in the docs: https://cad.onshape.com/glassworks/explorer#/PartStudio/exportPartStudioGltf
  */
  apiRouter.get('/get-gltf/:did/:wvm/:wvmid/:eid', async (req, res) => {
     // Extract the necessary IDs from the querystring
@@ -18,7 +20,7 @@ const apiRouter = require('express').Router();
         wvmid = req.params.wvmid,
         eid = req.params.eid;
     forwardRequestToOnshape(
-        `${onshapeApiUrl}/assemblies/d/${did}/${wvm}/${wvmid}/e/${eid}/gltf`,
+        `${onshapeApiUrl}/partstudios/d/${did}/${wvm}/${wvmid}/e/${eid}/gltf`,
         req, res
     );
 });
