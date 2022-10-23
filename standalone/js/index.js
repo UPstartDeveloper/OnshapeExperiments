@@ -17,7 +17,7 @@ import { TrackballControls } from 'https://threejsfundamentals.org/threejs/resou
 /**
  * The <button> element that lets us submit an API request to get the glTF.
  */
-const formSubmitBtn = document.getElementById('formSubmitButton');
+const activateBtn = document.getElementById('activateBtn');
 
 /**
  * Initialize the THREE elements needed for rendering the GLTF data.
@@ -68,7 +68,7 @@ const initThreeJsElements = function() {
      */
     const handleResize = () => {
         const width = window.innerWidth * heightScale,
-            height = (window.innerHeight - formSubmitBtn.offsetHeight) * 1.25 * heightScale;
+            height = (window.innerHeight - activateBtn.offsetHeight) * 1.25 * heightScale;
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
         renderer.setSize(width, height, false);
@@ -173,8 +173,8 @@ const initThreeJsElements = function() {
         loadGltf: (gltfData) => {
             console.log(gltfData);
             // (4) read in the glTF data from the API
-            gltfLoader.parse(gltfData, '',
-                (gltf) => { // onLoad
+            gltfLoader.load(gltfData,
+                (gltf) => { // onLoad function
                     document.body.style.cursor = 'default';
                     const gltfScene = gltf.scene || gltf.scenes[0];
                     // (5) ensure the user can manipulate the model
@@ -182,7 +182,8 @@ const initThreeJsElements = function() {
                     // begin render loop!
                     animate();
                 },
-                (err) => { // onError
+                () => {},  // onProgress function (just an empty placeholder for now)
+                (err) => { // onError function
                     displayError(`Error loading GLTF: ${err}`);
                 });
         }
@@ -241,26 +242,14 @@ if (!WEBGL.isWebGLAvailable()) {
 const { loadGltf } = initThreeJsElements();
 
 // (3) setup for loading glTF based on user selection
-formSubmitBtn.addEventListener('click', async (evt) => {
+activateBtn.addEventListener('click', async (evt) => {
     // retrieve form values + access the glTF
     try {
         document.body.style.cursor = 'progress';        
-        // requests the glTF
-        const did = document.getElementById("documentIdInput").value,
-              wvm = document.getElementById("wvmSingleChoiceSelect").value,
-              wvmid = document.getElementById("wvmIdInput").value,
-              eid = document.getElementById("elementIdInput").value;
-
-        poll(5, () => fetch(`/api/get-gltf/${did}/${wvm}/${wvmid}/${eid}`), 
-            (resp) => resp.status === 200, (respJson) => {
-            if (respJson.error) {
-                displayError('There was an error in parsing the glTF to a JSON string.');
-            } else {
-                console.log('Loading GLTF data...');
-                loadGltf(respJson);
-            }
-        });
+        // displays the glTF
+        const glTFPath = "YOUR GLTF (.glb/.gltf) FILE PATH GOES HERE!";
+        loadGltf(glTFPath);
     } catch (err) {
-        displayError(`Error requesting GLTF data translation: ${err}`);
+        displayError(`Error in displaying glTF: ${err}`);
     }
 });
