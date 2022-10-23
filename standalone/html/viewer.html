@@ -26,7 +26,7 @@
                 </button>
                 <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
                     <ul id="custom-home-link" class="list-group list-group-horizontal ml-auto">
-                        <!-- TODO: add a link to index.html (root), aligned to the right -->
+                        <!-- TODO[optional]: add a link to index.html (root), aligned to the right -->
                     </ul>
                 </div>
             </div>
@@ -43,7 +43,7 @@
                             <label for="documentIdInput">Document ID</label>
                             <input name="documentId" type="text" 
                                    class="form-control" id="documentIdInput" 
-                                   aria-describedby="documentIdHelp" value="9215cbd70d8db4918d9d2cbf">
+                                   aria-describedby="documentIdHelp" value="f246b429ad653513d90defe2">
                             <small id="documentIdHelp" class="form-text text-muted">Please enter the ID of your Onshape document.</small>
                         </div>
                         <div class="form-group">
@@ -61,7 +61,7 @@
                             <label for="wvmIdInput">WVM ID</label>
                             <input name="providedId" type="text" 
                                    class="form-control" id="wvmIdInput" 
-                                   aria-describedby="providedIdHelp" value="6807b13c306a30f5e8220190">
+                                   aria-describedby="providedIdHelp" value="467dd42ecaa46be04cc2500a">
                             <small id="providedIdHelp" class="form-text text-muted">
                                 Please enter the ID of your workspace, current version, 
                                 or microversion (must correspond to the "type" of ID chosen above).
@@ -71,7 +71,7 @@
                             <label for="elementIdInput">Element ID</label>
                             <input name="elementId" type="text" 
                                    class="form-control" id="elementIdInput" 
-                                   aria-describedby="eIdInputHelp" value="6c989fbb2995eaa4d0a394f4">
+                                   aria-describedby="eIdInputHelp" value="eff42e24b584233240dff36f">
                             <small id="elementIdHelp" class="form-text text-muted">
                                 I think you can figure what this one means 😄
                             </small>
@@ -81,7 +81,7 @@
                     <div id='gltf-viewport'></div>
                 </div>
                 
-                <!-- TODO: instead of using Three.js CDN, figure out how to bundle via webpack so it relies on local copy  -->
+                <!-- TODO[optional]: instead of using Three.js CDN, figure out how to bundle via webpack so it relies on local copy  -->
                 <!-- below code is based on: https://threejs.org/docs/index.html#manual/en/introduction/Installation -->
                 <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
                 <script type="importmap">
