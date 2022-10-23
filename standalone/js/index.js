@@ -247,7 +247,7 @@ activateBtn.addEventListener('click', async (evt) => {
     try {
         document.body.style.cursor = 'progress';        
         // displays the glTF
-        const glTFPath = "YOUR GLTF (.glb/.gltf) FILE PATH GOES HERE!";
+        const glTFPath = "../static/truck.glb";
         loadGltf(glTFPath);
     } catch (err) {
         displayError(`Error in displaying glTF: ${err}`);
