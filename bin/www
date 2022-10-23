@@ -1,6 +1,13 @@
 #!/usr/bin/env node
 
-require('dotenv').config()
-const port = process.env.PORT || 3000;
-const app = require('../server');
-app.listen(port, () => {});
+/**
+ * [Challenge 1]: Starting the Express Server
+ * 
+ * Starting Your Node Server
+ * Please give your level-best to do the following:
+ * a) load your config vars from the .env file,
+ * b) import the Node `app` object created in server.js,
+ * c) and set it up to listen on port 3000!
+ */
+
+/** your code goes here */

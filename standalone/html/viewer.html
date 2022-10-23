@@ -40,15 +40,33 @@
                     <!-- Form to "feed" API call to retrieve glTF -->
                     <div id="elem-selector" class="mb-5">
                         <div class="form-group">
+                            <!-- 
+                                [Challenge 5]: Collecting Data from Users
+                                
+                                To be able to make requests to retrieve the specific
+                                glTF our users ask for, we're collecting the parameters
+                                we'll need to make API calls to Onshape 
+                                (i.e. the document ID, element ID, workspace ID, etc.) via this HTML form.
+
+                                But in order to eventually pass the data from our HTML to the backend server,
+                                we'll need to add a unique `id` string for each of the fields
+                                in the form below, so we can tell JavaScript where to go access it 
+                                (we'll dive deeper into this in a future step, so don't worry if
+                                sounds a little confusing right now).
+                                
+                                ACTION: go ahead and fill in the 'id' attributes for each form
+                                field below, so that they are unique from each other.
+                                The places you need to edit are marked 'YOUR ID GOES HERE', so you won't miss :)
+                             -->
                             <label for="documentIdInput">Document ID</label>
                             <input name="documentId" type="text" 
-                                   class="form-control" id="documentIdInput" 
+                                   class="form-control" id="YOUR ID GOES HERE" 
                                    aria-describedby="documentIdHelp" value="9215cbd70d8db4918d9d2cbf">
                             <small id="documentIdHelp" class="form-text text-muted">Please enter the ID of your Onshape document.</small>
                         </div>
                         <div class="form-group">
                             <label for="wvmSingleChoiceSelect">Select which "Type" of ID you have:</label>
-                            <select class="form-control" id="wvmSingleChoiceSelect" name="idChoice">
+                            <select class="form-control" id="YOUR ID GOES HERE" name="idChoice">
                               <option>w</option>
                               <option>v</option>
                               <option>m</option>
@@ -60,7 +78,7 @@
                         <div class="form-group">
                             <label for="wvmIdInput">WVM ID</label>
                             <input name="providedId" type="text" 
-                                   class="form-control" id="wvmIdInput" 
+                                   class="form-control" id="YOUR ID GOES HERE" 
                                    aria-describedby="providedIdHelp" value="6807b13c306a30f5e8220190">
                             <small id="providedIdHelp" class="form-text text-muted">
                                 Please enter the ID of your workspace, current version, 
@@ -70,7 +88,7 @@
                         <div class="form-group">
                             <label for="elementIdInput">Element ID</label>
                             <input name="elementId" type="text" 
-                                   class="form-control" id="elementIdInput" 
+                                   class="form-control" id="YOUR ID GOES HERE" 
                                    aria-describedby="eIdInputHelp" value="6c989fbb2995eaa4d0a394f4">
                             <small id="elementIdHelp" class="form-text text-muted">
                                 I think you can figure what this one means 😄
@@ -81,7 +99,7 @@
                     <div id='gltf-viewport'></div>
                 </div>
                 
-                <!-- TODO: instead of using Three.js CDN, figure out how to bundle via webpack so it relies on local copy  -->
+                <!-- [Challenge optional]: instead of using Three.js CDN, figure out how to bundle via webpack so it relies on local copy  -->
                 <!-- below code is based on: https://threejs.org/docs/index.html#manual/en/introduction/Installation -->
                 <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
                 <script type="importmap">

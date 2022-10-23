@@ -1,36 +1,37 @@
 const path = require('path');
-const uuid = require('uuid');
 
 const express = require('express');
-const session = require('express-session');
 const bodyParser = require('body-parser');
-
-// const RedisStore = require('connect-redis')(session);
-const passport = require('passport');
-const OnshapeStrategy = require('passport-onshape');
-
-const config = require('./config');
 
 const app = express();
 
-app.use(express.static(path.join(__dirname, 'standalone')));
-app.use(bodyParser.json());
-
 app.set('trust proxy', 1); // To allow to run correctly behind Heroku
 
-// Controller functions
-app.use('/api', require('./api'));
+/**
+ * [Challenge 2]: Express Middleware
+ *
+ * Part a: Tell Express to serve the static files in our
+ * 'standalone' directory. 
+ *
+ * Part b: Then, let's tell Express we want to 
+ * use the bodyParser.json() function, so that we can
+ * parse the contents of our API requests via HTTP.
+ *
+ */
+/** your code goes here */
 
-app.get('/grantDenied', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'html', 'grantDenied.html'));
-})
+/**
+ * [Challenge 3]: Controller functions
+ *
+ * Part a: Add a namespace for the controller functions in
+ * api.js, so our Express can route request towards them.
+ * (note: we will see more of api.js in just a sec!)
+ *
+ * Part b: using res.sendFile(), add route handlers so 
+ * that our app can server our index.html and viewer.html pages.
+ */
+/** your code goes here */
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'standalone', 'html', 'index.html'));
-});
 
-app.get('/truck-viewer', (req, res) => {
-    res.sendFile(path.join(__dirname, 'standalone', 'html', 'viewer.html'));
-});
 
 module.exports = app;

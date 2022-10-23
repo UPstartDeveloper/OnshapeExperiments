@@ -118,12 +118,27 @@ const initThreeJsElements = function() {
             camera.near = size / 100;
             camera.far = size * 100;
             camera.updateProjectionMatrix();
-            camera.position.copy(center);
-            const boxSize = box.getSize(new Vector3());
-            camera.position.x = boxSize.x * 2;
-            camera.position.y = boxSize.y * 2;
-            camera.position.z = boxSize.z * 2;
-            camera.lookAt(center);
+
+            /** [Challenge 7]: Fixing the Camera Position
+             * 
+             * Our viewer is almost complete! We've retrieved our glTF,
+             * and this function contains most of the code you need to
+             * build a standalone 3D model viewer using Three.js. 
+             * 
+             * BUT, the camera's position could be improved.
+             * 
+             * Your task: let's get that camera positioned so that it looks 
+             * directly at the center of the whatever glTF model we've retrieved
+             * from the API.
+             * 
+             * a) To start, set the camera position to copy the coordinates in the
+             *    "center" variable above.
+             * b) Next, use the size our our "box" variable to set the position
+             *    of the camera along the X, Y, and Z axes.
+             * c) Finally, explicitly tell the camera to face the center, using the
+             *    lookAt() function!
+             */
+            /** your code goes here */
             
             gltfScene.name = 'gltf_scene';
             scene.add(gltfScene);
@@ -245,11 +260,26 @@ formSubmitBtn.addEventListener('click', async (evt) => {
     // retrieve form values + access the glTF
     try {
         document.body.style.cursor = 'progress';        
-        // requests the glTF
-        const did = document.getElementById("documentIdInput").value,
-              wvm = document.getElementById("wvmSingleChoiceSelect").value,
-              wvmid = document.getElementById("wvmIdInput").value,
-              eid = document.getElementById("elementIdInput").value;
+        /**
+         * [Challenge 6]: Accessing Data from the Front-End:
+         * 
+         * On the next four lines, we now access the data inputted
+         * by users into the form on our viewer.html page 
+         * (so that we have all the parameters needed to 
+         * complete that fancy-pants API request you made in Challenge 4).
+         * 
+         * Now, do you remember what 'id' strings you gave 
+         * to each field in that form?
+         * 
+         * Using those same id strings for each of your form fields,
+         * go ahead and store the value of each field in a
+         * new JavaScript variable!
+         * 
+         */
+        const did = document.getElementById("YOUR ID GOES HERE").value,
+              wvm = document.getElementById("YOUR ID GOES HERE").value,
+              wvmid = document.getElementById("YOUR ID GOES HERE").value,
+              eid = document.getElementById("YOUR ID GOES HERE").value;
 
         poll(5, () => fetch(`/api/get-gltf/${did}/${wvm}/${wvmid}/${eid}`), 
             (resp) => resp.status === 200, (respJson) => {

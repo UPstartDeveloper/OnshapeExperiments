@@ -19,10 +19,20 @@ const apiRouter = require('express').Router();
         wvm = req.params.wvm,
         wvmid = req.params.wvmid,
         eid = req.params.eid;
-    forwardRequestToOnshape(
-        `${onshapeApiUrl}/partstudios/d/${did}/${wvm}/${wvmid}/e/${eid}/gltf`,
-        req, res
-    );
+
+    /** [Challenge 4]: Making a Request to the Onshape API
+     * 
+     * First, let's pause and take a sec to read about the "Export glTF" endpoint we'll be using
+     * in our app: https://cad.onshape.com/glassworks/explorer#/PartStudio/exportPartStudioGltf.
+     * Then, use the `forwardRequestToOnshape()` function (defined in utils.js)
+     * to make a request to this endpoint!!
+     *
+     * Hint: the args you'll need to pass to forwardRequestToOnshape() are the following:
+     *  1) a template string that uses all the ^params above, to make a well-formed URI,
+     *  2) the request object, and 
+     *  3) the response object found in our code...
+     */
+    /** your code goes here */
 });
 
 /**
