@@ -260,9 +260,15 @@ activateBtn.addEventListener('click', async (evt) => {
     // retrieve form values + access the glTF
     try {
         document.body.style.cursor = 'progress';        
-        // displays the glTF
-        const glTFPath = "YOUR GLTF (.glb/.gltf) FILE PATH GOES HERE!";
-        loadGltf(glTFPath);
+        /** [Challenge 1]: Displaying Our Local glTF File
+         * In order for this work, you must call loadGltf(),
+         * passing the relative file path to your specific .glb/.gltf file.
+         * 
+         * Hint: please make sure to read the function body of loadGltf() 
+         * above, in case you have any doubts!
+         */
+        /** your code goes here */
+
     } catch (err) {
         displayError(`Error in displaying glTF: ${err}`);
     }
