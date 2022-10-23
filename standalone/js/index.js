@@ -118,12 +118,26 @@ const initThreeJsElements = function() {
             camera.near = size / 100;
             camera.far = size * 100;
             camera.updateProjectionMatrix();
-            camera.position.copy(center);
-            const boxSize = box.getSize(new Vector3());
-            camera.position.x = boxSize.x * 2;
-            camera.position.y = boxSize.y * 2;
-            camera.position.z = boxSize.z * 2;
-            camera.lookAt(center);
+            /** [Challenge 2]: Fixing the Camera Position
+             * 
+             * Our viewer is almost complete! We've retrieved our glTF,
+             * and this function contains most of the code you need to
+             * build a standalone 3D model viewer using Three.js. 
+             * 
+             * BUT, the camera's position could be improved.
+             * 
+             * Your task: let's get that camera positioned so that it looks 
+             * directly at the center of the whatever glTF model we've retrieved
+             * from the API.
+             * 
+             * a) To start, set the camera position to copy the coordinates in the
+             *    "center" variable above.
+             * b) Next, use the size our our "box" variable to set the position
+             *    of the camera along the X, Y, and Z axes.
+             * c) Finally, explicitly tell the camera to face the center, using the
+             *    lookAt() function!
+             */
+            /** your code goes here */
             
             gltfScene.name = 'gltf_scene';
             scene.add(gltfScene);
