@@ -9,14 +9,14 @@ This project was inspired by an earlier [repo](https://github.com/onshape-public
 ## Installation
 This section outlines how to deploy and configure the application on Heroku. If you are using another service, some of these steps will not apply to you, and the equivalent steps for the other service should be taken instead.
 
-These instructions assume that the following utilities are installed: `git`, `npm`, and [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) (e.g. `brew tap heroku/brew && brew install heroku` on macOS or `sudo snap install --classic heroku` on Linux distributions that support Snap applications).
+**These instructions assume that `git` and `npm` are installed.**
 
 1. Make a bare clone of the repository: `git clone --bare https://github.com/UPstartDeveloper/OnshapeExperiments.git`. 
 1. Push to a new mirror repository: `cd app-gltf-viewer.git && git push --mirror https://github.com/<youruser>/my-gltf-viewer.git`.
 1. Clean up the temporary repository: `cd .. && rm -rf app-gltf-viewer.git`.
 1. Clone your newly mirrored repository: `git clone https://github.com/<youruser>/my-gltf-viewer.git`.
 1. Go to the [Onshape Developer Portal](https://dev-portal.onshape.com/signin), and log in with the same credentials as the account that has the Onshape model you wish to visualize. Go to the "API keys" tab, and create a pair of new API keys to use. And save them somewhere safe, like in a `.env` file!
-1. Configure all the necessary environment variables in the `.env` file. For Heroku deployment, you can do the same using `heroku config:set <var name>=<value>` in the CLI:
+1. Configure all the necessary environment variables in the `.env` file:
 ```Shell
 ONSHAPE_API_ACCESSKEY=...  
 ONSHAPE_API_SECRETKEY=...
