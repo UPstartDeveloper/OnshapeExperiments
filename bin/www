@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * [Challenge 1]: Starting the Express Server
+ * [Challenge 1]: Starting the Server
  * 
  * Starting Your Node Server
  * Please give your level-best to do the following:
