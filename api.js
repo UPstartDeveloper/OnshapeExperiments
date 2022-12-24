@@ -14,7 +14,7 @@ const apiRouter = require('express').Router();
  * Read more/try out this endpoint in the docs: https://cad.onshape.com/glassworks/explorer#/PartStudio/exportPartStudioGltf
  */
  apiRouter.get('/get-gltf/:did/:wvm/:wvmid/:eid', async (req, res) => {
-    // Extract the necessary IDs from the path URL
+    // Extract the necessary IDs from the URL
     const did = req.params.did,
         wvm = req.params.wvm,
         wvmid = req.params.wvmid,
