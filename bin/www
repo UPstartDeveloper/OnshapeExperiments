@@ -3,7 +3,7 @@
 /**
  * [Challenge 1]: Starting the Server
  * 
- * Starting Your Node Server
+ * Starting Your Express Server
  * Please give your level-best to do the following:
  * a) load your config vars from the .env file,
  * b) import the Node `app` object created in server.js,
