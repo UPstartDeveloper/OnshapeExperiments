@@ -5,6 +5,7 @@
   "main": "bin/www",
   "scripts": {
     "start": "bin/www",
+    "dev": "nodemon bin/www",
     "heroku-postbuild": "rollup -c"
   },
   "author": "Zain Raza <sraza@onshape.com> (based on prior work by Ron Gajdos)",
@@ -27,6 +28,7 @@
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-node-resolve": "^11.0.0",
     "eslint": "^7.15.0",
+    "nodemon": "^2.0.20",
     "rollup": "^2.34.2"
   }
 }
