@@ -123,7 +123,6 @@ const initThreeJsElements = function() {
             camera.position.x = boxSize.x * 2;
             camera.position.y = boxSize.y * 2;
             camera.position.z = boxSize.z * 2;
-            camera.lookAt(center);
             
             gltfScene.name = 'gltf_scene';
             scene.add(gltfScene);
@@ -172,7 +171,7 @@ const initThreeJsElements = function() {
          */
         loadGltf: (gltfData) => {
             console.log(gltfData);
-            // (4) read in the glTF data from the API
+            // (4) read in the glTF data from the local file
             gltfLoader.load(gltfData,
                 (gltf) => { // onLoad function
                     document.body.style.cursor = 'default';
