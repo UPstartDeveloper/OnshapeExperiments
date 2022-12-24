@@ -134,8 +134,6 @@ const initThreeJsElements = function() {
              *    "center" variable above.
              * b) Next, use the size our our "box" variable to set the position
              *    of the camera along the X, Y, and Z axes.
-             * c) Finally, explicitly tell the camera to face the center, using the
-             *    lookAt() function!
              */
             /** your code goes here */
             
@@ -186,7 +184,7 @@ const initThreeJsElements = function() {
          */
         loadGltf: (gltfData) => {
             console.log(gltfData);
-            // (4) read in the glTF data from the API
+            // (4) read in the glTF data from the local file
             gltfLoader.load(gltfData,
                 (gltf) => { // onLoad function
                     document.body.style.cursor = 'default';
