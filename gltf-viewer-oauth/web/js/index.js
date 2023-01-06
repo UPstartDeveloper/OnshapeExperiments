@@ -8,16 +8,16 @@ import {
     PMREMGenerator,
     sRGBEncoding,
     Box3,
-    Vector3,
+    Vector3
 } from 'three';
-import { WEBGL } from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/WebGL.js';
-import { GLTFLoader } from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/loaders/GLTFLoader.js';
-import { TrackballControls } from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/TrackballControls.js';
+import { WEBGL } from 'three/examples/jsm/WebGL.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
 
 /**
- * The <button> element that lets us submit an API request to get the glTF.
+ * The <select> element that allows the user to pick an item to translate.
  */
-const formSubmitBtn = document.getElementById('formSubmitButton');
+const $elemSelector = document.getElementById('elem-selector');
 
 /**
  * Initialize the THREE elements needed for rendering the GLTF data.
@@ -61,18 +61,17 @@ const initThreeJsElements = function() {
     /**
      * This is how much we scale the height of the scene by to make it fit the window.
      */
-    const heightScale = 0.4;
+    const heightScale = 0.9;
     
     /**
      * Handles resizing the window.
      */
     const handleResize = () => {
-        const width = window.innerWidth * heightScale,
-            height = (window.innerHeight - formSubmitBtn.offsetHeight) * 1.25 * heightScale;
+        const width = window.innerWidth,
+            height = (window.innerHeight - $elemSelector.offsetHeight) * heightScale;
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
         renderer.setSize(width, height, false);
-        console.log("renderer dims: " + renderer.domElement.height, renderer.domElement.width);
         render(renderer, scene, camera);
         controls.handleResize();
     };
@@ -119,7 +118,7 @@ const initThreeJsElements = function() {
             camera.far = size * 100;
             camera.updateProjectionMatrix();
             camera.position.copy(center);
-            const boxSize = box.getSize(new Vector3());
+            const boxSize = box.getSize();
             camera.position.x = boxSize.x * 2;
             camera.position.y = boxSize.y * 2;
             camera.position.z = boxSize.z * 2;
@@ -171,15 +170,11 @@ const initThreeJsElements = function() {
          * @param {object} gltfData The GLTF data to be rendered.
          */
         loadGltf: (gltfData) => {
-            console.log(gltfData);
-            // (4) read in the glTF data from the API
             gltfLoader.parse(gltfData, '',
                 (gltf) => { // onLoad
                     document.body.style.cursor = 'default';
                     const gltfScene = gltf.scene || gltf.scenes[0];
-                    // (5) ensure the user can manipulate the model
                     setGltfContents(gltfScene);
-                    // begin render loop!
                     animate();
                 },
                 (err) => { // onError
@@ -220,7 +215,6 @@ const poll = (intervalInSeconds, promiseProducer, stopCondFunc, then) => {
  * 
  * @param {string} msg The error message to be displayed.
  */
-
 const displayError = (msg) => {
     console.log('Error:', msg);
     const $viewport = document.getElementById('gltf-viewport');
@@ -231,36 +225,60 @@ const displayError = (msg) => {
     $viewport.insertBefore($msgElem, $viewport.firstChild);
 }
 
-// (1) verifies the client for compatibility 
 if (!WEBGL.isWebGLAvailable()) {
     console.error('WebGL is not supported in this browser');
     document.getElementById('gltf-viewport').appendChild(WEBGL.getWebGLErrorMessage());
 }
 
-// (2) init Three.js scene
 const { loadGltf } = initThreeJsElements();
 
-// (3) setup for loading glTF based on user selection
-formSubmitBtn.addEventListener('click', async (evt) => {
-    // retrieve form values + access the glTF
-    try {
-        document.body.style.cursor = 'progress';        
-        // requests the glTF
-        const did = document.getElementById("documentIdInput").value,
-              wvm = document.getElementById("wvmSingleChoiceSelect").value,
-              wvmid = document.getElementById("wvmIdInput").value,
-              eid = document.getElementById("elementIdInput").value;
-
-        poll(5, () => fetch(`/api/get-gltf/${did}/${wvm}/${wvmid}/${eid}`), 
-            (resp) => resp.status === 200, (respJson) => {
-            if (respJson.error) {
-                displayError('There was an error in parsing the glTF to a JSON string.');
-            } else {
-                console.log('Loading GLTF data...');
-                loadGltf(respJson);
-            }
-        });
-    } catch (err) {
-        displayError(`Error requesting GLTF data translation: ${err}`);
+$elemSelector.addEventListener('change', async (evt) => {
+    // Trigger translation by getting /api/gltf
+    const selectedOption = evt.target.options[event.target.selectedIndex];
+    if (selectedOption.innerText !== '-- Select an Item --') {
+        try {
+            document.body.style.cursor = 'progress';
+            const resp = await fetch(`/api/gltf${evt.target.options[event.target.selectedIndex].getAttribute('href')}`);
+            const json = await resp.json();
+            poll(5, () => fetch(`/api/gltf/${json.id}`), (resp) => resp.status !== 202, (respJson) => {
+                if (respJson.error) {
+                    displayError('There was an error translating the model to GLTF.');
+                } else {
+                    console.log('Loading GLTF data...');
+                    loadGltf(respJson);
+                }
+            });
+        } catch (err) {
+            displayError(`Error requesting GLTF data translation: ${err}`);
+        }
     }
 });
+
+// Get the Elements for the dropdown
+fetch(`/api/elements${window.location.search}`, { headers: { 'Accept': 'application/json' } })
+    .then((resp) => resp.json())
+    .then(async (json) => {
+        for (const elem of json) {
+            if (elem.elementType === 'PARTSTUDIO') {
+                const child = document.createElement('option');
+                child.setAttribute('href', `${window.location.search}&gltfElementId=${elem.id}`);
+                child.innerText = `Element - ${elem.name}`;
+                $elemSelector.appendChild(child);
+                // Get the Parts of each element for the dropdown
+                try {
+                    const partsResp = await fetch(`/api/elements/${elem.id}/parts${window.location.search}`, { headers: { 'Accept': 'application/json' }});
+                    const partsJson = await partsResp.json();
+                    for (const part of partsJson) {
+                        const partChild = document.createElement('option');
+                        partChild.setAttribute('href', `${window.location.search}&gltfElementId=${part.elementId}&partId=${part.partId}`);
+                        partChild.innerText = `Part - ${elem.name} - ${part.name}`;
+                        $elemSelector.appendChild(partChild);
+                    }
+                } catch(err) {
+                    displayError(`Error while requesting element parts: ${err}`);
+                }
+            }
+        }
+    }).catch((err) => {
+        displayError(`Error while requesting document elements: ${err}`);
+    });
