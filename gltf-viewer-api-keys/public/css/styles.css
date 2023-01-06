@@ -1,0 +1,16 @@
+#custom-home-link {
+    margin-left: 1rem;
+}
+
+/* The ruleset below is adapted from Chris Coyier's post on the following: https://css-tricks.com/perfect-full-page-background-image/ */
+#truck-bg {
+    background: url("../static/seb-creativo-3jG-UM8IZ40-unsplash.jpg") no-repeat center center fixed; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+#middle-section {
+    height: 45em;
+}
