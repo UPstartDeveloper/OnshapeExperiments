@@ -26,5 +26,8 @@
     "@rollup/plugin-node-resolve": "^11.0.0",
     "eslint": "^7.15.0",
     "rollup": "^2.34.2"
+  },
+  "engines": {
+    "node": ">=10 <11"
   }
 }
