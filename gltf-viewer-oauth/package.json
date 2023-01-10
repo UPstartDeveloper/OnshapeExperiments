@@ -29,5 +29,9 @@
   },
   "engines": {
     "node": ">=10 <11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gltf-viewer-oauth.onrender.com"
   }
 }
