@@ -29,7 +29,7 @@
     "rollup": "^2.34.2"
   },
   "engines": {
-    "node": ">=10 <11"
+    "node": ">=12"
   },
   "repository": {
     "type": "git",
