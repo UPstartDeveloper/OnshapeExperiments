@@ -7,6 +7,7 @@ This example could also be re-worked to make it a fully separate application, wh
 This section outlines how to deploy and configure the application on Heroku. If you are using another service, some of these steps will not apply to you, and the equivalent steps for the other service should be taken instead.
 
 ### TODO[Zain] - replace instrcutions below - use Render.com instead of Heroku for OAuth
+and get the Redis URL from the "External Connection" tab of the "Connect" modal, when you create the Redis app in Render.com
 These instructions assume that the following utilities are installed: git, npm, and [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) (e.g. `brew tap heroku/brew && brew install heroku` on macOS or `sudo snap install --classic heroku` on Linux distributions that support Snap applications).
 
 1. Make a bare clone of the repository: `git clone --bare https://github.com/onshape-public/app-gltf-viewer.git`.
