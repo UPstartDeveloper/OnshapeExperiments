@@ -76,7 +76,11 @@ apiRouter.get('/gltf', async (req, res) => {
         // Store the tid in Redis so we know that it's being processed; it will remain 'in-progress' until we
         // are notified that it is complete, at which point it will be the translation ID.
         if (resp.contentType.indexOf('json') >= 0) {
-            redisClient.set(JSON.parse(resp.data).id, 'in-progress');
+            // redisClient.set(JSON.parse(resp.data).id, 'in-progress'); // [Zain] old stuff
+            Object.defineProperty(redisClient, JSON.parse(resp.data).id, {
+                value: 'in-progress',
+                writable: true
+            });
         }
         res.status(200).contentType(resp.contentType).send(resp.data);
     } catch (err) {
@@ -95,32 +99,60 @@ apiRouter.get('/gltf', async (req, res) => {
  *      -> 404 (which may mean that the translation is still being processed)
  */
 apiRouter.get('/gltf/:tid', async (req, res) => {
-    redisClient.get(req.params.tid, async (redisErr, results) => {
-        if (redisErr) {
-            res.status(500).json({ error: redisErr });
-        } else if (results === null || results === undefined) {
-            // No record in Redis => not a valid ID
-            res.status(404).end();
+    const results = redisClient[req.params.tid];
+
+    // not a valid ID
+    if (results === null || results === undefined) {
+        // No record in Redis => not a valid ID
+        res.status(404).end();
+    } else {
+        if ('in-progress' === results) {
+            // Valid ID, but results are not ready yet.
+            res.status(202).end();
         } else {
-            if ('in-progress' === results) {
-                // Valid ID, but results are not ready yet.
-                res.status(202).end();
+            // GLTF data is ready.
+            const transResp = await fetch(`${onshapeApiUrl}/translations/${req.params.tid}`, { headers: { 'Authorization': `Bearer ${req.user.accessToken}` } });
+            const transJson = await transResp.json();
+            if (transJson.requestState === 'FAILED') {
+                res.status(500).json({ error: transJson.failureReason });
             } else {
-                // GLTF data is ready.
-                const transResp = await fetch(`${onshapeApiUrl}/translations/${req.params.tid}`, { headers: { 'Authorization': `Bearer ${req.user.accessToken}` } });
-                const transJson = await transResp.json();
-                if (transJson.requestState === 'FAILED') {
-                    res.status(500).json({ error: transJson.failureReason });
-                } else {
-                    forwardRequestToOnshape(`${onshapeApiUrl}/documents/d/${transJson.documentId}/externaldata/${transJson.resultExternalDataIds[0]}`, req, res);
-                }
-                const webhookID = results;
-                WebhookService.unregisterWebhook(webhookID, req.user.accessToken)
-                    .then(() => console.log(`Webhook ${webhookID} unregistered successfully`))
-                    .catch((err) => console.error(`Failed to unregister webhook ${webhookID}: ${JSON.stringify(err)}`));
+                forwardRequestToOnshape(`${onshapeApiUrl}/documents/d/${transJson.documentId}/externaldata/${transJson.resultExternalDataIds[0]}`, req, res);
             }
+            const webhookID = results;
+            WebhookService.unregisterWebhook(webhookID, req.user.accessToken)
+                .then(() => console.log(`Webhook ${webhookID} unregistered successfully`))
+                .catch((err) => console.error(`Failed to unregister webhook ${webhookID}: ${JSON.stringify(err)}`));
+            // delete the key-value pair in our "store" - [Zain]
+            delete redisClient[req.params.tid];
         }
-    });
+    }
+    // [Zain] old stuff
+    // redisClient.get(req.params.tid, async (redisErr, results) => {
+    //     if (redisErr) {  // i.e., something is wrong with Redis - bummer :(
+    //         res.status(500).json({ error: redisErr });
+    //     } else if (results === null || results === undefined) {
+    //         // No record in Redis => not a valid ID
+    //         res.status(404).end();
+    //     } else {
+    //         if ('in-progress' === results) {
+    //             // Valid ID, but results are not ready yet.
+    //             res.status(202).end();
+    //         } else {
+    //             // GLTF data is ready.
+    //             const transResp = await fetch(`${onshapeApiUrl}/translations/${req.params.tid}`, { headers: { 'Authorization': `Bearer ${req.user.accessToken}` } });
+    //             const transJson = await transResp.json();
+    //             if (transJson.requestState === 'FAILED') {
+    //                 res.status(500).json({ error: transJson.failureReason });
+    //             } else {
+    //                 forwardRequestToOnshape(`${onshapeApiUrl}/documents/d/${transJson.documentId}/externaldata/${transJson.resultExternalDataIds[0]}`, req, res);
+    //             }
+    //             const webhookID = results;
+    //             WebhookService.unregisterWebhook(webhookID, req.user.accessToken)
+    //                 .then(() => console.log(`Webhook ${webhookID} unregistered successfully`))
+    //                 .catch((err) => console.error(`Failed to unregister webhook ${webhookID}: ${JSON.stringify(err)}`));
+    //         }
+    //     }
+    // });
 });
 
 /**
@@ -132,7 +164,11 @@ apiRouter.get('/gltf/:tid', async (req, res) => {
 apiRouter.post('/event', (req, res) => {
     if (req.body.event === 'onshape.model.translation.complete') {
         // Save in Redis so we can return to client later (& unregister the webhook).
-        redisClient.set(req.body.translationId, req.body.webhookId);
+        // redisClient.set(req.body.translationId, req.body.webhookId);  // [Zain] - old stuff
+        Object.defineProperty(redisClient, req.body.translationId, {
+            value: req.body.webhookId,
+            writable: true   //  until we have the webhook id, it's "in-progress"
+          });
     }
     res.status(200).send();
 });
