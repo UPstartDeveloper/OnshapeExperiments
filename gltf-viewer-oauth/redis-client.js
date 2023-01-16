@@ -6,7 +6,7 @@ const redis = require('redis');
 // TODO[Zain] for sake of simplicity - let's just see what happens if I try to replace Redis
 // with a "global" hashmap object
 
-let redisClient = {};
+let razaClient = {};
 
 // [Zain] old stuff
 // if (redisToGoUrl) {
@@ -19,4 +19,4 @@ let redisClient = {};
 //     redisClient = redis.createClient();
 // }
 
-module.exports = redisClient;
+module.exports = razaClient;

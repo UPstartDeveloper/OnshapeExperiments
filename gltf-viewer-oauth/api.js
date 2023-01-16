@@ -4,7 +4,7 @@ const WebhookService = require('./services/webhook-service');
 const TranslationService = require('./services/translation-service');
 const { onshapeApiUrl } = require('./config');
 const { forwardRequestToOnshape } = require('./utils');
-const redisClient = require('./redis-client');
+const razaClient = require('./redis-client');
     
 const apiRouter = require('express').Router();
 
@@ -77,7 +77,7 @@ apiRouter.get('/gltf', async (req, res) => {
         // are notified that it is complete, at which point it will be the translation ID.
         if (resp.contentType.indexOf('json') >= 0) {
             // redisClient.set(JSON.parse(resp.data).id, 'in-progress'); // [Zain] old stuff
-            Object.defineProperty(redisClient, JSON.parse(resp.data).id, {
+            Object.defineProperty(razaClient, JSON.parse(resp.data).id, {
                 value: 'in-progress',
                 writable: true
             });
@@ -123,7 +123,7 @@ apiRouter.get('/gltf/:tid', async (req, res) => {
                 .then(() => console.log(`Webhook ${webhookID} unregistered successfully`))
                 .catch((err) => console.error(`Failed to unregister webhook ${webhookID}: ${JSON.stringify(err)}`));
             // delete the key-value pair in our "store" - [Zain]
-            delete redisClient[req.params.tid];
+            delete razaClient[req.params.tid];
         }
     }
     // [Zain] old stuff
@@ -165,7 +165,7 @@ apiRouter.post('/event', (req, res) => {
     if (req.body.event === 'onshape.model.translation.complete') {
         // Save in Redis so we can return to client later (& unregister the webhook).
         // redisClient.set(req.body.translationId, req.body.webhookId);  // [Zain] - old stuff
-        Object.defineProperty(redisClient, req.body.translationId, {
+        Object.defineProperty(razaClient, req.body.translationId, {
             value: req.body.webhookId,
             writable: true   //  until we have the webhook id, it's "in-progress"
           });
