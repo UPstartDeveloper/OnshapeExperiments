@@ -5,7 +5,8 @@ const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 
-// const RedisStore = require('connect-redis')(session);
+// const RedisStore = require('connect-redis')(session);  // [Zain] old stuff
+const MemoryStore = require('memorystore')(session);
 const passport = require('passport');
 const OnshapeStrategy = require('passport-onshape');
 
@@ -26,6 +27,9 @@ app.use(session({
     // store: new RedisStore({
     //     client: redisClient
     // }),
+    store: new MemoryStore({
+        checkPeriod: 86400000 // prune expired entries every 24h
+    }),
     secret: config.sessionSecret,
     saveUninitialized: false,
     resave: false,
