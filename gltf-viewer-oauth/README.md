@@ -6,7 +6,14 @@ This example could also be re-worked to make it a fully separate application, wh
 ## Installation
 This section outlines how to deploy and configure the application on Heroku. If you are using another service, some of these steps will not apply to you, and the equivalent steps for the other service should be taken instead.
 
-### TODO[Zain] - replace instructions below - use Render.com instead of Heroku for DevOps, and no use of Redis is needed - we're just using in-memory storage for now
+### TODO[Zain] - replace instructions below 
+
+- use Render.com instead of Heroku for DevOps, 
+- and no use of Redis is needed - we're just using in-memory storage for now (this doesn't need to be documented except for code comments)
+- include the command to rollup the index.js BEFORE pushing to Render (and creating the store entry)
+    ---> for best compatibility, use Node >= v.18
+    ---> include w/ `npm install rollup --save-dev`
+    ---> then execute w/ yarn or npx --> see the [docs](https://www.rollupjs.org/guide/en/#installing-rollup-locally)
 
 ### Old Instructions (ignore anything where Redis is mentioned)
 These instructions assume that the following utilities are installed: git, npm, and [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) (e.g. `brew tap heroku/brew && brew install heroku` on macOS or `sudo snap install --classic heroku` on Linux distributions that support Snap applications).

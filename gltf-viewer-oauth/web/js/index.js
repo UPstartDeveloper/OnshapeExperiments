@@ -254,7 +254,7 @@ $elemSelector.addEventListener('change', async (evt) => {
     }
 });
 
-// Get the Elements for the dropdown
+// Get the Elements for the dropdown - meant to only work while running in an Onshape document
 fetch(`/api/elements${window.location.search}`, { headers: { 'Accept': 'application/json' } })
     .then((resp) => resp.json())
     .then(async (json) => {
