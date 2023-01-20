@@ -21,7 +21,7 @@ module.exports = {
             res.status(500).json({ 
                 error: err,
                 // TODO[Zain] - see what this looks like, now that I've added External OAuth settings
-                actualAccessToken: req.user.accessToken
+                actualAccessToken: `${req.user.accessToken}`
              });
         }
     }
