@@ -215,8 +215,9 @@ const poll = (intervalInSeconds, promiseProducer, stopCondFunc, then) => {
  * 
  * @param {string} msg The error message to be displayed.
  */
-const displayError = (msg) => {
-    console.log('Error:', msg);
+const displayError = ({msg, accessToken}) => {
+    console.log('Error msg:', msg);
+    console.log('Error (access token):', accessToken);
     const $viewport = document.getElementById('gltf-viewport');
     const $msgElem = document.createElement('p');
     $msgElem.style.color = 'red';
