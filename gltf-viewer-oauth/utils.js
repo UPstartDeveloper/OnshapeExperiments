@@ -13,13 +13,16 @@ module.exports = {
     forwardRequestToOnshape: async (apiPath, req, res) => {
         try {
             const normalizedUrl = apiPath.indexOf(onshapeApiUrl) === 0 ? apiPath : `${onshapeApiUrl}/${apiPath}`;
-            console.log(`Here's the access token I have: ${req.user.accessToken}`);  // TODO[Zain] - see what this looks like, now that I've added External OAuth settings
             const resp = await fetch(normalizedUrl, { headers: { Authorization: `Bearer ${req.user.accessToken}` }});
             const data = await resp.text();
             const contentType = resp.headers.get('Content-Type');
             res.status(resp.status).contentType(contentType).send(data);
         } catch (err) {
-            res.status(500).json({ error: err });
+            res.status(500).json({ 
+                error: err,
+                // TODO[Zain] - see what this looks like, now that I've added External OAuth settings
+                actualAccessToken: req.user.accessToken
+             });
         }
     }
 }
