@@ -99,7 +99,7 @@ apiRouter.get('/gltf', async (req, res) => {
  *      -> 404 (which may mean that the translation is still being processed)
  */
 apiRouter.get('/gltf/:tid', async (req, res) => {
-    const results = redisClient[req.params.tid];
+    const results = razaClient[req.params.tid];
 
     // not a valid ID
     if (results === null || results === undefined) {
