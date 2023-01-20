@@ -270,6 +270,7 @@ $elemSelector.addEventListener('change', async (evt) => {
 fetch(`/api/elements${window.location.search}`, { headers: { 'Accept': 'application/json' } })
     .then((resp) => resp.json())
     .then(async (json) => {
+        console.log(`Received JSON: ${json}`);
         for (const elem of json) {
             if (elem.elementType === 'PARTSTUDIO') {
                 const child = document.createElement('option');
