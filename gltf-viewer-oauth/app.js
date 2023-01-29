@@ -45,6 +45,7 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+// ***** OLD VERSION ***
 // passport.use(
 //     new OnshapeStrategy({
 //         clientID: config.oauthClientId,
@@ -60,6 +61,7 @@ app.use(passport.session());
 //         return done(null, profile);
 //     }
 // ));
+// *** NEW CHANGE - Zain ***
 passport.use(new OAuth2Strategy({
     authorizationURL: 'https://oauth.onshape.com/oauth/authorize',
     tokenURL: 'https://oauth.onshape.com/oauth/token',
@@ -67,10 +69,10 @@ passport.use(new OAuth2Strategy({
     clientSecret: config.oauthClientSecret,
     callbackURL: config.oauthCallbackUrl
   },
-  (accessToken, refreshToken, user, done) => {
-        user.accessToken = accessToken;
-        user.refreshToken = refreshToken;
-        return done(null, user);
+  (accessToken, refreshToken, profile, done) => {
+        profile.accessToken = accessToken;
+        profile.refreshToken = refreshToken;
+        return done(null, profile);
     }
 ));
 passport.serializeUser((user, done) => done(null, user));
