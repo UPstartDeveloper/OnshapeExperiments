@@ -67,15 +67,17 @@ passport.use(new OAuth2Strategy({
     clientSecret: config.oauthClientSecret,
     callbackURL: config.oauthCallbackUrl
   },
-  (accessToken, refreshToken, profile, done) => {
-        profile.accessToken = accessToken;
-        profile.refreshToken = refreshToken;
-        return done(null, profile);
+  (accessToken, refreshToken, user, done) => {
+        user.accessToken = accessToken;
+        user.refreshToken = refreshToken;
+        return done(null, user);
     }
 ));
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
+// TODO[Zain] - see Slack dm to Ron, the error is somewhere here - we go to signin/then redirect after we have the code
+// BUT then for some reason the redirection fails and we do not get the access token - resulting in an error
 app.use('/oauthSignin', (req, res) => {
     const state = {
         docId: req.query.documentId,
