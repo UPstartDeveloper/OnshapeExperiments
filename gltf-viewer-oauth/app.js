@@ -8,7 +8,8 @@ const bodyParser = require('body-parser');
 // const RedisStore = require('connect-redis')(session);  // [Zain] old stuff
 const MemoryStore = require('memorystore')(session);
 const passport = require('passport');
-const OnshapeStrategy = require('passport-onshape');
+// const OnshapeStrategy = require('passport-onshape');
+const OAuth2Strategy = require('passport-onshape');
 
 const config = require('./config');
 
@@ -44,15 +45,29 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-passport.use(new OnshapeStrategy({
-        clientID: config.oauthClientId,
-        clientSecret: config.oauthClientSecret,
-        callbackURL: config.oauthCallbackUrl,
-        authorizationURL: `${config.oauthUrl}/oauth/authorize`,
-        tokenURL: `${config.oauthUrl}/oauth/token`,
-        userProfileURL: `${config.oauthUrl}/api/users/sessioninfo`
-    },
-    (accessToken, refreshToken, profile, done) => {
+// passport.use(
+//     new OnshapeStrategy({
+//         clientID: config.oauthClientId,
+//         clientSecret: config.oauthClientSecret,
+//         callbackURL: config.oauthCallbackUrl,
+//         authorizationURL: `${config.oauthUrl}/oauth/authorize`,
+//         tokenURL: `${config.oauthUrl}/oauth/token`,
+//         userProfileURL: `${config.oauthUrl}/api/users/sessioninfo`
+//     },
+//     (accessToken, refreshToken, profile, done) => {
+//         profile.accessToken = accessToken;
+//         profile.refreshToken = refreshToken;
+//         return done(null, profile);
+//     }
+// ));
+passport.use(new OAuth2Strategy({
+    authorizationURL: 'https://oauth.onshape.com/oauth/authorize',
+    tokenURL: 'https://oauth.onshape.com/oauth/token',
+    clientID: config.oauthClientId,
+    clientSecret: config.oauthClientSecret,
+    callbackURL: config.oauthCallbackUrl
+  },
+  (accessToken, refreshToken, profile, done) => {
         profile.accessToken = accessToken;
         profile.refreshToken = refreshToken;
         return done(null, profile);
