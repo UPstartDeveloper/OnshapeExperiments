@@ -72,8 +72,6 @@ app.use('/oauthSignin', (req, res) => {
 }, (req, res) => { /* redirected to Onshape for authentication */ });
 
 app.use('/oauthRedirect', passport.authenticate('onshape', { failureRedirect: '/grantDenied' }), (req, res) => {
-    console.log(`clientID values (for OAuth): ${config.oauthClientId}`);
-    console.log(`clientSecret values (for OAuth): ${config.oauthClientSecret}`);
     res.redirect(`/?documentId=${req.session.state.docId}&workspaceId=${req.session.state.workId}&elementId=${req.session.state.elId}`);
 });
 
