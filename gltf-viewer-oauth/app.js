@@ -16,6 +16,10 @@ const config = require('./config');
 const app = express();
 authentication.init();
 
+var env = config.env;
+app.locals.ENV = env;
+app.locals.ENV_DEVELOPMENT = env == 'development';
+
 // Middleware - rendering static files
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'dist')));
@@ -68,5 +72,31 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api', require('./api'));
+
+// error logging - we only print stack traces for dev env
+if (app.get('env') === 'development') {
+    app.use(function(err, req, res, next) {
+        console.log('****** Error ' + err.status, err.message);
+
+        res.status(err.status || 500);
+        res.render('error', {
+            message: err.message,
+            error: err,
+            title: 'error'
+        });
+    });
+}
+
+// production error handler - no stacktraces leaked to user
+app.use(function(err, req, res, next) {
+    console.log('****** Error ' + err.status, err.message);
+
+    res.status(err.status || 500);
+    res.render('error', {
+        message: err.message,
+        error: {},
+        title: 'error'
+    });
+});
 
 module.exports = app;
