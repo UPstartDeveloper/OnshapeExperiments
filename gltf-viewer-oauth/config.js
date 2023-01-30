@@ -10,6 +10,7 @@ const oauthUrl = process.env.OAUTH_URL;
 // const redisPort = process.env.REDIS_PORT;
 const sessionSecret = process.env.SESSION_SECRET;
 const webhookCallbackRootUrl = process.env.WEBHOOK_CALLBACK_ROOT_URL;
+const env = process.env.NODE_ENV || 'development';
 
 /**
  * Checks if the given string is a URL. A string considered a URL if it can be parsed
@@ -91,6 +92,7 @@ if (!isValidHttpUrl(oauthUrl))                              errors.push('OAUTH_U
 // if (redisHost && !isValidString(redisHost))                 errors.push('REDIS_HOST must have content');
 // if (redisPort && !isValidString(redisPort))                 errors.push('REDIS_PORT must have content');
 if (!isValidString(sessionSecret))                          errors.push('SESSION_SECRET must have content');
+if (!((env === 'development') || (env === 'production')))   errors.push("NODE_ENV must be set to either 'development' or 'production'");
 if (!isValidHttpUrl(webhookCallbackRootUrl))                errors.push('WEBHOOK_CALLBACK_ROOT_URL is not a valid HTTP(S) URL');
 
 // Halt execution if the app isn't correctly configured.
@@ -155,5 +157,10 @@ module.exports = {
      * The URL of the webhook callback URL. This will be the `/api/event` endpoint on
      * this server, e.g. `https://your-machine.example.com`.
      */
-    webhookCallbackRootUrl
+    webhookCallbackRootUrl,
+
+    /**
+     * the environment which this codebase is being deployed
+     */
+    env
 }
