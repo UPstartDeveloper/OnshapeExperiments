@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 
 const app = express();
 
-app.set('trust proxy', 1); // To allow to run correctly behind Heroku
+app.set('trust proxy', 1); // To allow to run correctly behind (Render?)
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json());
