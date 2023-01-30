@@ -15,23 +15,20 @@ function init() {
       clientID: config.oauthClientId,
       clientSecret: config.oauthClientSecret,
       callbackUrl: config.oauthCallbackUrl,
-      authorizationURL: config.oauthUrl + "/oauth/authorize",
-      tokenURL: config.oauthUrl + "/oauth/token",
-      userProfileURL: config.apiUrl + "/api/users/sessioninfo"
+      authorizationURL: `${config.oauthUrl}/oauth/authorize`,
+      tokenURL: `${config.oauthUrl}/oauth/token`,
+      userProfileURL: `${config.apiUrl}/api/users/sessioninfo`
     },
-    function(accessToken, refreshToken, profile, done) {
+    (accessToken, refreshToken, profile, done) => {
       // asynchronous verification, for effect...
-      process.nextTick(function () {
+      profile.accessToken = accessToken;
+      profile.refreshToken = refreshToken;
 
-        profile.accessToken = accessToken;
-        profile.refreshToken = refreshToken;
-
-        // To keep the example simple, the user's Onshape profile is returned to
-        // represent the logged-in user.  In a typical application, you would want
-        // to associate the Onshape account with a user record in your database,
-        // and return that user instead.
-        return done(null, profile);
-      });
+      // To keep the example simple, the user's Onshape profile is returned to
+      // represent the logged-in user.  In a typical application, you would want
+      // to associate the Onshape account with a user record in your database,
+      // and return that user instead.
+      return done(null, profile);
     }
   ));
 }
