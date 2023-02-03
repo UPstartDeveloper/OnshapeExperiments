@@ -101,7 +101,7 @@ app.use(function(err, req, res, next) {
     console.log('****** Error ' + err.status, err.message);
 
     res.status(err.status || 500);
-    res.render('error', {
+    res.json('error', {
         message: err.message,
         error: {},
         title: 'error'

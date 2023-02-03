@@ -30,7 +30,7 @@ const forwardRequestToOnshape = async (apiPath, req, res) => {
                 console.log(`Error refreshing token or making request: ${err}`);
             });
         } else {
-            console.log(`${req.method} ${req.path} error: ${data}`);
+            console.log(`${req.method} /api${req.path} error: ${data}`);
         }
         res.status(500).json({ 
             error: err,
