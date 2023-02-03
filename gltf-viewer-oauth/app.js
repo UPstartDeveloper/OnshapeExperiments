@@ -55,13 +55,13 @@ app.use('/oauthSignin', (req, res) => {
         workId: req.query.workspaceId,
         elId: req.query.elementId
     };
-    console.log(`This is the request session: ${req.query.documentId, req.query.workspaceId, req.query.elementId}`);
+    // ✅ the state var IS defined here
     req.session.state = state;
     return passport.authenticate('onshape', { state: uuid.v4(state) })(req, res);
 }, (req, res) => { /* redirected to Onshape for authentication */ });
 
 app.use('/oauthRedirect', passport.authenticate('onshape', { failureRedirect: '/grantDenied' }), (req, res) => {
-    console.log(`This is the request session: ${req.session.state.docId, req.session.state.workId, req.session.state.elId}`);
+    console.log(`This is the request session: ${[req.session.state.docId, req.session.state.workId, req.session.state.elId]}`);
     res.redirect(`/?documentId=${req.session.state.docId}&workspaceId=${req.session.state.workId}&elementId=${req.session.state.elId}`);
 });
 
