@@ -11,7 +11,8 @@ const MemoryStore = require('memorystore')(session);
 const passport = require('passport');
 const authentication = require('./authentication');
 
-authentication.init(passport);  // TODO[Zain]: see if this fixes the passport.authenticate() error?
+authentication.init(passport);
+console.log(JSON.stringify(passport));  // TODO[Zain]: see if this has the correct OAuth creds?
 
 const config = require('./config');
 
