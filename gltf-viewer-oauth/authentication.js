@@ -21,7 +21,7 @@ function init(passport) {
       callbackUrl: config.oauthCallbackUrl,
       authorizationURL: `${config.oauthUrl}/oauth/authorize`,
       tokenURL: `${config.oauthUrl}/oauth/token`,
-      userProfileURL: `${config.apiUrl}/api/users/sessioninfo`
+      userProfileURL: `${config.onshapeApiUrl}/users/sessioninfo`
     },
     (accessToken, refreshToken, profile, done) => {
       // asynchronous verification, for effect...
