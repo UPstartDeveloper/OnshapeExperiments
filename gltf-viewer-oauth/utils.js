@@ -9,11 +9,6 @@ const { onshapeApiUrl } = require('./config');
  * @param {Request} req The request being proxied.
  * @param {Response} res The response being proxied.
  */
-/**
- * TODO[Zain]:
- *      1) update catch statement with a call to refresh the oauth token -->https://github.com/onshape-public/app-stl-viewer/blob/master/routes/api.js
- *      2) redeploy from this branch on render --> see if it's fixed?
- */
 const forwardRequestToOnshape = async (apiPath, req, res) => {
     let data = null;
     try {

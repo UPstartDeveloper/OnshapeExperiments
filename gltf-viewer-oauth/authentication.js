@@ -1,9 +1,13 @@
 const fetch = require('node-fetch');
-const passport = require('passport');
 const OnshapeStrategy = require('passport-onshape').Strategy;
 const config = require('./config');
 
-function init() {
+/**
+ * Configures settings needed to implement OAuth flows.
+ * @param {module} passport: An import of Passport.js
+ * @returns {null}
+ */
+function init(passport) {
   passport.serializeUser(function(user, done) {
     done(null, user);
   });
