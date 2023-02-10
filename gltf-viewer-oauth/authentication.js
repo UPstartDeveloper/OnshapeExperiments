@@ -81,7 +81,7 @@ function refreshOAuthToken(req, res, next) {
 }
 
 function getAuthUri() {
-  return config.oauthUrl + '/oauth/authorize?response_type=code&client_id=' + oauthClientId;
+  return config.oauthUrl + '/oauth/authorize?response_type=code&client_id=' + config.oauthClientId;
 }
 
 module.exports = {
