@@ -44,7 +44,7 @@ app.use(session({
         secure: true,
         httpOnly: true,
         path: '/',
-        // maxAge: 1000 * 60 * 60 * 24 // 1 day
+        // maxAge: 1000 * 60 * 60 * 24 // 1 day  TODO[Zain][4]: uncomment later 
         maxAge: 1000 * 60 * 2 // 2 min, b/c we're just testing for now 
     }
 }));
