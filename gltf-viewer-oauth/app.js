@@ -61,7 +61,7 @@ app.use('/oauthSignin', (req, res) => {
         elId: req.query.elementId
     };
     // ✅ the state var IS defined here
-    req.session.state = state;
+    req.session.onshapeDocParams = state;
     console.log(`This is the session AFTER adding state: ${JSON.stringify(req.session)}`);
     return passport.authenticate('onshape', { state: uuid.v4(state) })(req, res);
 }, (req, res) => { /* redirected to Onshape for authentication */ });
@@ -69,8 +69,13 @@ app.use('/oauthSignin', (req, res) => {
  * the passport.strategy.authorizationURL
 */
 app.use('/oauthRedirect', passport.authenticate('onshape', { failureRedirect: '/grantDenied' }), (req, res) => {
-    console.log(`This is the request session: ${[req.session?.state?.docId, req.session?.state?.workId, req.session?.state?.elId]}`);
-    res.redirect(`/?documentId=${req.session.state.docId}&workspaceId=${req.session.state.workId}&elementId=${req.session.state.elId}`);
+    // TODO[Zain][3]: handle the error where the session ids not found - so that app should not crash when folks try to authorize from their applications settings page in Onshape
+    console.log(`This is the request session: ${[
+        req.session?.onshapeDocParams?.docId,
+        req.session?.onshapeDocParams?.workId,
+        req.session?.onshapeDocParams?.elId
+    ]}`);
+    res.redirect(`/?documentId=${req.session.onshapeDocParams.docId}&workspaceId=${req.session.onshapeDocParams.workId}&elementId=${req.session.onshapeDocParams.elId}`);
 });
 
 app.get('/grantDenied', (req, res) => {
