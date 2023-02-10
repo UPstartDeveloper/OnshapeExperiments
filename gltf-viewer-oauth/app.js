@@ -12,7 +12,7 @@ const passport = require('passport');
 const authentication = require('./authentication');
 
 authentication.init(passport);
-console.log(JSON.stringify(passport));  // TODO[Zain]: see if this has the correct OAuth creds?
+console.log(`Passport object: ${JSON.stringify(passport)}`);
 
 const config = require('./config');
 
@@ -53,6 +53,7 @@ app.use(passport.session());
 
 // Routes
 app.use('/oauthSignin', (req, res) => {
+    console.log(`This is the session BEFORE adding state: ${JSON.stringify(req.session)}`);
     const state = {
         docId: req.query.documentId,
         workId: req.query.workspaceId,
@@ -60,6 +61,7 @@ app.use('/oauthSignin', (req, res) => {
     };
     // ✅ the state var IS defined here
     req.session.state = state;
+    console.log(`This is the session AFTER adding state: ${JSON.stringify(req.session)}`);
     return passport.authenticate('onshape', { state: uuid.v4(state) })(req, res);
 }, (req, res) => { /* redirected to Onshape for authentication */ });
 /** TODO[Zain]: debug - the log line below is not called, 
@@ -85,7 +87,7 @@ Feb 3 02:05:29 PM    code: 'ERR_HTTP_INVALID_STATUS_CODE'
 Feb 3 02:05:29 PM  }
  */
 app.use('/oauthRedirect', passport.authenticate('onshape', { failureRedirect: '/grantDenied' }), (req, res) => {
-    console.log(`This is the request session: ${[req.session.state.docId, req.session.state.workId, req.session.state.elId]}`);
+    console.log(`This is the request session: ${[req.session?.state?.docId, req.session?.state?.workId, req.session?.state?.elId]}`);
     res.redirect(`/?documentId=${req.session.state.docId}&workspaceId=${req.session.state.workId}&elementId=${req.session.state.elId}`);
 });
 
