@@ -3,7 +3,7 @@ const path = require('path');
 const uuid = require('uuid');
 
 const express = require('express');
-const session = require('express-session');
+const session = require('express-session');  // manages sessions for this app server itself
 const bodyParser = require('body-parser');
 
 // Auth + session stuff
@@ -44,7 +44,8 @@ app.use(session({
         secure: true,
         httpOnly: true,
         path: '/',
-        maxAge: 1000 * 60 * 60 * 24 // 1 day
+        // maxAge: 1000 * 60 * 60 * 24 // 1 day
+        maxAge: 1000 * 60 * 2 // 2 min, b/c we're just testing for now 
     }
 }));
 app.use(passport.initialize());
@@ -64,28 +65,9 @@ app.use('/oauthSignin', (req, res) => {
     console.log(`This is the session AFTER adding state: ${JSON.stringify(req.session)}`);
     return passport.authenticate('onshape', { state: uuid.v4(state) })(req, res);
 }, (req, res) => { /* redirected to Onshape for authentication */ });
-/** TODO[Zain]: debug - the log line below is not called, 
- * which tells me there is something wrong with how
- * passport is configured - could this be related to failing to fetch the user profile?
- * 
- * ****** Error undefined Failed to fetch user profile
-Feb 3 02:05:29 PM  node:_http_server:339
-Feb 3 02:05:29 PM      throw new ERR_HTTP_INVALID_STATUS_CODE(originalStatusCode);
-Feb 3 02:05:29 PM      ^
-Feb 3 02:05:29 PM  
-Feb 3 02:05:29 PM  RangeError [ERR_HTTP_INVALID_STATUS_CODE]: Invalid status code: error
-Feb 3 02:05:29 PM      at new NodeError (node:internal/errors:399:5)
-Feb 3 02:05:29 PM      at ServerResponse.writeHead (node:_http_server:339:11)
-Feb 3 02:05:29 PM      at ServerResponse.writeHead (/opt/render/project/src/gltf-viewer-oauth/node_modules/on-headers/index.js:44:26)
-Feb 3 02:05:29 PM      at ServerResponse._implicitHeader (node:_http_server:330:8)
-Feb 3 02:05:29 PM      at write_ (node:_http_outgoing:907:9)
-Feb 3 02:05:29 PM      at ServerResponse.end (node:_http_outgoing:1015:5)
-Feb 3 02:05:29 PM      at writeend (/opt/render/project/src/gltf-viewer-oauth/node_modules/express-session/index.js:262:22)
-Feb 3 02:05:29 PM      at Immediate.ontouch (/opt/render/project/src/gltf-viewer-oauth/node_modules/express-session/index.js:349:11)
-Feb 3 02:05:29 PM      at process.processImmediate (node:internal/timers:477:21) {
-Feb 3 02:05:29 PM    code: 'ERR_HTTP_INVALID_STATUS_CODE'
-Feb 3 02:05:29 PM  }
- */
+/** TODO[Zain]: debug - passport.authenticate() below fails, which is where we visit 
+ * the passport.strategy.authorizationURL
+*/
 app.use('/oauthRedirect', passport.authenticate('onshape', { failureRedirect: '/grantDenied' }), (req, res) => {
     console.log(`This is the request session: ${[req.session?.state?.docId, req.session?.state?.workId, req.session?.state?.elId]}`);
     res.redirect(`/?documentId=${req.session.state.docId}&workspaceId=${req.session.state.workId}&elementId=${req.session.state.elId}`);
