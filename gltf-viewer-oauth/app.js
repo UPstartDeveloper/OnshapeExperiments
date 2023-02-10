@@ -75,7 +75,11 @@ app.use('/oauthRedirect', passport.authenticate('onshape', { failureRedirect: '/
         req.session?.onshapeDocParams?.workId,
         req.session?.onshapeDocParams?.elId
     ]}`);
-    res.redirect(`/?documentId=${req.session.onshapeDocParams.docId}&workspaceId=${req.session.onshapeDocParams.workId}&elementId=${req.session.onshapeDocParams.elId}`);
+    if (req.session.onshapeDocParams) {
+        res.redirect(`/?documentId=${req.session.onshapeDocParams.docId}&workspaceId=${req.session.onshapeDocParams.workId}&elementId=${req.session.onshapeDocParams.elId}`);
+    } else {
+        res.redirect("/");
+    }
 });
 
 app.get('/grantDenied', (req, res) => {
