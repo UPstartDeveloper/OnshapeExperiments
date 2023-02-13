@@ -38,15 +38,15 @@ app.use(session({
     secret: config.sessionSecret,
     saveUninitialized: false,
     resave: false,
-    unset: "keep",  // TODO[Zain]: see if this fixes the session w/ access token being deleted
+    // unset: "keep",  // TODO[Zain]: see if this fixes the session w/ access token being deleted
     cookie: {
         name: 'app-gltf-viewer',
         sameSite: 'none',
         secure: true,
         httpOnly: true,
         path: '/',
-        // maxAge: 1000 * 60 * 60 * 24 // 1 day  TODO[Zain][4]: uncomment later 
-        maxAge: 1000 * 60 * 2 // 2 min, b/c we're just testing for now 
+        maxAge: 1000 * 60 * 60 * 24 // 1 day  TODO[Zain][4]: uncomment later 
+        // maxAge: 1000 * 60 * 2 // 2 min, b/c we're just testing for now 
     }
 }));
 app.use(passport.initialize());
