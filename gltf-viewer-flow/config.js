@@ -4,16 +4,15 @@ const oauthCallbackUrl = process.env.OAUTH_CALLBACK_URL;
 const oauthClientId = process.env.OAUTH_CLIENT_ID;
 const oauthClientSecret = process.env.OAUTH_CLIENT_SECRET;
 const oauthUrl = process.env.OAUTH_URL;
-// [Zain] old stuff
-// const redisToGoUrl = process.env.REDISTOGO_URL;
-// const redisHost = process.env.REDIS_HOST;
-// const redisPort = process.env.REDIS_PORT;
+
 const sessionSecret = process.env.SESSION_SECRET;
 const webhookCallbackRootUrl = process.env.WEBHOOK_CALLBACK_ROOT_URL;
 const env = process.env.NODE_ENV || 'development';
 // API keys
 const accessKey = process.env.ONSHAPE_API_ACCESSKEY;
 const secretKey = process.env.ONSHAPE_API_SECRETKEY;
+// Where you want to make API requests in Flow
+const onshapeAPIRequestProxyInFlow = process.env.FLOW_FWD_REQ_TO_ONSHAPE_TRIGGER;
 
 /**
  * Checks if the given string is a URL. A string considered a URL if it can be parsed
@@ -171,5 +170,8 @@ module.exports = {
      * note for they keys - these are really only intended for dev purposes 
      */
     accessKey,
-    secretKey
+    secretKey,
+
+    /** Flow endpoints */
+    onshapeAPIRequestProxyInFlow
 }

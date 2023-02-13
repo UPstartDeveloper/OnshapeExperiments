@@ -3,7 +3,8 @@ const fetch = require('node-fetch');
 const WebhookService = require('./services/webhook-service');
 const TranslationService = require('./services/translation-service');
 const { onshapeApiUrl } = require('./config');
-const { forwardRequestToOnshape } = require('./utils');
+// TODO[Zain] - refactor to use API keys via Flow - first need to look at perf issues
+const { forwardRequestToFlow } = require('./utils');
 const razaClient = require('./redis-client');
     
 const apiRouter = require('express').Router();
@@ -17,7 +18,7 @@ const apiRouter = require('express').Router();
  *      -> 500, { error: '...' }
  */
 apiRouter.get('/elements', (req, res) => {
-    forwardRequestToOnshape(`${onshapeApiUrl}/documents/d/${req.query.documentId}/w/${req.query.workspaceId}/elements`, req, res);
+    forwardRequestToFlow(`${onshapeApiUrl}/documents/d/${req.query.documentId}/w/${req.query.workspaceId}/elements`, req, res);
 });
 
 /**
@@ -29,7 +30,7 @@ apiRouter.get('/elements', (req, res) => {
  *      -> 500, { error: '...' }
  */
 apiRouter.get('/elements/:eid/parts', (req, res) => {
-    forwardRequestToOnshape(`${onshapeApiUrl}/parts/d/${req.query.documentId}/w/${req.query.workspaceId}/e/${req.params.eid}`, req, res);
+    forwardRequestToFlow(`${onshapeApiUrl}/parts/d/${req.query.documentId}/w/${req.query.workspaceId}/e/${req.params.eid}`, req, res);
 });
 
 /**
@@ -41,7 +42,7 @@ apiRouter.get('/elements/:eid/parts', (req, res) => {
  *      -> 500, { error: '...' }
  */
 apiRouter.get('/parts', (req, res) => {
-    forwardRequestToOnshape(`${onshapeApiUrl}/parts/d/${req.query.documentId}/w/${req.query.workspaceId}`, req, res);
+    forwardRequestToFlow(`${onshapeApiUrl}/parts/d/${req.query.documentId}/w/${req.query.workspaceId}`, req, res);
 });
 
 /**
@@ -76,7 +77,6 @@ apiRouter.get('/gltf', async (req, res) => {
         // Store the tid in Redis so we know that it's being processed; it will remain 'in-progress' until we
         // are notified that it is complete, at which point it will be the translation ID.
         if (resp.contentType.indexOf('json') >= 0) {
-            // redisClient.set(JSON.parse(resp.data).id, 'in-progress'); // [Zain] old stuff
             Object.defineProperty(razaClient, JSON.parse(resp.data).id, {
                 value: 'in-progress',
                 writable: true
@@ -111,12 +111,13 @@ apiRouter.get('/gltf/:tid', async (req, res) => {
             res.status(202).end();
         } else {
             // GLTF data is ready.
+            // TODO[Zain] - refactor to use API keys
             const transResp = await fetch(`${onshapeApiUrl}/translations/${req.params.tid}`, { headers: { 'Authorization': `Bearer ${req.user.accessToken}` } });
             const transJson = await transResp.json();
             if (transJson.requestState === 'FAILED') {
                 res.status(500).json({ error: transJson.failureReason });
             } else {
-                forwardRequestToOnshape(`${onshapeApiUrl}/documents/d/${transJson.documentId}/externaldata/${transJson.resultExternalDataIds[0]}`, req, res);
+                forwardRequestToFlow(`${onshapeApiUrl}/documents/d/${transJson.documentId}/externaldata/${transJson.resultExternalDataIds[0]}`, req, res);
             }
             const webhookID = results;
             WebhookService.unregisterWebhook(webhookID, req.user.accessToken)
@@ -126,33 +127,6 @@ apiRouter.get('/gltf/:tid', async (req, res) => {
             delete razaClient[req.params.tid];
         }
     }
-    // [Zain] old stuff
-    // redisClient.get(req.params.tid, async (redisErr, results) => {
-    //     if (redisErr) {  // i.e., something is wrong with Redis - bummer :(
-    //         res.status(500).json({ error: redisErr });
-    //     } else if (results === null || results === undefined) {
-    //         // No record in Redis => not a valid ID
-    //         res.status(404).end();
-    //     } else {
-    //         if ('in-progress' === results) {
-    //             // Valid ID, but results are not ready yet.
-    //             res.status(202).end();
-    //         } else {
-    //             // GLTF data is ready.
-    //             const transResp = await fetch(`${onshapeApiUrl}/translations/${req.params.tid}`, { headers: { 'Authorization': `Bearer ${req.user.accessToken}` } });
-    //             const transJson = await transResp.json();
-    //             if (transJson.requestState === 'FAILED') {
-    //                 res.status(500).json({ error: transJson.failureReason });
-    //             } else {
-    //                 forwardRequestToOnshape(`${onshapeApiUrl}/documents/d/${transJson.documentId}/externaldata/${transJson.resultExternalDataIds[0]}`, req, res);
-    //             }
-    //             const webhookID = results;
-    //             WebhookService.unregisterWebhook(webhookID, req.user.accessToken)
-    //                 .then(() => console.log(`Webhook ${webhookID} unregistered successfully`))
-    //                 .catch((err) => console.error(`Failed to unregister webhook ${webhookID}: ${JSON.stringify(err)}`));
-    //         }
-    //     }
-    // });
 });
 
 /**
