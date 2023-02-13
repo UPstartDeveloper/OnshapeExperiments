@@ -1,18 +1,9 @@
 // Imports
 const path = require('path');
-// const uuid = require('uuid');
 
 const express = require('express');
-// const session = require('express-session');  // manages sessions for this app server itself
 const bodyParser = require('body-parser');
 
-// Auth + session stuff
-// const MemoryStore = require('memorystore')(session);
-// const passport = require('passport');
-// const authentication = require('./authentication');
-
-// authentication.init(passport);
-// console.log(`Passport object: ${JSON.stringify(passport)}`);
 
 const config = require('./config');
 
@@ -31,62 +22,16 @@ app.use(bodyParser.json());
 // Middleware - auth
 app.set('trust proxy', 1); // To allow to run correctly behind Heroku
 
-// app.use(session({
-//     store: new MemoryStore({
-//         checkPeriod: 86400000 // prune expired entries every 24h
-//     }),
-//     secret: config.sessionSecret,
-//     saveUninitialized: false,
-//     resave: false,
-//     cookie: {
-//         name: 'app-gltf-viewer',
-//         sameSite: 'none',
-//         secure: true,
-//         httpOnly: true,
-//         path: '/',
-//         maxAge: 1000 * 60 * 60 * 24 // 1 day
-//         // maxAge: 1000 * 60 * 2 // 2 min, b/c we're just testing for now 
-//     }
-// }));
-// app.use(passport.initialize());
-// app.use(passport.session());
-
-
 // Routes
-// app.use('/oauthSignin', (req, res) => {
-//     console.log(`This is the session BEFORE adding state: ${JSON.stringify(req.session)}`);
-//     const state = {
-//         docId: req.query.documentId,
-//         workId: req.query.workspaceId,
-//         elId: req.query.elementId
-//     };
-//     // ✅ the state var IS defined here
-//     req.session.onshapeDocParams = state;
-//     console.log(`This is the session AFTER adding state: ${JSON.stringify(req.session)}`);
-//     return passport.authenticate('onshape', { state: uuid.v4(state) })(req, res);
-// }, (req, res) => { /* redirected to Onshape for authentication */ });
-// app.use('/oauthRedirect', passport.authenticate('onshape', { failureRedirect: '/grantDenied' }), (req, res) => {
-//     console.log(`This is the request session: ${[
-//         req.session?.onshapeDocParams?.docId,
-//         req.session?.onshapeDocParams?.workId,
-//         req.session?.onshapeDocParams?.elId
-//     ]}`);
-//     if (req.session.onshapeDocParams) {
-//         res.redirect(`/?documentId=${req.session.onshapeDocParams.docId}&workspaceId=${req.session.onshapeDocParams.workId}&elementId=${req.session.onshapeDocParams.elId}`);
-//     } else {
-//         res.redirect("/");
-//     }
-// });
-
 app.get('/grantDenied', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'html', 'grantDenied.html'));
-})
+});
+
+app.use('/api', require('./api'));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'html', 'index.html'));
 });
-
-app.use('/api', require('./api'));
 
 // catch 404s and forward to error handler
 app.use(function(req, res, next) {
