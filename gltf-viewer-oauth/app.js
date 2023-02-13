@@ -38,7 +38,6 @@ app.use(session({
     secret: config.sessionSecret,
     saveUninitialized: false,
     resave: false,
-    // unset: "keep",  // TODO[Zain]: see if this fixes the session w/ access token being deleted
     cookie: {
         name: 'app-gltf-viewer',
         sameSite: 'none',
