@@ -25,6 +25,9 @@ function init(passport) {
     },
     (accessToken, refreshToken, profile, done) => {
       // asynchronous verification, for effect...
+      console.log(`Profile found? ${JSON.stringify(profile)}`);
+      console.log(`Refresh token found? ${JSON.stringify(refreshToken)}`);
+      console.log(`Access token found? ${JSON.stringify(accessToken)}`);
       profile.accessToken = accessToken;
       profile.refreshToken = refreshToken;
 
