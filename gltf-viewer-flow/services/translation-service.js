@@ -33,7 +33,7 @@ const defaultBody = Object.freeze({
 
 /**
  * Trigger the translation of the given element or part to GLTF.
- * 
+ * TODO[Zain] - refactor to use API keys
  * @param {string} userAccessToken The OAuth token to pass to the API.
  * @param {string} url The URL to be requested.
  * @param {object} jsonBodyToAdd The parameters to be added to the default parameters to pass to the translation engine.

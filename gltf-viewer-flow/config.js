@@ -11,11 +11,9 @@ const oauthUrl = process.env.OAUTH_URL;
 const sessionSecret = process.env.SESSION_SECRET;
 const webhookCallbackRootUrl = process.env.WEBHOOK_CALLBACK_ROOT_URL;
 const env = process.env.NODE_ENV || 'development';
-/** API keys - used for request authorization
-     * note for they keys - these are really only intended for dev purposes 
-     */
-accessKey,
-secretKey,
+// API keys
+const accessKey = process.env.ONSHAPE_API_ACCESSKEY;
+const secretKey = process.env.ONSHAPE_API_SECRETKEY;
 
 /**
  * Checks if the given string is a URL. A string considered a URL if it can be parsed
@@ -168,4 +166,10 @@ module.exports = {
      * the environment which this codebase is being deployed
      */
     env,
+
+    /** API keys - used for request authorization
+     * note for they keys - these are really only intended for dev purposes 
+     */
+    accessKey,
+    secretKey
 }

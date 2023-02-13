@@ -255,18 +255,6 @@ $elemSelector.addEventListener('change', async (evt) => {
 });
 
 // Get the Elements for the dropdown - meant to only work while running in an Onshape document
-
-// TODO[Zain][1] - figure out a different way to grab param
-
-// collect params needed for API calls - expected to be in the form ['', 'documents', <did>, 'w', <wid>, 'e', <eid>]
-
-/** TRASH */
-// const documentTabIdentifiers = window.location.pathname.split("/");
-// fetch(`/api/elements?documentId=${documentTabIdentifiers[2]}&workspaceId=${documentTabIdentifiers[4]}`, {
-//     headers: { 'Accept': 'application/json' }
-// })
-/****** */
-
 fetch(`/api/elements${window.location.search}`, { headers: { 'Accept': 'application/json' } })
     .then((resp) => resp.json())
     .then(async (json) => {
@@ -278,14 +266,6 @@ fetch(`/api/elements${window.location.search}`, { headers: { 'Accept': 'applicat
                 $elemSelector.appendChild(child);
                 // Get the Parts of each element for the dropdown
                 try {
-                    // TODO[Zain][2] - figure out a different way to grab param
-                    /** TRASH */
-                    // const partsResp = await fetch(`/api/elements/${elem.id}/parts
-                    //                             ?documentId=${documentTabIdentifiers[2]}
-                    //                             &workspaceId=${documentTabIdentifiers[4]}`, {
-                    //     headers: { 'Accept': 'application/json' }
-                    // });
-                    /** */
                     const partsResp = await fetch(`/api/elements/${elem.id}/parts${window.location.search}`, { headers: { 'Accept': 'application/json' }});
                     const partsJson = await partsResp.json();
                     for (const part of partsJson) {

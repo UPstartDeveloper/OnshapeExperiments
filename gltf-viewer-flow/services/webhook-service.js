@@ -6,7 +6,7 @@ module.exports = {
     
     /**
      * Register a new webhook to listen for translation completion.
-     * 
+     * TODO[Zain] - refactor to use API keys
      * @param {string} sessionID The ID of the current session.
      * @param {string} userAccessToken The OAuth token to pass to the API.
      * @param {string} documentId The ID if the current document.
