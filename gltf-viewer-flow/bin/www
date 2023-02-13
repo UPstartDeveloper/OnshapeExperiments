@@ -1,0 +1,6 @@
+#!/usr/bin/env node
+
+require('dotenv').config();
+const port = require('../config').port || 3000;
+const app = require('../app');
+const server = app.listen(port, () => {});
