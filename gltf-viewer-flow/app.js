@@ -65,9 +65,6 @@ app.use('/oauthSignin', (req, res) => {
     console.log(`This is the session AFTER adding state: ${JSON.stringify(req.session)}`);
     return passport.authenticate('onshape', { state: uuid.v4(state) })(req, res);
 }, (req, res) => { /* redirected to Onshape for authentication */ });
-/** TODO[Zain]: debug - passport.authenticate() below fails, which is where we visit 
- * the passport.strategy.authorizationURL
-*/
 app.use('/oauthRedirect', passport.authenticate('onshape', { failureRedirect: '/grantDenied' }), (req, res) => {
     // TODO[Zain][3]: handle the error where the session ids not found - so that app should not crash when folks try to authorize from their applications settings page in Onshape
     console.log(`This is the request session: ${[
