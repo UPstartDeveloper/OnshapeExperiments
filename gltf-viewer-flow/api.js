@@ -3,7 +3,6 @@ const fetch = require('node-fetch');
 const WebhookService = require('./services/webhook-service');
 const TranslationService = require('./services/translation-service');
 const { onshapeApiUrl } = require('./config');
-// TODO[Zain] - refactor to use API keys via Flow - first need to look at perf issues
 const { forwardRequestToFlow } = require('./utils');
 const razaClient = require('./redis-client');
     
@@ -18,7 +17,16 @@ const apiRouter = require('express').Router();
  *      -> 500, { error: '...' }
  */
 apiRouter.get('/elements', (req, res) => {
-    forwardRequestToFlow(`${onshapeApiUrl}/documents/d/${req.query.documentId}/w/${req.query.workspaceId}/elements`, req, res);
+    forwardRequestToFlow(
+        "GET",
+        [ `${onshapeApiUrl}`,
+          "documents/d",
+          `${req.query.documentId}`,
+          `w/${req.query.workspaceId}`, 
+          "elements"
+        ],
+        req, res
+    );
 });
 
 /**
@@ -30,7 +38,16 @@ apiRouter.get('/elements', (req, res) => {
  *      -> 500, { error: '...' }
  */
 apiRouter.get('/elements/:eid/parts', (req, res) => {
-    forwardRequestToFlow(`${onshapeApiUrl}/parts/d/${req.query.documentId}/w/${req.query.workspaceId}/e/${req.params.eid}`, req, res);
+    forwardRequestToFlow(
+        "GET",
+        [ `${onshapeApiUrl}`,
+          "parts/d",
+          `${req.query.documentId}`,
+          `w/${req.query.workspaceId}`, 
+          `e/${req.params.eid}`
+        ],
+        req, res
+    );
 });
 
 /**
@@ -42,7 +59,15 @@ apiRouter.get('/elements/:eid/parts', (req, res) => {
  *      -> 500, { error: '...' }
  */
 apiRouter.get('/parts', (req, res) => {
-    forwardRequestToFlow(`${onshapeApiUrl}/parts/d/${req.query.documentId}/w/${req.query.workspaceId}`, req, res);
+    forwardRequestToFlow(
+        "GET",
+        [ `${onshapeApiUrl}`,
+          "parts/d",
+          `${req.query.documentId}`,
+          `w/${req.query.workspaceId}`, 
+        ],
+        req, res
+    );
 });
 
 /**
@@ -111,13 +136,27 @@ apiRouter.get('/gltf/:tid', async (req, res) => {
             res.status(202).end();
         } else {
             // GLTF data is ready.
-            // TODO[Zain] - refactor to use API keys
-            const transResp = await fetch(`${onshapeApiUrl}/translations/${req.params.tid}`, { headers: { 'Authorization': `Bearer ${req.user.accessToken}` } });
+            const reqUrl = `${onshapeApiUrl}/translations/${req.params.tid}`;
+            const transResp = await forwardRequestToFlow(
+                "GET",
+                reqUrl.split("/"),
+                req, res
+            );
             const transJson = await transResp.json();
             if (transJson.requestState === 'FAILED') {
                 res.status(500).json({ error: transJson.failureReason });
             } else {
-                forwardRequestToFlow(`${onshapeApiUrl}/documents/d/${transJson.documentId}/externaldata/${transJson.resultExternalDataIds[0]}`, req, res);
+                forwardRequestToFlow(
+                    "GET",
+                    [ `${onshapeApiUrl}`,
+                      "documents",
+                      "d",
+                      `${transJson.documentId}",
+                      "externaldata`,
+                      `${transJson.resultExternalDataIds[0]}`, 
+                    ],
+                    req, res
+                );
             }
             const webhookID = results;
             WebhookService.unregisterWebhook(webhookID, req.user.accessToken)
