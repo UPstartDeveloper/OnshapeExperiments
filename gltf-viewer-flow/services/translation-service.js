@@ -1,5 +1,4 @@
-const fetch = require('node-fetch');
-
+const { forwardRequestToFlow } = require('./utils');
 const { onshapeApiUrl } = require('../config');
 
 /**
@@ -33,8 +32,7 @@ const defaultBody = Object.freeze({
 
 /**
  * Trigger the translation of the given element or part to GLTF.
- * TODO[Zain] - refactor to use API keys
- * @param {string} userAccessToken The OAuth token to pass to the API.
+ * TODO[Zain] - refactor to use API keys + change all calls
  * @param {string} url The URL to be requested.
  * @param {object} jsonBodyToAdd The parameters to be added to the default parameters to pass to the translation engine.
  *      @param {string} jsonBodyToAdd.workspaceId The ID of the current workspace.
@@ -44,23 +42,31 @@ const defaultBody = Object.freeze({
  *      @param {string} jsonBodyToAdd.distanceTolerance The distance tolerance of the translation.
  *      @param {string} jsonBodyToAdd.angularTolerance The angular tolerance of the translation.
  *      @param {string} jsonBodyToAdd.maximumChordLength The max chord length of the translation.
+ * @param {Response} res The response being proxied.
  * 
  * @returns {Promise<object,string>} Resolves with an object with properties `contentType` (string)
  *      and `data` (string), containing the Content-Type and response body of the translation trigger,
  *      or rejects with a string error message.
  */
-const startTranslation = (userAccessToken, url, jsonBodyToAdd) => {
+const startTranslation = (url, jsonBodyToAdd, res) => {
     const body = Object.assign(Object.assign({}, defaultBody), jsonBodyToAdd);
     return new Promise(async (resolve, reject) => {
         try {
-            const resp = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${userAccessToken}`,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(body)
+            // TODO[Zain]: see if we're ok in NOT including the headers?
+            // const resp = await fetch(url, {
+            //     method: 'POST',
+            //     headers: {
+            //         'Authorization': `Bearer ${userAccessToken}`,
+            //         'Content-Type': 'application/json',
+            //         'Accept': 'application/json'
+            //     },
+            //     body: JSON.stringify(body)
+            // });
+            const resp = await forwardRequestToFlow({
+                httpVerb: "POST",
+                requestUrlParameters: url.split("/"),
+                body: JSON.stringify(body),
+                res: res
             });
             const text = await resp.text();
             if (resp.ok) {
@@ -78,8 +84,7 @@ module.exports = {
     
     /**
      * Trigger the translation of the given element to GLTF.
-     * 
-     * @param {string} userAccessToken The OAuth token to pass to the API.
+     * TODO[Zain] - refactor to use API keys + change all calls
      * @param {string} elementId The ID of the element to be translated.
      * @param {object} translationParams The parameters to pass to the translation engine.
      *      @param {string} translationParams.workspaceId The ID of the current workspace.
@@ -87,11 +92,12 @@ module.exports = {
      *      @param {string} translationParams.distanceTolerance The distance tolerance of the translation.
      *      @param {string} translationParams.angularTolerance The angular tolerance of the translation.
      *      @param {string} translationParams.maximumChordLength The max chord length of the translation.
+     * @param {Response} res The response being proxied.
      * 
      * @returns {Promise<object,object>} Resolves or rejects with an object with properties `contentType` (string)
      *      and `data` (string), containing the Content-Type and response body of the translation trigger
      */
-    translateElement: (userAccessToken, elementId, translationParams) => {
+    translateElement: (elementId, translationParams, res) => {
         const transUrl = `${onshapeApiUrl}/assemblies/d/${translationParams.documentId}/w/${translationParams.workspaceId}/e/${elementId}/translations`;
         const bodyAdditions = {
             linkDocumentWorkspaceId: translationParams.workspaceId,
@@ -101,13 +107,12 @@ module.exports = {
             angularTolerance: translationParams.angularTolerance,
             maximumChordLength: translationParams.maximumChordLength
         }
-        return startTranslation(userAccessToken, transUrl, bodyAdditions);
+        return startTranslation(transUrl, bodyAdditions, res);
     },
     
     /**
      * Trigger the translation of the given part to GLTF.
-     * 
-     * @param {string} userAccessToken The OAuth token to pass to the API.
+     * TODO[Zain] - refactor to use API keys + change all calls
      * @param {string} elementId The ID of the element.
      * @param {string} partId The ID of the part to be translated.
      * @param {object} translationParams The parameters to pass to the translation engine.
@@ -116,11 +121,12 @@ module.exports = {
      *      @param {string} translationParams.distanceTolerance The distance tolerance of the translation.
      *      @param {string} translationParams.angularTolerance The angular tolerance of the translation.
      *      @param {string} translationParams.maximumChordLength The max chord length of the translation.
+     * @param {Response} res The response being proxied.
      * 
      * @returns {Promise<object,object>} Resolves or rejects with an object with properties `contentType` (string)
      *      and `data` (string), containing the Content-Type and response body of the translation trigger
      */
-    translatePart: (userAccessToken, elementId, partId, translationParams) => {
+    translatePart: (elementId, partId, translationParams, res) => {
         const transUrl = `${onshapeApiUrl}/partstudios/d/${translationParams.documentId}/w/${translationParams.workspaceId}/e/${elementId}/translations`
         const bodyAdditions = {
             linkDocumentWorkspaceId: translationParams.workspaceId,
@@ -130,6 +136,6 @@ module.exports = {
             angularTolerance: translationParams.angularTolerance,
             maximumChordLength: translationParams.maximumChordLength
         };
-        return startTranslation(userAccessToken, transUrl, bodyAdditions);
+        return startTranslation(transUrl, bodyAdditions, res);
     }
 }
