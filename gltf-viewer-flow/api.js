@@ -1,5 +1,3 @@
-const fetch = require('node-fetch');
-
 const WebhookService = require('./services/webhook-service');
 const TranslationService = require('./services/translation-service');
 const { onshapeApiUrl } = require('./config');
@@ -17,16 +15,17 @@ const apiRouter = require('express').Router();
  *      -> 500, { error: '...' }
  */
 apiRouter.get('/elements', (req, res) => {
-    forwardRequestToFlow(
-        "GET",
-        [ `${onshapeApiUrl}`,
-          "documents/d",
-          `${req.query.documentId}`,
-          `w/${req.query.workspaceId}`, 
-          "elements"
+    forwardRequestToFlow({
+        httpVerb: "GET",
+        requestUrlParameters: [ 
+            `${onshapeApiUrl}`,
+            "documents/d",
+            `${req.query.documentId}`,
+            `w/${req.query.workspaceId}`, 
+            "elements"
         ],
-        req, res
-    );
+        res: res
+    });
 });
 
 /**
@@ -38,16 +37,17 @@ apiRouter.get('/elements', (req, res) => {
  *      -> 500, { error: '...' }
  */
 apiRouter.get('/elements/:eid/parts', (req, res) => {
-    forwardRequestToFlow(
-        "GET",
-        [ `${onshapeApiUrl}`,
-          "parts/d",
-          `${req.query.documentId}`,
-          `w/${req.query.workspaceId}`, 
-          `e/${req.params.eid}`
+    forwardRequestToFlow({
+        httpVerb: "GET",
+        requestUrlParameters: [ 
+            `${onshapeApiUrl}`,
+            "parts/d",
+            `${req.query.documentId}`,
+            `w/${req.query.workspaceId}`, 
+            `e/${req.params.eid}`
         ],
-        req, res
-    );
+        res: res
+    });
 });
 
 /**
@@ -59,15 +59,16 @@ apiRouter.get('/elements/:eid/parts', (req, res) => {
  *      -> 500, { error: '...' }
  */
 apiRouter.get('/parts', (req, res) => {
-    forwardRequestToFlow(
-        "GET",
-        [ `${onshapeApiUrl}`,
-          "parts/d",
-          `${req.query.documentId}`,
-          `w/${req.query.workspaceId}`, 
+    forwardRequestToFlow({
+        httpVerb: "GET",
+        requestUrlParameters: [
+            `${onshapeApiUrl}`,
+            "parts/d",
+            `${req.query.documentId}`,
+            `w/${req.query.workspaceId}`, 
         ],
-        req, res
-    );
+        res: res
+    });
 });
 
 /**
@@ -97,8 +98,8 @@ apiRouter.get('/gltf', async (req, res) => {
         maximumChordLength: 10
     };
     try {
-        const resp = await (partId ? TranslationService.translatePart(req.user.accessToken, gltfElemId, partId, translationParams)
-            : TranslationService.translateElement(req.user.accessToken, gltfElemId, translationParams));
+        const resp = await (partId ? TranslationService.translatePart(gltfElemId, partId, translationParams, res)
+            : TranslationService.translateElement(gltfElemId, translationParams, res));
         // Store the tid in Redis so we know that it's being processed; it will remain 'in-progress' until we
         // are notified that it is complete, at which point it will be the translation ID.
         if (resp.contentType.indexOf('json') >= 0) {
@@ -137,26 +138,27 @@ apiRouter.get('/gltf/:tid', async (req, res) => {
         } else {
             // GLTF data is ready.
             const reqUrl = `${onshapeApiUrl}/translations/${req.params.tid}`;
-            const transResp = await forwardRequestToFlow(
-                "GET",
-                reqUrl.split("/"),
-                req, res
-            );
+            const transResp = await forwardRequestToFlow({
+                httpVerb: "GET",
+                requestUrlParameters: reqUrl.split("/"),
+                res: res
+            });
             const transJson = await transResp.json();
             if (transJson.requestState === 'FAILED') {
                 res.status(500).json({ error: transJson.failureReason });
             } else {
-                forwardRequestToFlow(
-                    "GET",
-                    [ `${onshapeApiUrl}`,
-                      "documents",
-                      "d",
-                      `${transJson.documentId}",
-                      "externaldata`,
-                      `${transJson.resultExternalDataIds[0]}`, 
+                forwardRequestToFlow({
+                    httpVerb: "GET",
+                    requestUrlParameters: [
+                        `${onshapeApiUrl}`,
+                        "documents",
+                        "d",
+                        `${transJson.documentId}",
+                        "externaldata`,
+                        `${transJson.resultExternalDataIds[0]}`, 
                     ],
-                    req, res
-                );
+                    res: res
+                });
             }
             const webhookID = results;
             WebhookService.unregisterWebhook(webhookID, req.user.accessToken)

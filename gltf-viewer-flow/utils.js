@@ -7,17 +7,19 @@ module.exports = {
      * Send a request to the Onshape API, and proxy the response back to the caller.
      * The proxy will be found in `config.onshapeAPIRequestProxyInFlow` variable.
      * 
-     * @param {string} httpVerb Expected to be either: "GET", "POST", or "DELETE". See the Onshape docs for which is appropiate for your endpoint of interest: https://cad.onshape.com/glassworks/explorer.
-     * @param {Array<string>} requestUrlParameters A list of strings you wish to be joined (using slashes) to form the path of the request URL.
-     * @param {Request} req The request being proxied.
-     * @param {Response} res The response being proxied.
+     * @param {Object} onshapeRequestData An object literal to parametrize the request to Onshape via Flow.
+     *      @param {string} httpVerb Expected to be either: "GET", "POST", or "DELETE". See the Onshape docs for which is appropiate for your endpoint of interest: https://cad.onshape.com/glassworks/explorer.
+     *      @param {Array<string>} requestUrlParameters A list of strings you wish to be joined (using slashes) to form the path of the request URL.
+     *      @param {string} body a JSON string of any additional parameters to send in the request
+     *      @param {Response} res The response being proxied.
      */
-    forwardRequestToFlow: async (httpVerb, requestUrlParameters, req, res) => {
+    forwardRequestToFlow: async (onshapeRequestData) => {
         try {
             // API request
             const reqBody = {
-                "httpVerb": httpVerb,
-                "requestUrlParameters": requestUrlParameters
+                "httpVerb": onshapeRequestData.httpVerb,
+                "requestUrlParameters": onshapeRequestData.requestUrlParameters,
+                "requestBody": onshapeRequestData?.body
             };
             const resp = await fetch(onshapeAPIRequestProxyInFlow, {
                 method: 'POST',
@@ -25,9 +27,9 @@ module.exports = {
             });
             const data = await resp.text();
             const contentType = resp.headers.get('Content-Type');
-            res.status(resp.status).contentType(contentType).send(data);
+            onshapeRequestData.res.status(resp.status).contentType(contentType).send(data);
         } catch (err) {
-            res.status(500).json({ error: err });
+            onshapeRequestData.res.status(500).json({ error: err });
         }
     }
 }
