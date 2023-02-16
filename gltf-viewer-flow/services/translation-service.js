@@ -32,7 +32,6 @@ const defaultBody = Object.freeze({
 
 /**
  * Trigger the translation of the given element or part to GLTF.
- * TODO[Zain] - refactor to use API keys + change all calls
  * @param {string} url The URL to be requested.
  * @param {object} jsonBodyToAdd The parameters to be added to the default parameters to pass to the translation engine.
  *      @param {string} jsonBodyToAdd.workspaceId The ID of the current workspace.
@@ -52,23 +51,13 @@ const startTranslation = (url, jsonBodyToAdd, res) => {
     const body = Object.assign(Object.assign({}, defaultBody), jsonBodyToAdd);
     return new Promise(async (resolve, reject) => {
         try {
-            // TODO[Zain]: see if we're ok in NOT including the headers?
-            // const resp = await fetch(url, {
-            //     method: 'POST',
-            //     headers: {
-            //         'Authorization': `Bearer ${userAccessToken}`,
-            //         'Content-Type': 'application/json',
-            //         'Accept': 'application/json'
-            //     },
-            //     body: JSON.stringify(body)
-            // });
             const resp = await forwardRequestToFlow({
                 httpVerb: "POST",
                 requestUrlParameters: url.split("/"),
                 body: JSON.stringify(body),
                 res: res
             });
-            const text = await resp.text();
+            const text = await resp.responseText;
             if (resp.ok) {
                 resolve({ contentType: resp.headers.get('Content-Type'), data: text });
             } else {
@@ -84,7 +73,6 @@ module.exports = {
     
     /**
      * Trigger the translation of the given element to GLTF.
-     * TODO[Zain] - refactor to use API keys + change all calls
      * @param {string} elementId The ID of the element to be translated.
      * @param {object} translationParams The parameters to pass to the translation engine.
      *      @param {string} translationParams.workspaceId The ID of the current workspace.
@@ -112,7 +100,6 @@ module.exports = {
     
     /**
      * Trigger the translation of the given part to GLTF.
-     * TODO[Zain] - refactor to use API keys + change all calls
      * @param {string} elementId The ID of the element.
      * @param {string} partId The ID of the part to be translated.
      * @param {object} translationParams The parameters to pass to the translation engine.
