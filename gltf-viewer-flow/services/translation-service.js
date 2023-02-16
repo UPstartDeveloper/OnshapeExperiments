@@ -1,4 +1,4 @@
-const { forwardRequestToFlow } = require('./utils');
+const { forwardRequestToFlow } = require('../utils');
 const { onshapeApiUrl } = require('../config');
 
 /**

@@ -2,7 +2,7 @@ const WebhookService = require('./services/webhook-service');
 const TranslationService = require('./services/translation-service');
 const { onshapeApiUrl, webhookCallbackRootUrl } = require('./config');
 const { forwardRequestToFlow } = require('./utils');
-const razaClient = require('./redis-client');
+const razaClient = require('./raza-client');
     
 const apiRouter = require('express').Router();
 
