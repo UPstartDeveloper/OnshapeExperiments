@@ -1,34 +1,29 @@
 const fetch = require('node-fetch');
-
-const { onshapeApiUrl, webhookCallbackRootUrl } = require('../config');
+const { forwardRequestToFlow } = require('./utils');
+const {
+    onshapeApiUrl,
+    onshapeRegisterWebhookFlow,
+} = require('../config');
 
 module.exports = {
     
     /**
      * Register a new webhook to listen for translation completion.
-     * TODO[Zain] - refactor to use API keys
-     * @param {string} sessionID The ID of the current session.
-     * @param {string} userAccessToken The OAuth token to pass to the API.
-     * @param {string} documentId The ID if the current document.
+     * @param {Object<string, string>} webhookParams: provides the identifiers needed to trigger the webhook
+     *      @param {string} documentId The ID if the current document.
+     *      @param {string} workspaceId The ID if the current workspace.
+     *      @param {string} elementId The ID if the element we care about translating.
+     *      @param {string} webhookCallbackRootUrl the URL of our app (for Onshape to POST back to, when the webhook fires)
      * 
      * @returns {Promise<string,string>} Resolves with the webhook ID, or rejects with error message.
      */
-    registerWebhook: (userAccessToken, userID, documentId) => {
+    registerWebhook: (webhookParams, res) => {
         return new Promise(async (resolve, reject) => {
             try {
-                const resp = await fetch(`${onshapeApiUrl}/webhooks`, {
+                // use fwd request to Flow!
+                const resp = await fetch(onshapeRegisterWebhookFlow, {
                     method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${userAccessToken}`,
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/vnd.onshape.v1+json'
-                    },
-                    body: JSON.stringify({
-                        events: [ 'onshape.model.translation.complete' ],
-                        filter: `{$UserId} = '${userID}' && {$DocumentId} = '${documentId}'`,
-                        options: { collapseEvents: false },
-                        url: `${webhookCallbackRootUrl}/api/event`
-                    })
+                    body: JSON.stringify(webhookParams)
                 });
                 const respJson = await resp.json();
                 if (resp.ok) {
@@ -44,17 +39,16 @@ module.exports = {
     
     /**
      * Unregister the given webhook.
-     * 
      * @param {string} webhookID The ID of the webhook to unregister.
-     * @param {string} userAccessToken The OAuth token to pass to the API.
-     * 
+     * @param {Response} res The response to be proxied from the Onshape API.
      * @returns {Promise<Response,string>} resolves with the response, or rejects with error text.
      */
-    unregisterWebhook: (webhookID, userAccessToken) => {
+    unregisterWebhook: (webhookID, res) => {
         return new Promise(async (resolve, reject) => {
-            const resp = await fetch(`${onshapeApiUrl}/webhooks/${webhookID}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${userAccessToken}` }
+            const resp = await forwardRequestToFlow({
+                httpVern: "DELETE",
+                requestUrlParameters: `${onshapeApiUrl}/webhooks/${webhookID}`.split("/"),
+                res: res
             });
             if (resp.ok) {
                 resolve(resp);

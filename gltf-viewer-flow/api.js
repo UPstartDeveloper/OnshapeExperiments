@@ -1,6 +1,6 @@
 const WebhookService = require('./services/webhook-service');
 const TranslationService = require('./services/translation-service');
-const { onshapeApiUrl } = require('./config');
+const { onshapeApiUrl, webhookCallbackRootUrl } = require('./config');
 const { forwardRequestToFlow } = require('./utils');
 const razaClient = require('./redis-client');
     
@@ -85,8 +85,15 @@ apiRouter.get('/gltf', async (req, res) => {
         wid = req.query.workspaceId,
         gltfElemId = req.query.gltfElementId,
         partId = req.query.partId;
-    
-    WebhookService.registerWebhook(req.user.accessToken, req.session.passport.user.id, did)
+
+    const webhookParams = {
+        documentId: did,
+        workspaceId: wid,
+        elementId: gltfElemId,
+        webhookCallbackRootUrl: webhookCallbackRootUrl
+    };
+
+    WebhookService.registerWebhook(webhookParams, res)
         .catch((err) => console.error(`Failed to register webhook: ${err}`));
     
     const translationParams = {
@@ -161,7 +168,7 @@ apiRouter.get('/gltf/:tid', async (req, res) => {
                 });
             }
             const webhookID = results;
-            WebhookService.unregisterWebhook(webhookID, req.user.accessToken)
+            WebhookService.unregisterWebhook(webhookID, res)
                 .then(() => console.log(`Webhook ${webhookID} unregistered successfully`))
                 .catch((err) => console.error(`Failed to unregister webhook ${webhookID}: ${JSON.stringify(err)}`));
             // delete the key-value pair in our "store" - [Zain]

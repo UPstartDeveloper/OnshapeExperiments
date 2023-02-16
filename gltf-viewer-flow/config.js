@@ -13,6 +13,7 @@ const accessKey = process.env.ONSHAPE_API_ACCESSKEY;
 const secretKey = process.env.ONSHAPE_API_SECRETKEY;
 // Where you want to make API requests in Flow
 const onshapeAPIRequestProxyInFlow = process.env.FLOW_FWD_REQ_TO_ONSHAPE_TRIGGER;
+const onshapeRegisterWebhookFlow = process.env.FLOW_REGISTER_ONSHAPE_WEBHOOK;
 
 /**
  * Checks if the given string is a URL. A string considered a URL if it can be parsed
@@ -173,5 +174,6 @@ module.exports = {
     secretKey,
 
     /** Flow endpoints */
-    onshapeAPIRequestProxyInFlow
+    onshapeAPIRequestProxyInFlow,
+    onshapeRegisterWebhookFlow
 }
