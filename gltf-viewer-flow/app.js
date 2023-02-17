@@ -23,6 +23,9 @@ app.use(bodyParser.json());
 app.set('trust proxy', 1); // To allow to run correctly behind Heroku
 
 // Routes
+app.use('/oauthRedirect', (req, res) => {
+    res.status(600).send({ err: "Whaaaat? this route got called?" });
+})
 app.get('/grantDenied', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'html', 'grantDenied.html'));
 });
@@ -51,6 +54,7 @@ if (app.get('env') === 'development') {
             error: err,
             title: 'error'
         });
+        next();
     });
 }
 
@@ -63,6 +67,7 @@ app.use(function(err, req, res, next) {
         message: err.message,
         error: err
     });
+    next();
 });
 
 module.exports = app;
