@@ -23,7 +23,7 @@ apiRouter.get('/elements', (req, res) => {
             `${req.query.documentId}`,
             `w/${req.query.workspaceId}`, 
             "elements"
-        ],
+        ].join("/"),
         res: res
     });
 });
@@ -45,7 +45,7 @@ apiRouter.get('/elements/:eid/parts', (req, res) => {
             `${req.query.documentId}`,
             `w/${req.query.workspaceId}`, 
             `e/${req.params.eid}`
-        ],
+        ].join("/"),
         res: res
     });
 });
@@ -66,7 +66,7 @@ apiRouter.get('/parts', (req, res) => {
             "parts/d",
             `${req.query.documentId}`,
             `w/${req.query.workspaceId}`, 
-        ],
+        ].join("/"),
         res: res
     });
 });
@@ -147,7 +147,7 @@ apiRouter.get('/gltf/:tid', async (req, res) => {
             const reqUrl = `${onshapeApiUrl}/translations/${req.params.tid}`;
             const transResp = await forwardRequestToFlow({
                 httpVerb: "GET",
-                requestUrlParameters: reqUrl.split("/"),
+                requestUrlParameters: reqUrl,
                 res: res
             });
             const transJson = await transResp.json();
@@ -163,7 +163,7 @@ apiRouter.get('/gltf/:tid', async (req, res) => {
                         `${transJson.documentId}",
                         "externaldata`,
                         `${transJson.resultExternalDataIds[0]}`, 
-                    ],
+                    ].join("/"),
                     res: res
                 });
             }

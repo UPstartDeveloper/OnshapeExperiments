@@ -53,7 +53,7 @@ const startTranslation = (url, jsonBodyToAdd, res) => {
         try {
             const resp = await forwardRequestToFlow({
                 httpVerb: "POST",
-                requestUrlParameters: url.split("/"),
+                requestUrlParameters: url,
                 body: JSON.stringify(body),
                 res: res
             });

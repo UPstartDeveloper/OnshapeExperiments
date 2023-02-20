@@ -19,7 +19,7 @@ module.exports = {
             const reqBody = {
                 "httpVerb": onshapeRequestData.httpVerb,
                 "requestUrlParameters": onshapeRequestData.requestUrlParameters,
-                "requestBody": onshapeRequestData.body ? onshapeRequestData.body : ""
+                "requestBody": onshapeRequestData.body ? onshapeRequestData.body : {}
             };
             // TODO[Zain]: see logs to check if the JSON looks as you expect?
             console.log(`JSON sent for req body: ${JSON.stringify(reqBody)}`);
