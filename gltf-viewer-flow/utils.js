@@ -25,7 +25,7 @@ module.exports = {
             console.log(`JSON sent for req body: ${JSON.stringify(reqBody)}`);
             const resp = await fetch(onshapeAPIRequestProxyInFlow, {
                 method: 'POST',
-                body: JSON.stringify(reqBody)
+                body: reqBody
             });
             const data = await resp.text();
             const contentType = resp.headers.get('Content-Type');
