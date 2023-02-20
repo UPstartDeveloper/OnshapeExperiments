@@ -21,11 +21,11 @@ module.exports = {
                 "requestUrlParameters": onshapeRequestData.requestUrlParameters,
                 "body": onshapeRequestData.body ? onshapeRequestData.body : {}
             };
-            // TODO[Zain]: see logs to check if the JSON looks as you expect?
+
             console.log(`JSON sent for req body: ${JSON.stringify(reqBody)}`);
             const resp = await fetch(onshapeAPIRequestProxyInFlow, {
                 method: 'POST',
-                body: reqBody
+                body: JSON.stringify(reqBody) // TODO[Zain]: see Flow logger to check if the JSON looks as you expect?
             });
             const data = await resp.text();
             const contentType = resp.headers.get('Content-Type');
