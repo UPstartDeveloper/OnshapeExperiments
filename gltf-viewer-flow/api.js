@@ -18,7 +18,7 @@ apiRouter.get('/elements', (req, res) => {
     forwardRequestToFlow({
         httpVerb: "GET",
         requestUrlParameters: [ 
-            `${onshapeApiUrl}`,
+            // `${onshapeApiUrl}`,  // will be injected in Flow itself
             "documents/d",
             `${req.query.documentId}`,
             `w/${req.query.workspaceId}`, 
@@ -40,7 +40,7 @@ apiRouter.get('/elements/:eid/parts', (req, res) => {
     forwardRequestToFlow({
         httpVerb: "GET",
         requestUrlParameters: [ 
-            `${onshapeApiUrl}`,
+            // `${onshapeApiUrl}`,  // will be injected in Flow itself
             "parts/d",
             `${req.query.documentId}`,
             `w/${req.query.workspaceId}`, 
@@ -62,7 +62,7 @@ apiRouter.get('/parts', (req, res) => {
     forwardRequestToFlow({
         httpVerb: "GET",
         requestUrlParameters: [
-            `${onshapeApiUrl}`,
+            // `${onshapeApiUrl}`,  // will be injected in Flow itself
             "parts/d",
             `${req.query.documentId}`,
             `w/${req.query.workspaceId}`, 
@@ -144,7 +144,7 @@ apiRouter.get('/gltf/:tid', async (req, res) => {
             res.status(202).end();
         } else {
             // GLTF data is ready.
-            const reqUrl = `${onshapeApiUrl}/translations/${req.params.tid}`;
+            const reqUrl = `translations/${req.params.tid}`;
             const transResp = await forwardRequestToFlow({
                 httpVerb: "GET",
                 requestUrlParameters: reqUrl,
@@ -157,7 +157,7 @@ apiRouter.get('/gltf/:tid', async (req, res) => {
                 forwardRequestToFlow({
                     httpVerb: "GET",
                     requestUrlParameters: [
-                        `${onshapeApiUrl}`,
+                        // `${onshapeApiUrl}`,  // will be injected in Flow itself
                         "documents",
                         "d",
                         `${transJson.documentId}",

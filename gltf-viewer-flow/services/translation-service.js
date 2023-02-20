@@ -86,7 +86,7 @@ module.exports = {
      *      and `data` (string), containing the Content-Type and response body of the translation trigger
      */
     translateElement: (elementId, translationParams, res) => {
-        const transUrl = `${onshapeApiUrl}/assemblies/d/${translationParams.documentId}/w/${translationParams.workspaceId}/e/${elementId}/translations`;
+        const transUrl = `assemblies/d/${translationParams.documentId}/w/${translationParams.workspaceId}/e/${elementId}/translations`;
         const bodyAdditions = {
             linkDocumentWorkspaceId: translationParams.workspaceId,
             elementId: elementId,
@@ -114,7 +114,7 @@ module.exports = {
      *      and `data` (string), containing the Content-Type and response body of the translation trigger
      */
     translatePart: (elementId, partId, translationParams, res) => {
-        const transUrl = `${onshapeApiUrl}/partstudios/d/${translationParams.documentId}/w/${translationParams.workspaceId}/e/${elementId}/translations`
+        const transUrl = `partstudios/d/${translationParams.documentId}/w/${translationParams.workspaceId}/e/${elementId}/translations`
         const bodyAdditions = {
             linkDocumentWorkspaceId: translationParams.workspaceId,
             partIds: partId,

@@ -47,7 +47,7 @@ module.exports = {
         return new Promise(async (resolve, reject) => {
             const resp = await forwardRequestToFlow({
                 httpVern: "DELETE",
-                requestUrlParameters: `${onshapeApiUrl}/webhooks/${webhookID}`,
+                requestUrlParameters: `webhooks/${webhookID}`,
                 res: res
             });
             if (resp.ok) {
