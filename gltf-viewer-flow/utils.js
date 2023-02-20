@@ -29,6 +29,7 @@ module.exports = {
             });
             const data = await resp.text();
             const contentType = resp.headers.get('Content-Type');
+            console.log(`Data returned: ${data}`)
             onshapeRequestData.res.status(resp.status).contentType(contentType).send(data);
         } catch (err) {
             onshapeRequestData.res.status(500).json({ error: err });
