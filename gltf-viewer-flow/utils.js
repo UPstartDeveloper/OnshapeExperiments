@@ -21,14 +21,12 @@ module.exports = {
                 "requestUrlParameters": onshapeRequestData.requestUrlParameters,
                 "body": onshapeRequestData.body ? onshapeRequestData.body : {}
             };
-
-            console.log(`JSON sent for req body: ${JSON.stringify(reqBody)}`);
             const resp = await fetch(onshapeAPIRequestProxyInFlow, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},  // TODO[Zain]: see Flow logger to check if the JSON looks as you expect?
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(reqBody)
             });
-            const data = await resp.text();
+            const data = JSON.parse(await resp.text());  // TODO[Zain]: see browser UI to see if partsJson is still not iterable?
             const contentType = resp.headers.get('Content-Type');
             console.log(`Data returned: ${data}`)
             onshapeRequestData.res.status(resp.status).contentType(contentType).send(data);
