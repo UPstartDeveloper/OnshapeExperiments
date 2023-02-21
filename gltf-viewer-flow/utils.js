@@ -25,7 +25,8 @@ module.exports = {
             console.log(`JSON sent for req body: ${JSON.stringify(reqBody)}`);
             const resp = await fetch(onshapeAPIRequestProxyInFlow, {
                 method: 'POST',
-                body: JSON.stringify(reqBody) // TODO[Zain]: see Flow logger to check if the JSON looks as you expect?
+                headers: {'Content-Type': 'application/json'},  // TODO[Zain]: see Flow logger to check if the JSON looks as you expect?
+                body: JSON.stringify(reqBody)
             });
             const data = await resp.text();
             const contentType = resp.headers.get('Content-Type');
