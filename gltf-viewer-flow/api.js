@@ -117,7 +117,9 @@ apiRouter.get('/gltf', async (req, res) => {
         }
         res.status(200).contentType(resp.contentType).send(resp.data);
     } catch (err) {
+        // TODO[Zain]: debug why this line causes ERR_HTTP_HEADERS_SENT --> 
         res.status(500).json({ error: err });
+        return;
     }
 });
 
