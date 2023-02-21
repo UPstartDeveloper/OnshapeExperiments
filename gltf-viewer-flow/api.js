@@ -107,7 +107,7 @@ apiRouter.get('/gltf', async (req, res) => {
     try {
         const resp = await (partId ? TranslationService.translatePart(gltfElemId, partId, translationParams, res)
             : TranslationService.translateElement(gltfElemId, translationParams, res));
-        // Store the tid in Redis so we know that it's being processed; it will remain 'in-progress' until we
+        // Store the tid in memory so we know that it's being processed; it will remain 'in-progress' until we
         // are notified that it is complete, at which point it will be the translation ID.
         if (resp.contentType.indexOf('json') >= 0) {
             Object.defineProperty(razaClient, JSON.parse(resp.data).id, {
@@ -116,9 +116,10 @@ apiRouter.get('/gltf', async (req, res) => {
             });
         }
         res.status(200).contentType(resp.contentType).send(resp.data);
-        return;  // TODO[Zain]: debug why this line causes ERR_HTTP_HEADERS_SENT --> 
+        return; 
     } catch (err) {
-        res.status(500).json({ error: err });
+        // error message should also be sent in server res --> see forwardRequestToFlow()
+        console.log(`Error requesting translation from Onshape: ${err}`);
     }
 });
 
