@@ -26,8 +26,9 @@ module.exports = {
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(reqBody)
             });
-            const data = JSON.parse(await resp.text());  // TODO[Zain]: see browser UI to see if partsJson is still not iterable?
+            const data = await resp.text();
             const contentType = resp.headers.get('Content-Type');
+            console.log(`Request body passed: ${JSON.stringify(reqBody)}`);
             console.log(`Data returned: ${data}`)
             onshapeRequestData.res.status(resp.status).contentType(contentType).send(data);
         } catch (err) {
