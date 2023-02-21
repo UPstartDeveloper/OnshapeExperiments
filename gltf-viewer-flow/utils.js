@@ -16,19 +16,19 @@ module.exports = {
     forwardRequestToFlow: async (onshapeRequestData) => {
         try {
             // API request
-            const reqBody = {
+            const flowRequestBody = JSON.stringify({
                 "httpVerb": onshapeRequestData.httpVerb,
                 "requestUrlParameters": onshapeRequestData.requestUrlParameters,
-                "body": onshapeRequestData.body ? onshapeRequestData.body : {}
-            };
+                "onshapeRequestBody": onshapeRequestData.body ? onshapeRequestData.body : {}
+            });
             const resp = await fetch(onshapeAPIRequestProxyInFlow, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(reqBody)
+                body: flowRequestBody
             });
             const data = await resp.text();
             const contentType = resp.headers.get('Content-Type');
-            console.log(`Request body passed: ${JSON.stringify(reqBody)}`);
+            console.log(`Request body passed: ${flowRequestBody}`);
             console.log(`Data returned: ${data}`)
             onshapeRequestData.res.status(resp.status).contentType(contentType).send(data);
         } catch (err) {
