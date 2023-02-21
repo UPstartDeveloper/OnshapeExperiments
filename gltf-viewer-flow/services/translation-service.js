@@ -54,7 +54,7 @@ const startTranslation = (url, jsonBodyToAdd, res) => {
             const resp = await forwardRequestToFlow({
                 httpVerb: "POST",
                 requestUrlParameters: url,
-                body: JSON.stringify(body),
+                body: body,  // TODO[Zain] - see if this fixes the parse error?
                 res: res
             });
             const text = await resp.responseText;
