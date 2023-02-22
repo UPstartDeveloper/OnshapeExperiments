@@ -12,6 +12,9 @@ module.exports = {
      *      @param {Array<string>} requestUrlParameters A list of strings you wish to be joined (using slashes) to form the path of the request URL.
      *      @param {Object} body a JSON object literal of any additional parameters to send in the request
      *      @param {Response} res The response being proxied.
+     * @returns {Promise<object,string>} Resolves with an object with properties `contentType` (string)
+     *      and `data` (string), containing the Content-Type and response body of the API request,
+     *      or rejects with a string error message.
      */
     forwardRequestToFlow: async (onshapeRequestData) => {
         try {
@@ -31,6 +34,7 @@ module.exports = {
             console.log(`Request body passed: ${flowRequestBody}`);
             console.log(`Data returned: ${data}`)
             onshapeRequestData.res.status(resp.status).contentType(contentType).send(data);
+            return resp;
         } catch (err) {
             onshapeRequestData.res.status(500).json({ error: err });
         }

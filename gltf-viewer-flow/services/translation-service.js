@@ -58,6 +58,7 @@ const startTranslation = (url, jsonBodyToAdd, res) => {
                 res: res
             });
             const text = await resp.text();  // TODO[Zain] - see if this fixes the loadGltf() error?
+            console.log(`Received text: ${text}`);
             if (resp.ok) {
                 resolve({ contentType: resp.headers.get('Content-Type'), data: text });
             } else {
