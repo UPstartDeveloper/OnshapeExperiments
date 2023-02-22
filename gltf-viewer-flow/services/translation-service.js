@@ -54,10 +54,10 @@ const startTranslation = (url, jsonBodyToAdd, res) => {
             const resp = await forwardRequestToFlow({
                 httpVerb: "POST",
                 requestUrlParameters: url,
-                body: body,  // TODO[Zain] - see if this fixes the parse error?
+                body: body,
                 res: res
             });
-            const text = await resp.responseText;
+            const text = await resp.text();  // TODO[Zain] - see if this fixes the loadGltf() error?
             if (resp.ok) {
                 resolve({ contentType: resp.headers.get('Content-Type'), data: text });
             } else {
