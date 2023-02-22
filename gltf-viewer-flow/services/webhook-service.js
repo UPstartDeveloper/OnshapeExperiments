@@ -21,6 +21,8 @@ module.exports = {
         return new Promise(async (resolve, reject) => {
             try {
                 // use fwd request to Flow!
+                // TODO[Zain]: does this look undefined?
+                console.log(`Sending webhook params: ${JSON.stringify(webhookParams)}`);
                 const resp = await fetch(onshapeRegisterWebhookFlow, {
                     method: 'POST',
                     body: JSON.stringify(webhookParams)
