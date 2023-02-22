@@ -72,62 +72,6 @@ apiRouter.get('/parts', (req, res) => {
 });
 
 /**
- * Retrieve the translated GLTF data.
- * 
- * GET /api/gltf/:tid
- *      -> 200, { ...gltf_data }
- *      -or-
- *      -> 500, { error: '...' }
- *      -or-
- *      -> 404 (which may mean that the translation is still being processed)
- */
-apiRouter.get('/gltf/:tid', async (req, res) => {
-    const results = razaClient[req.params.tid];
-
-    // not a valid ID
-    if (results === null || results === undefined) {
-        // No record in Redis => not a valid ID
-        res.status(404).end();
-    } else {
-        if ('in-progress' === results) {
-            // Valid ID, but results are not ready yet.
-            res.status(202).end();
-        } else {
-            // GLTF data is ready.
-            const reqUrl = `translations/${req.params.tid}`;
-            const transResp = await forwardRequestToFlow({
-                httpVerb: "GET",
-                requestUrlParameters: reqUrl,
-                // res: res
-            });
-            const transJson = await transResp.json();
-            if (transJson.requestState === 'FAILED') {
-                res.status(500).json({ error: transJson.failureReason });
-            } else {
-                forwardRequestToFlow({
-                    httpVerb: "GET",
-                    requestUrlParameters: [
-                        // `${onshapeApiUrl}`,  // will be injected in Flow itself
-                        "documents",
-                        "d",
-                        `${transJson.documentId}",
-                        "externaldata`,
-                        `${transJson.resultExternalDataIds[0]}`, 
-                    ].join("/"),
-                    res: res
-                });
-            }
-            const webhookID = results;
-            WebhookService.unregisterWebhook(webhookID)
-                .then(() => console.log(`Webhook ${webhookID} unregistered successfully`))
-                .catch((err) => console.error(`Failed to unregister webhook ${webhookID}: ${JSON.stringify(err)}`));
-            // delete the key-value pair in our "store" - [Zain]
-            delete razaClient[req.params.tid];
-        }
-    }
-});
-
-/**
  * Trigger translation to GLTF from the given element.
  * 
  * GET /api/gltf?documentId=...&workspaceId=...&gltfElementId=...
@@ -175,6 +119,62 @@ apiRouter.get('/gltf', async (req, res) => {
     } catch (err) {
         // error message should also be sent in server res --> see forwardRequestToFlow()
         console.log(`Error requesting translation from Onshape: ${err}`);
+    }
+});
+
+/**
+ * Retrieve the translated GLTF data.
+ * 
+ * GET /api/gltf/:tid
+ *      -> 200, { ...gltf_data }
+ *      -or-
+ *      -> 500, { error: '...' }
+ *      -or-
+ *      -> 404 (which may mean that the translation is still being processed)
+ */
+apiRouter.get('/gltf/:tid', async (req, res) => {
+    const results = razaClient[req.params.tid];
+    console.log("found translation!", req.params.tid);
+    // not a valid ID
+    if (results === null || results === undefined) {
+        // No record in Redis => not a valid ID
+        res.status(404).end();
+    } else {
+        if ('in-progress' === results) {
+            // Valid ID, but results are not ready yet.
+            res.status(202).end();
+        } else {
+            // GLTF data is ready.
+            const reqUrl = `translations/${req.params.tid}`;
+            const transResp = await forwardRequestToFlow({
+                httpVerb: "GET",
+                requestUrlParameters: reqUrl,
+                // res: res
+            });
+            const transJson = await transResp.json();
+            if (transJson.requestState === 'FAILED') {
+                res.status(500).json({ error: transJson.failureReason });
+            } else {
+                forwardRequestToFlow({
+                    httpVerb: "GET",
+                    requestUrlParameters: [
+                        // `${onshapeApiUrl}`,  // will be injected in Flow itself
+                        "documents",
+                        "d",
+                        `${transJson.documentId}",
+                        "externaldata`,
+                        `${transJson.resultExternalDataIds[0]}`, 
+                    ].join("/"),
+                    res: res
+                });
+            }
+            const webhookID = results;
+            WebhookService.unregisterWebhook(webhookID)
+                .then(() => console.log(`Webhook ${webhookID} unregistered successfully`))
+                .catch((err) => console.error(`Failed to unregister webhook ${webhookID}: ${JSON.stringify(err)}`));
+            // delete the key-value pair in our "store" - [Zain]
+            delete razaClient[req.params.tid];
+        }
     }
 });
 
