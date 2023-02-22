@@ -172,7 +172,6 @@ apiRouter.get('/gltf', async (req, res) => {
             });
         }
         res.status(200).contentType(resp.contentType).send(resp.data);
-        return; 
     } catch (err) {
         // error message should also be sent in server res --> see forwardRequestToFlow()
         console.log(`Error requesting translation from Onshape: ${err}`);
