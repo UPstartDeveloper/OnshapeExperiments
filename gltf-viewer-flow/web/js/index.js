@@ -266,7 +266,6 @@ fetch(`/api/elements${window.location.search}`, { headers: { 'Accept': 'applicat
                 $elemSelector.appendChild(child);
                 // Get the Parts of each element for the dropdown
                 try {
-                    // TODO[Zain]: debug why the endpoint parts/d/53263bb1ae344733a4549cf2/w/bdcab155bdb65d290dc01d00/e/8897fac0c35c30f78b495290 returns 403?
                     const partsResp = await fetch(`/api/elements/${elem.id}/parts${window.location.search}`, { headers: { 'Accept': 'application/json' }});
                     const partsJson = await partsResp.json();
                     for (const part of partsJson) {

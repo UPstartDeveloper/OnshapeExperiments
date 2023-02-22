@@ -115,8 +115,7 @@ apiRouter.get('/gltf', async (req, res) => {
                 writable: true
             });
         }
-        // TODO[Zain] - delete if unnecessary
-        // res.status(200).contentType(resp.contentType).send(resp.data);
+        res.status(200).contentType(resp.contentType).send(resp.data);
         return; 
     } catch (err) {
         // error message should also be sent in server res --> see forwardRequestToFlow()
@@ -148,6 +147,7 @@ apiRouter.get('/gltf/:tid', async (req, res) => {
         } else {
             // GLTF data is ready.
             const reqUrl = `translations/${req.params.tid}`;
+            // TODO[Zain]: use fetch() here
             const transResp = await forwardRequestToFlow({
                 httpVerb: "GET",
                 requestUrlParameters: reqUrl,
