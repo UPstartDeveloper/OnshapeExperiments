@@ -150,8 +150,8 @@ apiRouter.get('/gltf/:tid', async (req, res) => {
             const transResp = await forwardRequestToFlow({
                 httpVerb: "GET",
                 requestUrlParameters: reqUrl,
-                res: res
-            }, false);
+                // res: res
+            });
             const transJson = await transResp.json();
             if (transJson.requestState === 'FAILED') {
                 res.status(500).json({ error: transJson.failureReason });
@@ -170,7 +170,7 @@ apiRouter.get('/gltf/:tid', async (req, res) => {
                 });
             }
             const webhookID = results;
-            WebhookService.unregisterWebhook(webhookID, res)
+            WebhookService.unregisterWebhook(webhookID)
                 .then(() => console.log(`Webhook ${webhookID} unregistered successfully`))
                 .catch((err) => console.error(`Failed to unregister webhook ${webhookID}: ${JSON.stringify(err)}`));
             // delete the key-value pair in our "store" - [Zain]

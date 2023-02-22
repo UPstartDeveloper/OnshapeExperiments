@@ -13,7 +13,7 @@ module.exports = {
      *      @param {Object} body a JSON object literal of any additional parameters to send in the request
      *      @param {Response} res The response being proxied.
      */
-    forwardRequestToFlow: async (onshapeRequestData, setResponseHeaders) => {
+    forwardRequestToFlow: async (onshapeRequestData) => {
         try {
             // API request
             const flowRequestBody = JSON.stringify({
@@ -26,7 +26,7 @@ module.exports = {
                 headers: {'Content-Type': 'application/json'},
                 body: flowRequestBody
             });
-            if (setResponseHeaders && setResponseHeaders === false) {
+            if (!onshapeRequestData.res) {
                 return resp;  // let the caller resolve the Promise
             }
             const data = await resp.text();

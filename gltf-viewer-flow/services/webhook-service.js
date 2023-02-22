@@ -44,13 +44,13 @@ module.exports = {
      * @param {Response} res The response to be proxied from the Onshape API.
      * @returns {Promise<Response,string>} resolves with the response, or rejects with error text.
      */
-    unregisterWebhook: (webhookID, res) => {
+    unregisterWebhook: webhookID => {
         return new Promise(async (resolve, reject) => {
             const resp = await forwardRequestToFlow({
-                httpVern: "DELETE",
+                httpVerb: "DELETE",
                 requestUrlParameters: `webhooks/${webhookID}`,
-                res: res
-            }, false);
+                // res: res
+            });
             if (resp.ok) {
                 resolve(resp);
             } else {
