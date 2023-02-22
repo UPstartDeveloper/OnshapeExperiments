@@ -34,7 +34,7 @@ module.exports = {
             console.log(`Request body passed: ${flowRequestBody}`);
             console.log(`Data returned: ${data}`)
             onshapeRequestData.res.status(resp.status).contentType(contentType).send(data);
-            return resp;
+            return resp.clone();  // because this response has already been used
         } catch (err) {
             onshapeRequestData.res.status(500).json({ error: err });
         }

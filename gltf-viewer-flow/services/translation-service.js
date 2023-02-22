@@ -57,6 +57,7 @@ const startTranslation = (url, jsonBodyToAdd, res) => {
                 body: body,
                 res: res
             });
+            console.log("just finished triggering the translation!")
             const text = await resp.text();  // TODO[Zain] - see if this fixes the loadGltf() error?
             console.log(`Received text: ${text}`);
             if (resp.ok) {
