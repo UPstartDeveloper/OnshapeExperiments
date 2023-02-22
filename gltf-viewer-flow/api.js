@@ -92,6 +92,8 @@ apiRouter.get('/gltf', async (req, res) => {
         elementId: gltfElemId,
         webhookCallbackRootUrl: webhookCallbackRootUrl
     };
+    // TODO[Zain]: does this look undefined?
+    console.log(`Sending webhook params: ${JSON.stringify(webhookParams)}`);
 
     WebhookService.registerWebhook(webhookParams, res)
         .catch((err) => console.error(`Failed to register webhook: ${err}`));
