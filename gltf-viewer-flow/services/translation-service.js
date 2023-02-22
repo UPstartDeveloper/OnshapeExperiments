@@ -49,7 +49,6 @@ const defaultBody = Object.freeze({
  */
 const startTranslation = async (url, jsonBodyToAdd, res) => {
     const body = Object.assign(Object.assign({}, defaultBody), jsonBodyToAdd);
-    console.log("Trying a new way to trigger translations!");  // TODO[Zain]: delete later
     try {
         const resp = await forwardRequestToFlow({
             httpVerb: "POST",
@@ -66,27 +65,6 @@ const startTranslation = async (url, jsonBodyToAdd, res) => {
     } catch (err) {
         console.log(`Error in Onshape API call (for translations): ${err}`);
     }
-    // TODO[Zain]: delete?
-    // return new Promise(async (resolve, reject) => {
-    //     try {
-    //         const resp = await forwardRequestToFlow({
-    //             httpVerb: "POST",
-    //             requestUrlParameters: url,
-    //             body: body,
-    //             res: res
-    //         }, false);
-    //         console.log("just finished triggering the translation!")
-    //         const text = await resp.text();
-    //         console.log(`Received text: ${text}`);
-    //         if (resp.ok) {
-    //             resolve({ contentType: resp.headers.get('Content-Type'), data: text });
-    //         } else {
-    //             reject(text);
-    //         }
-    //     } catch (err) {
-    //         reject(err);
-    //     }
-    // });
 };
 
 module.exports = {

@@ -79,6 +79,8 @@ apiRouter.get('/parts', (req, res) => {
  *      -or-
  *      -> 500, { error: '...' }
  */
+// TODO[Zain]: instead of relying on a lousy data store, create a custom Flow to do the whole 
+// process + retrieve a glTF --> possibly with a custom action
 apiRouter.get('/gltf', async (req, res) => {
     // Extract the necessary IDs from the querystring
     const did = req.query.documentId,
@@ -134,10 +136,10 @@ apiRouter.get('/gltf', async (req, res) => {
  */
 apiRouter.get('/gltf/:tid', async (req, res) => {
     const results = razaClient[req.params.tid];
-    console.log("found translation!", req.params.tid);
+    console.log("found translation!", results);
     // not a valid ID
     if (results === null || results === undefined) {
-        // No record in Redis => not a valid ID
+        // No record in Redis => not a valid ID (or wasn't saved correctly)
         res.status(404).end();
     } else {
         if ('in-progress' === results) {

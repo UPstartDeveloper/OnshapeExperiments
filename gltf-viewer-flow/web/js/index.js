@@ -241,6 +241,7 @@ $elemSelector.addEventListener('change', async (evt) => {
             const resp = await fetch(`/api/gltf${evt.target.options[event.target.selectedIndex].getAttribute('href')}`);
             const json = await resp.json();
             console.log(`Got API JSON: ${JSON.stringify(json)}`);
+            // note: if this returns a 404, it means the glTF wasn't found - the route itself was still executed
             poll(5, () => fetch(`/api/gltf/${json.id}`), (resp) => resp.status !== 202, (respJson) => {
                 if (respJson.error) {
                     displayError('There was an error translating the model to GLTF.');
