@@ -72,58 +72,6 @@ apiRouter.get('/parts', (req, res) => {
 });
 
 /**
- * Trigger translation to GLTF from the given element.
- * 
- * GET /api/gltf?documentId=...&workspaceId=...&gltfElementId=...
- *      -> 200, { ..., id: '...' }
- *      -or-
- *      -> 500, { error: '...' }
- */
-apiRouter.get('/gltf', async (req, res) => {
-    // Extract the necessary IDs from the querystring
-    const did = req.query.documentId,
-        wid = req.query.workspaceId,
-        gltfElemId = req.query.gltfElementId,
-        partId = req.query.partId;
-
-    const webhookParams = {
-        documentId: did,
-        workspaceId: wid,
-        elementId: gltfElemId,
-        webhookCallbackRootUrl: webhookCallbackRootUrl
-    };
-
-    WebhookService.registerWebhook(webhookParams, res)
-        .catch((err) => console.error(`Failed to register webhook: ${err}`));
-    
-    const translationParams = {
-        documentId: did,
-        workspaceId: wid,
-        resolution: 'medium',
-        distanceTolerance: 0.00012,
-        angularTolerance: 0.1090830782496456,
-        maximumChordLength: 10
-    };
-    try {
-        const resp = await (partId ? TranslationService.translatePart(gltfElemId, partId, translationParams, res)
-            : TranslationService.translateElement(gltfElemId, translationParams, res));
-        // Store the tid in memory so we know that it's being processed; it will remain 'in-progress' until we
-        // are notified that it is complete, at which point it will be the translation ID.
-        if (resp.contentType.indexOf('json') >= 0) {
-            Object.defineProperty(razaClient, JSON.parse(resp.data).id, {
-                value: 'in-progress',
-                writable: true
-            });
-        }
-        res.status(200).contentType(resp.contentType).send(resp.data);
-        return; 
-    } catch (err) {
-        // error message should also be sent in server res --> see forwardRequestToFlow()
-        console.log(`Error requesting translation from Onshape: ${err}`);
-    }
-});
-
-/**
  * Retrieve the translated GLTF data.
  * 
  * GET /api/gltf/:tid
@@ -176,6 +124,58 @@ apiRouter.get('/gltf/:tid', async (req, res) => {
             // delete the key-value pair in our "store" - [Zain]
             delete razaClient[req.params.tid];
         }
+    }
+});
+
+/**
+ * Trigger translation to GLTF from the given element.
+ * 
+ * GET /api/gltf?documentId=...&workspaceId=...&gltfElementId=...
+ *      -> 200, { ..., id: '...' }
+ *      -or-
+ *      -> 500, { error: '...' }
+ */
+apiRouter.get('/gltf', async (req, res) => {
+    // Extract the necessary IDs from the querystring
+    const did = req.query.documentId,
+        wid = req.query.workspaceId,
+        gltfElemId = req.query.gltfElementId,
+        partId = req.query.partId;
+
+    const webhookParams = {
+        documentId: did,
+        workspaceId: wid,
+        elementId: gltfElemId,
+        webhookCallbackRootUrl: webhookCallbackRootUrl
+    };
+
+    WebhookService.registerWebhook(webhookParams, res)
+        .catch((err) => console.error(`Failed to register webhook: ${err}`));
+    
+    const translationParams = {
+        documentId: did,
+        workspaceId: wid,
+        resolution: 'medium',
+        distanceTolerance: 0.00012,
+        angularTolerance: 0.1090830782496456,
+        maximumChordLength: 10
+    };
+    try {
+        const resp = await (partId ? TranslationService.translatePart(gltfElemId, partId, translationParams, res)
+            : TranslationService.translateElement(gltfElemId, translationParams, res));
+        // Store the tid in memory so we know that it's being processed; it will remain 'in-progress' until we
+        // are notified that it is complete, at which point it will be the translation ID.
+        if (resp.contentType.indexOf('json') >= 0) {
+            Object.defineProperty(razaClient, JSON.parse(resp.data).id, {
+                value: 'in-progress',
+                writable: true
+            });
+        }
+        res.status(200).contentType(resp.contentType).send(resp.data);
+        return; 
+    } catch (err) {
+        // error message should also be sent in server res --> see forwardRequestToFlow()
+        console.log(`Error requesting translation from Onshape: ${err}`);
     }
 });
 
