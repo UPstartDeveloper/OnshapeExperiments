@@ -1,6 +1,6 @@
 const WebhookService = require('./services/webhook-service');
 const TranslationService = require('./services/translation-service');
-const { onshapeApiUrl, webhookCallbackRootUrl } = require('./config');
+const { webhookCallbackRootUrl } = require('./config');
 const { forwardRequestToFlow } = require('./utils');
 const razaClient = require('./raza-client');
     
@@ -147,12 +147,11 @@ apiRouter.get('/gltf/:tid', async (req, res) => {
         } else {
             // GLTF data is ready.
             const reqUrl = `translations/${req.params.tid}`;
-            // TODO[Zain]: use fetch() here
             const transResp = await forwardRequestToFlow({
                 httpVerb: "GET",
                 requestUrlParameters: reqUrl,
                 res: res
-            });
+            }, false);
             const transJson = await transResp.json();
             if (transJson.requestState === 'FAILED') {
                 res.status(500).json({ error: transJson.failureReason });

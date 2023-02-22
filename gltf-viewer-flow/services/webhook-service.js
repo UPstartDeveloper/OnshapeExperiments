@@ -50,7 +50,7 @@ module.exports = {
                 httpVern: "DELETE",
                 requestUrlParameters: `webhooks/${webhookID}`,
                 res: res
-            });
+            }, false);
             if (resp.ok) {
                 resolve(resp);
             } else {

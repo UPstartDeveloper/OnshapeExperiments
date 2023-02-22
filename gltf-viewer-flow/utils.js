@@ -12,11 +12,8 @@ module.exports = {
      *      @param {Array<string>} requestUrlParameters A list of strings you wish to be joined (using slashes) to form the path of the request URL.
      *      @param {Object} body a JSON object literal of any additional parameters to send in the request
      *      @param {Response} res The response being proxied.
-     * @returns {Promise<object,string>} Resolves with an object with properties `contentType` (string)
-     *      and `data` (string), containing the Content-Type and response body of the API request,
-     *      or rejects with a string error message.
      */
-    forwardRequestToFlow: async (onshapeRequestData) => {
+    forwardRequestToFlow: async (onshapeRequestData, setResponseHeaders) => {
         try {
             // API request
             const flowRequestBody = JSON.stringify({
@@ -29,12 +26,14 @@ module.exports = {
                 headers: {'Content-Type': 'application/json'},
                 body: flowRequestBody
             });
+            if (setResponseHeaders && setResponseHeaders === false) {
+                return resp;  // let the caller resolve the Promise
+            }
             const data = await resp.text();
             const contentType = resp.headers.get('Content-Type');
             console.log(`Request body passed: ${flowRequestBody}`);
             console.log(`Data returned: ${data}`)
             onshapeRequestData.res.status(resp.status).contentType(contentType).send(data);
-            return resp.clone();  // because this response has already been used
         } catch (err) {
             onshapeRequestData.res.status(500).json({ error: err });
         }
