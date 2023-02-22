@@ -115,7 +115,8 @@ apiRouter.get('/gltf', async (req, res) => {
                 writable: true
             });
         }
-        res.status(200).contentType(resp.contentType).send(resp.data);
+        // TODO[Zain] - delete if unnecessary
+        // res.status(200).contentType(resp.contentType).send(resp.data);
         return; 
     } catch (err) {
         // error message should also be sent in server res --> see forwardRequestToFlow()

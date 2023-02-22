@@ -47,28 +47,36 @@ const defaultBody = Object.freeze({
  *      and `data` (string), containing the Content-Type and response body of the translation trigger,
  *      or rejects with a string error message.
  */
-const startTranslation = (url, jsonBodyToAdd, res) => {
+const startTranslation = async (url, jsonBodyToAdd, res) => {
     const body = Object.assign(Object.assign({}, defaultBody), jsonBodyToAdd);
-    return new Promise(async (resolve, reject) => {
-        try {
-            const resp = await forwardRequestToFlow({
-                httpVerb: "POST",
-                requestUrlParameters: url,
-                body: body,
-                res: res
-            });
-            console.log("just finished triggering the translation!")
-            const text = await resp.text();  // TODO[Zain] - see if this fixes the loadGltf() error?
-            console.log(`Received text: ${text}`);
-            if (resp.ok) {
-                resolve({ contentType: resp.headers.get('Content-Type'), data: text });
-            } else {
-                reject(text);
-            }
-        } catch (err) {
-            reject(err);
-        }
+    console.log("Trying a new way to trigger translations!");
+    return await forwardRequestToFlow({
+        httpVerb: "POST",
+        requestUrlParameters: url,
+        body: body,
+        res: res
     });
+    // TODO[Zain] - see if this should be deleted
+    // return new Promise(async (resolve, reject) => {
+    //     try {
+    //         const resp = await forwardRequestToFlow({
+    //             httpVerb: "POST",
+    //             requestUrlParameters: url,
+    //             body: body,
+    //             res: res
+    //         });
+    //         console.log("just finished triggering the translation!")
+    //         const text = await resp.text();  // TODO[Zain] - see if this fixes the loadGltf() error?
+    //         console.log(`Received text: ${text}`);
+    //         if (resp.ok) {
+    //             resolve({ contentType: resp.headers.get('Content-Type'), data: text });
+    //         } else {
+    //             reject(text);
+    //         }
+    //     } catch (err) {
+    //         reject(err);
+    //     }
+    // });
 };
 
 module.exports = {
@@ -87,7 +95,7 @@ module.exports = {
      * @returns {Promise<object,object>} Resolves or rejects with an object with properties `contentType` (string)
      *      and `data` (string), containing the Content-Type and response body of the translation trigger
      */
-    translateElement: (elementId, translationParams, res) => {
+    translateElement: async (elementId, translationParams, res) => {
         const transUrl = `assemblies/d/${translationParams.documentId}/w/${translationParams.workspaceId}/e/${elementId}/translations`;
         const bodyAdditions = {
             linkDocumentWorkspaceId: translationParams.workspaceId,
@@ -97,7 +105,7 @@ module.exports = {
             angularTolerance: translationParams.angularTolerance,
             maximumChordLength: translationParams.maximumChordLength
         }
-        return startTranslation(transUrl, bodyAdditions, res);
+        return await startTranslation(transUrl, bodyAdditions, res);
     },
     
     /**
@@ -115,7 +123,7 @@ module.exports = {
      * @returns {Promise<object,object>} Resolves or rejects with an object with properties `contentType` (string)
      *      and `data` (string), containing the Content-Type and response body of the translation trigger
      */
-    translatePart: (elementId, partId, translationParams, res) => {
+    translatePart: async (elementId, partId, translationParams, res) => {
         const transUrl = `partstudios/d/${translationParams.documentId}/w/${translationParams.workspaceId}/e/${elementId}/translations`
         const bodyAdditions = {
             linkDocumentWorkspaceId: translationParams.workspaceId,
@@ -125,6 +133,6 @@ module.exports = {
             angularTolerance: translationParams.angularTolerance,
             maximumChordLength: translationParams.maximumChordLength
         };
-        return startTranslation(transUrl, bodyAdditions, res);
+        return await startTranslation(transUrl, bodyAdditions, res);
     }
 }
