@@ -116,6 +116,7 @@ apiRouter.get('/gltf', async (req, res) => {
                 value: 'in-progress',
                 writable: true
             });
+            console.log("just tried to store tid, updated: ", JSON.stringify(razaClient));
         }
         res.status(200).contentType(resp.contentType).send(resp.data);
     } catch (err) {
@@ -136,7 +137,7 @@ apiRouter.get('/gltf', async (req, res) => {
  */
 apiRouter.get('/gltf/:tid', async (req, res) => {
     const results = razaClient[req.params.tid];
-    console.log("found translation!", results);
+    console.log("found translation!", JSON.stringify(results));
     // not a valid ID
     if (results === null || results === undefined) {
         // No record in Redis => not a valid ID (or wasn't saved correctly)
@@ -176,6 +177,7 @@ apiRouter.get('/gltf/:tid', async (req, res) => {
                 .catch((err) => console.error(`Failed to unregister webhook ${webhookID}: ${JSON.stringify(err)}`));
             // delete the key-value pair in our "store" - [Zain]
             delete razaClient[req.params.tid];
+            console.log("just tried to delete translation, store updated: ", JSON.stringify(razaClient));
         }
     }
 });
@@ -194,6 +196,7 @@ apiRouter.post('/event', (req, res) => {
             value: req.body.webhookId,
             writable: true   //  until we have the webhook id, it's "in-progress"
           });
+        console.log("just tried to receive webhook event, store updated: ", JSON.stringify(razaClient));
     }
     res.status(200).send();
 });
