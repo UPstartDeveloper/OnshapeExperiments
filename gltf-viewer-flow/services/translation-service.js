@@ -56,8 +56,8 @@ const startTranslation = async (url, jsonBodyToAdd, res) => {
             body: body,
         });
         console.log("just finished triggering the translation!")
-        const text = await resp.json();
-        console.log(`Received text: ${text}`);
+        const text = await resp.text();
+        console.log(`Received text: ${JSON.stringify(text)}`);
         if (resp.ok) {
             return { contentType: resp.headers.get('Content-Type'), data: text };
         }
