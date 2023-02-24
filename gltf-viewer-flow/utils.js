@@ -31,6 +31,7 @@ module.exports = {
             }
             const data = await resp.text();
             const contentType = resp.headers.get('Content-Type');
+            console.log(`Content type: ${contentType}`);
             console.log(`Request body passed: ${flowRequestBody}`);
             console.log(`Data returned: ${data}`)
             onshapeRequestData.res.status(resp.status).contentType(contentType).send(data);

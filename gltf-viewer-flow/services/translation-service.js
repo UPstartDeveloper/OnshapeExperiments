@@ -54,7 +54,6 @@ const startTranslation = async (url, jsonBodyToAdd, res) => {
             httpVerb: "POST",
             requestUrlParameters: url,
             body: body,
-            // res: res
         });
         console.log("just finished triggering the translation!")
         const text = await resp.text();
