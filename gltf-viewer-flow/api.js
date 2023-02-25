@@ -164,8 +164,8 @@ apiRouter.get('/gltf/:tid', async (req, res) => {
                         // `${onshapeApiUrl}`,  // will be injected in Flow itself
                         "documents",
                         "d",
-                        `${transJson.documentId}",
-                        "externaldata`,
+                        `${transJson.documentId}`,
+                        "externaldata",
                         `${transJson.resultExternalDataIds[0]}`, 
                     ].join("/"),
                     res: res
