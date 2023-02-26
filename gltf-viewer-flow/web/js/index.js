@@ -246,7 +246,7 @@ $elemSelector.addEventListener('change', async (evt) => {
                 if (respJson.error) {
                     displayError('There was an error translating the model to GLTF.');
                 } else {
-                    console.log(`Loading GLTF data... ${JSON.stringify(respJson)}`);
+                    console.log(`Loading GLTF data...`);
                     loadGltf(respJson);
                 }
             });
