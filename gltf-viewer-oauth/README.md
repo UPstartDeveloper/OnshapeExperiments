@@ -14,6 +14,7 @@ This section outlines how to deploy and configure the application on Heroku. If 
     ---> for best compatibility, use Node >= v.18
     ---> include w/ `npm install rollup --save-dev`
     ---> then execute w/ yarn or npx --> see the [docs](https://www.rollupjs.org/guide/en/#installing-rollup-locally)
+- under the App Store section --> should include a CTA that they need to grant access to their ext from their Account > Applications page
 
 ### Old Instructions (ignore anything where Redis is mentioned)
 These instructions assume that the following utilities are installed: git, npm, and [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) (e.g. `brew tap heroku/brew && brew install heroku` on macOS or `sudo snap install --classic heroku` on Linux distributions that support Snap applications).
