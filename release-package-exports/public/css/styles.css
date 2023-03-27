@@ -14,3 +14,7 @@
 #middle-section {
     height: 45em;
 }
+
+.secondaryField {
+    display: none;
+}

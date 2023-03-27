@@ -22,14 +22,6 @@
                     <img id="custom-home-link"
                          src="../images/ptc-logo-white.png"/>
                 </a>
-                <!-- <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button> -->
-                <!-- <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
-                    <ul id="custom-home-link" class="list-group list-group-horizontal ml-auto">
-                        ...
-                    </ul>
-                </div> -->
             </div>
         </nav> 
     
@@ -38,52 +30,51 @@
             <div class="jumbotron justify-content-center">
                 <h1 class="row display-3">Onshape Exports Releases</h1>
                 <div id="gltf-container">
-                    <!-- Form to "feed" API call to retrieve glTF -->
+                    <!-- Form to "feed" API call to trigger export workflow -->
                     <div id="elem-selector" class="mb-5">
                         <div class="form-group">
-                            <label for="documentIdInput">Document ID</label>
-                            <input name="documentId" type="text" 
-                                   class="form-control" id="documentIdInput" 
-                                   aria-describedby="documentIdHelp" value="f246b429ad653513d90defe2">
-                            <small id="documentIdHelp" class="form-text text-muted">Please enter the ID of your Onshape document.</small>
-                        </div>
-                        <div class="form-group">
-                            <label for="wvmSingleChoiceSelect">Select which "Type" of ID you have:</label>
-                            <select class="form-control" id="wvmSingleChoiceSelect" name="idChoice">
-                              <option>w</option>
-                              <option>v</option>
-                              <option>m</option>
+                            <label for="exportDestination">Select Export Destination</label>
+                            <select name="exportDestination" 
+                                    id="exportDestinationField"
+                                    class="form-control"
+                                    aria-describedby="exportDestinationHelp">
+                                <option value="googleDrive">Choose One of the Following:</option>
+                                <option value="googleDrive">Google Drive</option>
                             </select>
-                            <small id="idChoiceHelp" class="form-text text-muted">
-                                w = "workspace ID"; v = "version ID"; m = "microversion ID"
-                            </small>
+                            <small id="exportDestinationHelp" class="form-text text-muted">Please choose which system to export your release package to (as a .json file).</small>
                         </div>
-                        <div class="form-group">
-                            <label for="wvmIdInput">WVM ID</label>
-                            <input name="providedId" type="text" 
-                                   class="form-control" id="wvmIdInput" 
-                                   aria-describedby="providedIdHelp" value="467dd42ecaa46be04cc2500a">
-                            <small id="providedIdHelp" class="form-text text-muted">
-                                Please enter the ID of your workspace, current version, 
-                                or microversion (must correspond to the "type" of ID chosen above).
-                            </small>
-                        </div>
-                        <div class="form-group">
-                            <label for="elementIdInput">Element ID</label>
-                            <input name="elementId" type="text" 
-                                   class="form-control" id="elementIdInput" 
-                                   aria-describedby="eIdInputHelp" value="eff42e24b584233240dff36f">
-                            <small id="elementIdHelp" class="form-text text-muted">
-                                I think you can figure what this one means 😄
-                            </small>
+                        <!-- Workflow Params Specific to Google Drive -->
+                        <div id="googleDriveParams" class="mb-1 secondaryField">
+                            <div class="form-group">
+                                <label for="googleDriveEmailAddress">Email Address</label>
+                                <!-- TODO[Zain]: in the eventListener, use an async API call to get the user's email to fill in the placeholder -->
+                                <input id="googleDriveEmailAddressId"
+                                       type="text"
+                                       name="googleDriveEmailAddress"
+                                       placeholder=""
+                                       class="form-control"
+                                       aria-describedby="googleDriveEmailAddressHelp"/>
+                                <small id="googleDriveEmailAddressHelp" class="form-text text-muted">Specify to which email address we will share our release package (.json) file.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="googleDriveEmailMessage">Email Message</label>
+                                <input id="googleDriveEmailMessageId"
+                                       type="text"
+                                       name="googleDriveEmailMessage"
+                                       placeholder=""
+                                       class="form-control"
+                                       aria-describedby="googleDriveEmailMessageHelp"/>
+                                <small id="googleDriveEmailMessageHelp" class="form-text text-muted">(Optional) include a note to share with your recipient in their email notification.</small>
+                            </div>
                         </div>
                         <button id="formSubmitButton" type="submit" class="btn btn-primary">Submit</button>
                     </div>
-                    <div id='gltf-viewport'></div>
                 </div>
-                
                 
             </div>
         </div>
+
+        <!-- FORM LOGIC -->
+        <script type="module" src="main.js"></script>
     </body> 
 </html>
