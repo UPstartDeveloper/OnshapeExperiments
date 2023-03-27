@@ -1,83 +1,74 @@
+// Imports
 const path = require('path');
 
 const express = require('express');
 const bodyParser = require('body-parser');
 
-const app = express();
 
-// Auth middleware
-const uuid = require('uuid');
-const session = require('express-session');
-const MemoryStore = require('memorystore')(session);
-const passport = require('passport');
-const OnshapeStrategy = require('passport-onshape');
 const config = require('./config');
 
-app.set('trust proxy', 1); // To allow to run correctly behind Render
+// Create the app
+const app = express();
 
-app.use(session({
-    store: new MemoryStore({
-        checkPeriod: 86400000 // prune expired entries every 24h
-    }),
-    secret: config.sessionSecret,
-    saveUninitialized: false,
-    resave: false,
-    cookie: {
-        name: 'app-gltf-viewer',
-        sameSite: 'none',
-        secure: true,
-        httpOnly: true,
-        path: '/',
-        maxAge: 1000 * 60 * 60 * 24 // 1 day
-    }
-}));
-app.use(passport.initialize());
-app.use(passport.session());
+var env = config.env;
+app.locals.ENV = env;
+app.locals.ENV_DEVELOPMENT = env == 'development';
 
-passport.use(
-    new OnshapeStrategy({
-        clientID: config.oauthClientId,
-        clientSecret: config.oauthClientSecret,
-        callbackURL: config.oauthCallbackUrl,
-        authorizationURL: `${config.oauthUrl}/oauth/authorize`,
-        tokenURL: `${config.oauthUrl}/oauth/token`,
-        userProfileURL: `${config.oauthUrl}/api/users/sessioninfo`
-    },
-    (accessToken, refreshToken, profile, done) => {
-        profile.accessToken = accessToken;
-        profile.refreshToken = refreshToken;
-        return done(null, profile);
-    }
-));
-passport.serializeUser((user, done) => done(null, user));
-passport.deserializeUser((obj, done) => done(null, obj));
-
-// Other middleware
+// Middleware - rendering static files
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'dist')));
 app.use(bodyParser.json());
 
-// Controller functions
-app.use('/oauthSignin', (req, res) => {
-    const state = {
-        docId: req.query.documentId,
-        workId: req.query.workspaceId,
-        elId: req.query.elementId
-    };
-    req.session.state = state;
-    return passport.authenticate('onshape', { state: uuid.v4(state) })(req, res);
-}, (req, res) => { /* redirected to Onshape for authentication */ });
+// Middleware - auth
+app.set('trust proxy', 1); // To allow to run correctly behind Render
 
-app.use('/oauthRedirect', passport.authenticate('onshape', { failureRedirect: '/grantDenied' }), (req, res) => {
-    res.redirect(`/?documentId=${req.session.state.docId}&workspaceId=${req.session.state.workId}&elementId=${req.session.state.elId}`);
-});
-
+// Routes
+// TODO[Zain] - in the future, add /oauthSignin, expect a query string akin to 
+// ?companyId=cad&server=https%3A%2F%2Fcad.onshape.com&userId=62d6a218a83ae4209330d294&clientId=IB7YN7MPBBVP6MQ3ZVIJO3MWZZSZMDV6VCF6RBQ%3D&locale=en-US
+app.use('/oauthRedirect', (req, res) => {
+    res.status(600).send({ err: "Whaaaat? this route got called?" });
+})
 app.get('/grantDenied', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'html', 'grantDenied.html'));
-})
+});
+
+// TODO[Zain] - uncomment this when we're ready
+// app.use('/api', require('./api'));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'html', 'index.html'));
+});
+
+// catch 404s and forward to error handler
+app.use(function(req, res, next) {
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
+});
+
+// error logging - we only print stack traces for dev env
+if (app.get('env') === 'development') {
+    app.use(function(err, req, res, next) {
+        console.log('****** Error ' + err.status, err.message);
+
+        res.status(err.status || 500);
+        res.render('error', {
+            message: err.message,
+            error: err,
+            title: 'error'
+        });
+    });
+}
+
+// production error handler - no stacktraces leaked to user
+app.use(function(err, req, res, next) {
+    console.log('****** Error ' + err.status, err.message);
+
+    res.status(err.status || 500);
+    res.json({
+        message: err.message,
+        error: err
+    });
 });
 
 module.exports = app;

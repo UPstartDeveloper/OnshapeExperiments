@@ -34,7 +34,7 @@
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-node-resolve": "^11.0.0",
     "eslint": "^7.15.0",
-    "nodemon": "^2.0.20",
+    "nodemon": "2.0.22",
     "rollup": "^2.79.1"
   },
   "engines": {
