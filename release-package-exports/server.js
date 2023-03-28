@@ -23,7 +23,7 @@ app.use(bodyParser.json());
 app.set('trust proxy', 1); // To allow to run correctly behind Render
 
 // Routes
-// TODO[Zain] - in the future, add /oauthSignin, expect a query string akin to 
+// TODO[Zain][3] - in the future, add /oauthSignin, expect a query string akin to 
 // ?companyId=cad&server=https%3A%2F%2Fcad.onshape.com&userId=62d6a218a83ae4209330d294&clientId=IB7YN7MPBBVP6MQ3ZVIJO3MWZZSZMDV6VCF6RBQ%3D&locale=en-US
 app.use('/oauthRedirect', (req, res) => {
     res.status(600).send({ err: "Whaaaat? this route got called?" });
@@ -32,8 +32,8 @@ app.get('/grantDenied', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'html', 'grantDenied.html'));
 });
 
-// TODO[Zain] - uncomment this when we're ready
-// app.use('/api', require('./api'));
+// TODO[Zain][1] - debug this
+app.use('/api', require('./api'));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'html', 'index.html'));
