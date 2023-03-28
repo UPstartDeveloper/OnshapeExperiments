@@ -7,6 +7,10 @@ exportDropdown.addEventListener("change", function() {
         // display the fields
         googleDriveParams.classList.remove(["secondaryField"]);
     }
+    else {
+        // hide the non-relevant fields
+        googleDriveParams.classList.add("secondaryField");
+    }
 
     // ... logic for other export destinations coming soon(?)
 });
