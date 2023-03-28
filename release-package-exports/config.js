@@ -4,8 +4,16 @@ const oauthCallbackUrl = process.env.OAUTH_CALLBACK_URL;
 const oauthClientId = process.env.OAUTH_CLIENT_ID;
 const oauthClientSecret = process.env.OAUTH_CLIENT_SECRET;
 const oauthUrl = process.env.OAUTH_URL;
+
 const sessionSecret = process.env.SESSION_SECRET;
 const webhookCallbackRootUrl = process.env.WEBHOOK_CALLBACK_ROOT_URL;
+const env = process.env.NODE_ENV || 'development';
+// API keys
+const accessKey = process.env.ONSHAPE_API_ACCESSKEY;
+const secretKey = process.env.ONSHAPE_API_SECRETKEY;
+// Where you want to make API requests in Flow
+const onshapeAPIRequestProxyInFlow = process.env.FLOW_FWD_REQ_TO_ONSHAPE_TRIGGER;
+const onshapeRegisterWebhookFlow = process.env.FLOW_REGISTER_ONSHAPE_WEBHOOK;
 
 /**
  * Checks if the given string is a URL. A string considered a URL if it can be parsed
@@ -82,7 +90,12 @@ if (!isValidHttpUrl(oauthCallbackUrl))                      errors.push('OAUTH_C
 if (!isValidString(oauthClientId))                          errors.push('OAUTH_CLIENT_ID must have content');
 if (!isValidString(oauthClientSecret))                      errors.push('OAUTH_CLIENT_SECRET must have content');
 if (!isValidHttpUrl(oauthUrl))                              errors.push('OAUTH_URL is not a valid HTTP(S) URL');
+// [Zain]: old stuff
+// if (redisToGoUrl && !isValidUrl(redisToGoUrl, 'redis:'))    errors.push('REDISTOGO_URL is not a valid Redis URL');
+// if (redisHost && !isValidString(redisHost))                 errors.push('REDIS_HOST must have content');
+// if (redisPort && !isValidString(redisPort))                 errors.push('REDIS_PORT must have content');
 if (!isValidString(sessionSecret))                          errors.push('SESSION_SECRET must have content');
+if (!((env === 'development') || (env === 'production')))   errors.push("NODE_ENV must be set to either 'development' or 'production'");
 if (!isValidHttpUrl(webhookCallbackRootUrl))                errors.push('WEBHOOK_CALLBACK_ROOT_URL is not a valid HTTP(S) URL');
 
 // Halt execution if the app isn't correctly configured.
@@ -122,6 +135,22 @@ module.exports = {
      */
     oauthUrl,
     
+    // [Zain]: old stuff
+    /**
+     * The URL of the Redis To Go add-on (if deployed in Heroku). This may be `undefined`.
+     */
+    // redisToGoUrl,
+    
+    /**
+     * The URL of the Redis host. This may be `undefined`.
+     */
+    // redisHost,
+    
+    /**
+     * The port of the Redis host. This may be `undefined`.
+     */
+    // redisPort,
+    
     /**
      * The secret for handling session data.
      */
@@ -131,5 +160,20 @@ module.exports = {
      * The URL of the webhook callback URL. This will be the `/api/event` endpoint on
      * this server, e.g. `https://your-machine.example.com`.
      */
-    webhookCallbackRootUrl
+    webhookCallbackRootUrl,
+
+    /**
+     * the environment which this codebase is being deployed
+     */
+    env,
+
+    /** API keys - used for request authorization
+     * note for they keys - these are really only intended for dev purposes 
+     */
+    accessKey,
+    secretKey,
+
+    /** Flow endpoints */
+    onshapeAPIRequestProxyInFlow,
+    onshapeRegisterWebhookFlow
 }
