@@ -1,9 +1,13 @@
 const fetch = require('node-fetch');
-const passport = require('passport');
 const OnshapeStrategy = require('passport-onshape').Strategy;
 const config = require('./config');
 
-function init() {
+/**
+ * Configures settings needed to implement OAuth flows.
+ * @param {module} passport: An import of Passport.js
+ * @returns {null}
+ */
+function init(passport) {
   passport.serializeUser(function(user, done) {
     done(null, user);
   });
@@ -17,10 +21,13 @@ function init() {
       callbackUrl: config.oauthCallbackUrl,
       authorizationURL: `${config.oauthUrl}/oauth/authorize`,
       tokenURL: `${config.oauthUrl}/oauth/token`,
-      userProfileURL: `${config.apiUrl}/api/users/sessioninfo`
+      userProfileURL: `${config.onshapeApiUrl}/users/sessioninfo`
     },
     (accessToken, refreshToken, profile, done) => {
       // asynchronous verification, for effect...
+      console.log(`Profile found? ${JSON.stringify(profile)}`);
+      console.log(`Refresh token found? ${JSON.stringify(refreshToken)}`);
+      console.log(`Access token found? ${JSON.stringify(accessToken)}`);
       profile.accessToken = accessToken;
       profile.refreshToken = refreshToken;
 
@@ -77,7 +84,7 @@ function refreshOAuthToken(req, res, next) {
 }
 
 function getAuthUri() {
-  return config.oauthUrl + '/oauth/authorize?response_type=code&client_id=' + oauthClientId;
+  return config.oauthUrl + '/oauth/authorize?response_type=code&client_id=' + config.oauthClientId;
 }
 
 module.exports = {

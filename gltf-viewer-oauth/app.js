@@ -3,18 +3,21 @@ const path = require('path');
 const uuid = require('uuid');
 
 const express = require('express');
-const session = require('express-session');
+const session = require('express-session');  // manages sessions for this app server itself
 const bodyParser = require('body-parser');
 
+// Auth + session stuff
 const MemoryStore = require('memorystore')(session);
 const passport = require('passport');
+const authentication = require('./authentication');
 
-var authentication = require('./authentication');
+authentication.init(passport);
+console.log(`Passport object: ${JSON.stringify(passport)}`);
+
 const config = require('./config');
 
 // Create the app
 const app = express();
-authentication.init();
 
 var env = config.env;
 app.locals.ENV = env;
@@ -41,7 +44,8 @@ app.use(session({
         secure: true,
         httpOnly: true,
         path: '/',
-        maxAge: 1000 * 60 * 60 * 24 // 1 day
+        maxAge: 1000 * 60 * 60 * 24 // 1 day  TODO[Zain][4]: uncomment later 
+        // maxAge: 1000 * 60 * 2 // 2 min, b/c we're just testing for now 
     }
 }));
 app.use(passport.initialize());
@@ -50,17 +54,32 @@ app.use(passport.session());
 
 // Routes
 app.use('/oauthSignin', (req, res) => {
+    console.log(`This is the session BEFORE adding state: ${JSON.stringify(req.session)}`);
     const state = {
         docId: req.query.documentId,
         workId: req.query.workspaceId,
         elId: req.query.elementId
     };
-    req.session.state = state;
+    // ✅ the state var IS defined here
+    req.session.onshapeDocParams = state;
+    console.log(`This is the session AFTER adding state: ${JSON.stringify(req.session)}`);
     return passport.authenticate('onshape', { state: uuid.v4(state) })(req, res);
 }, (req, res) => { /* redirected to Onshape for authentication */ });
-
+/** TODO[Zain]: debug - passport.authenticate() below fails, which is where we visit 
+ * the passport.strategy.authorizationURL
+*/
 app.use('/oauthRedirect', passport.authenticate('onshape', { failureRedirect: '/grantDenied' }), (req, res) => {
-    res.redirect(`/?documentId=${req.session.state.docId}&workspaceId=${req.session.state.workId}&elementId=${req.session.state.elId}`);
+    // TODO[Zain][3]: handle the error where the session ids not found - so that app should not crash when folks try to authorize from their applications settings page in Onshape
+    console.log(`This is the request session: ${[
+        req.session?.onshapeDocParams?.docId,
+        req.session?.onshapeDocParams?.workId,
+        req.session?.onshapeDocParams?.elId
+    ]}`);
+    if (req.session.onshapeDocParams) {
+        res.redirect(`/?documentId=${req.session.onshapeDocParams.docId}&workspaceId=${req.session.onshapeDocParams.workId}&elementId=${req.session.onshapeDocParams.elId}`);
+    } else {
+        res.redirect("/");
+    }
 });
 
 app.get('/grantDenied', (req, res) => {
@@ -98,8 +117,7 @@ if (app.get('env') === 'development') {
 app.use(function(err, req, res, next) {
     console.log('****** Error ' + err.status, err.message);
 
-    res.status(err.status || 500);
-    res.render('error', {
+    res.status(err.status || 500).json('error', {
         message: err.message,
         error: {},
         title: 'error'
