@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const { onshapeAPIRequestProxyInFlow } = require('./config');
+const { accessKey, onshapeAPIRequestProxyInFlow, secretKey } = require('./config');
 
 module.exports = {
 
@@ -15,11 +15,13 @@ module.exports = {
      */
     forwardRequestToFlow: async (onshapeRequestData) => {
         try {
+            const encodedString = Buffer.from(`${accessKey}:${secretKey}`).toString('base64');
             // API request
             const flowRequestBody = JSON.stringify({
                 "httpVerb": onshapeRequestData.httpVerb,
                 "requestUrlParameters": onshapeRequestData.requestUrlParameters,
-                "onshapeRequestBody": onshapeRequestData.body ? onshapeRequestData.body : {}
+                "onshapeRequestBody": onshapeRequestData.body ? onshapeRequestData.body : {},
+                "basicAuthString": encodedString
             });
             const resp = await fetch(onshapeAPIRequestProxyInFlow, {
                 method: 'POST',

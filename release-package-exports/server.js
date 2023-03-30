@@ -32,7 +32,6 @@ app.get('/grantDenied', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'html', 'grantDenied.html'));
 });
 
-// TODO[Zain][1] - debug this
 app.use('/api', require('./api'));
 
 app.get('/', (req, res) => {

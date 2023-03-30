@@ -6,89 +6,36 @@ const razaClient = require('./raza-client');
 const apiRouter = require('express').Router();
 
 /**
- * Get the Elements of the current document/workspace.
+ * Get the email of the current user. Save in-memory.
  * 
- * GET /api/elements
- *      -> 200, [ ...elements ]
+ * GET /api/users/sessioninfo
+ *      -> 200, [ ...email ]
  *      -or-
  *      -> 500, { error: '...' }
  */
-apiRouter.get('/elements', (req, res) => {
+apiRouter.get('/email', (req, res) => {
     forwardRequestToFlow({
         httpVerb: "GET",
-        requestUrlParameters: [ 
-            "documents/d",
-            `${req.query.documentId}`,
-            `w/${req.query.workspaceId}`, 
-            "elements"
-        ].join("/"),
+        requestUrlParameters: "users/sessioninfo",
         res: res
     });
 });
 
 /**
- * Get the Parts of the given Element in the current document/workspace.
- * 
- * GET /api/elements/:eid/parts
- *      -> 200, [ ...parts ]
- *      -or-
- *      -> 500, { error: '...' }
- */
-apiRouter.get('/elements/:eid/parts', (req, res) => {
-    forwardRequestToFlow({
-        httpVerb: "GET",
-        requestUrlParameters: [ 
-            "parts/d",
-            `${req.query.documentId}`,
-            `w/${req.query.workspaceId}`, 
-            `e/${req.params.eid}`
-        ].join("/"),
-        res: res
-    });
-});
-
-/**
- * Get the Parts of the current document/workspace.
- * 
- * GET /api/parts
- *      -> 200, [ ...parts ]
- *      -or-
- *      -> 500, { error: '...' }
- */
-apiRouter.get('/parts', (req, res) => {
-    forwardRequestToFlow({
-        httpVerb: "GET",
-        requestUrlParameters: [
-            // `${onshapeApiUrl}`,  // will be injected in Flow itself
-            "parts/d",
-            `${req.query.documentId}`,
-            `w/${req.query.workspaceId}`, 
-        ].join("/"),
-        res: res
-    });
-});
-
-/**
- * Trigger translation to GLTF from the given element.
+ * TODO[Zain][4]
+ * Register webhook notification of the latest completed release package.
  * 
  * GET /api/gltf?documentId=...&workspaceId=...&gltfElementId=...
  *      -> 200, { ..., id: '...' }
  *      -or-
  *      -> 500, { error: '...' }
  */
-// TODO[Zain]: instead of relying on a lousy data store, create a custom Flow to do the whole 
-// process + retrieve a glTF --> possibly with a custom action
 apiRouter.get('/gltf', async (req, res) => {
     // Extract the necessary IDs from the querystring
-    const did = req.query.documentId,
-        wid = req.query.workspaceId,
-        gltfElemId = req.query.gltfElementId,
-        partId = req.query.partId;
+    const cid = req.query.companyId;
 
     const webhookParams = {
-        documentId: did,
-        workspaceId: wid,
-        elementId: gltfElemId,
+        companyId: cid,
         webhookCallbackRootUrl: webhookCallbackRootUrl
     };
 
@@ -123,7 +70,7 @@ apiRouter.get('/gltf', async (req, res) => {
 });
 
 /**
- * Retrieve the translated GLTF data.
+ * Retrieve the release package in JSON.
  * 
  * GET /api/gltf/:tid
  *      -> 200, { ...gltf_data }
