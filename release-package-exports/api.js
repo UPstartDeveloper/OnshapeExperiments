@@ -6,7 +6,7 @@ const razaClient = require('./raza-client');
 const apiRouter = require('express').Router();
 
 /**
- * Get the email of the current user. Save in-memory.
+ * Get the email of the current user (amongst other profile info) from Onshape.
  * 
  * GET /api/users/sessioninfo
  *      -> 200, [ ...email ]
