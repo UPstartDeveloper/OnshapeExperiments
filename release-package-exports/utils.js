@@ -50,5 +50,14 @@ module.exports = {
      * For more on the event types enumerated by the Onshape API, please see:
      * https://onshape-public.github.io/docs/webhook/
      */
-    ONSHAPE_WORKFLOW_EVENT: "onshape.workflow.transition"
+    ONSHAPE_WORKFLOW_EVENT: "onshape.workflow.transition",
+
+    /**
+     * These are Onshape-specific enum strings that describe the state
+     * of "Workflow" objects (i.e., one of the resources in the Onshape REST API).
+     * 
+     * These will help us detect when our release package has successfully completed, well, releasing!
+     */
+    ONSHAPE_RELEASE_OBJECT_TYPE: "RELEASE",
+    ONSHAPE_RELEASE_STATE_COMPLETED: "RELEASED"
 }

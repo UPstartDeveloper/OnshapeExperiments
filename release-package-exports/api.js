@@ -3,7 +3,12 @@ const {
     onshapeExportToGoogleDriveFlow,
     webhookCallbackRootUrl 
 } = require('./config');
-const { forwardRequestToFlow, ONSHAPE_WORKFLOW_EVENT } = require('./utils');
+const { 
+    forwardRequestToFlow,
+    ONSHAPE_WORKFLOW_EVENT,
+    ONSHAPE_RELEASE_OBJECT_TYPE,
+    ONSHAPE_RELEASE_STATE_COMPLETED
+} = require('./utils');
 const razaClient = require('./raza-client');
     
 const apiRouter = require('express').Router();
@@ -145,7 +150,7 @@ apiRouter.post('/event', async (req, res) => {
          *      --> https://stackoverflow.com/questions/34674326/node-express-storage-and-retrieval-of-authentication-tokens
          *      --> https://stackoverflow.com/questions/16209145/how-can-i-set-cookie-in-node-js-using-express-framework
          */
-        if (eventJson.objectType === 'RELEASE') {
+        if (eventJson.objectType === ONSHAPE_RELEASE_OBJECT_TYPE) {
             const rpId = eventJson.objectId;
             // check if this release is all done, if so forward to flow
             const releasePackage = await forwardRequestToFlow({
@@ -153,7 +158,7 @@ apiRouter.post('/event', async (req, res) => {
                 requestUrlParameters: `releasepackages/${rpId}`,
                 res: res
             });
-            if (releasePackage.stateId === 'RELEASED') {
+            if (releasePackage.stateId === ONSHAPE_RELEASE_STATE_COMPLETED) {
                 // post all the needed params to the GDrive Flow
                 const exportFlowParams = {
                     exportDestination: razaClient["exportDestination"],
