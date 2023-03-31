@@ -40,5 +40,15 @@ module.exports = {
         } catch (err) {
             onshapeRequestData.res.status(500).json({ error: err });
         }
-    }
+    },
+
+    /**
+     * Webhook notifications from Onshape will include the below string,
+     * when it occurs due to a revision or release package transition 
+     * through workflow states.
+     * 
+     * For more on the event types enumerated by the Onshape API, please see:
+     * https://onshape-public.github.io/docs/webhook/
+     */
+    ONSHAPE_WORKFLOW_EVENT: "onshape.workflow.transition"
 }

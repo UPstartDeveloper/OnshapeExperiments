@@ -1,14 +1,15 @@
 const fetch = require('node-fetch');
 const { forwardRequestToFlow } = require('../utils');
 const {
-    onshapeApiUrl,
+    accessKey,
     onshapeRegisterWebhookFlow,
+    secretKey
 } = require('../config');
 
 module.exports = {
     
     /**
-     * Register a new webhook to listen for translation completion.
+     * Register a new webhook to listen for completion of release packages.
      * @param {Object<string, string>} webhookParams: provides the identifiers needed to trigger the webhook
      *      @param {string} companyId The ID of the company we (the admin user) are in
      *      @param {string} webhookCallbackRootUrl the URL of our app (for Onshape to POST back to, when the webhook fires)
@@ -18,6 +19,9 @@ module.exports = {
     registerWebhook: (webhookParams, res) => {
         return new Promise(async (resolve, reject) => {
             try {
+                // add the string we'll need for authorizating the request made to Onshape
+                const encodedString = Buffer.from(`${accessKey}:${secretKey}`).toString('base64');
+                webhookParams.basicAuthSignature = encodedString;
                 // fwd request to Flow!
                 const resp = await fetch(onshapeRegisterWebhookFlow, {
                     method: 'POST',

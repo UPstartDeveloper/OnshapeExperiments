@@ -1,6 +1,6 @@
 const WebhookService = require('./services/webhook-service');
 const { webhookCallbackRootUrl } = require('./config');
-const { forwardRequestToFlow } = require('./utils');
+const { forwardRequestToFlow, ONSHAPE_WORKFLOW_EVENT } = require('./utils');
 const razaClient = require('./raza-client');
     
 const apiRouter = require('express').Router();
@@ -22,15 +22,14 @@ apiRouter.get('/email', (req, res) => {
 });
 
 /**
- * TODO[Zain][4]
  * Register webhook notification of the latest completed release package.
  * 
- * GET /api/gltf?documentId=...&workspaceId=...&gltfElementId=...
+ * GET /api/notifications?documentId=...&workspaceId=...&companyId=...
  *      -> 200, { ..., id: '...' }
  *      -or-
  *      -> 500, { error: '...' }
  */
-apiRouter.get('/gltf', async (req, res) => {
+apiRouter.get('/notifications', async (req, res) => {
     // Extract the necessary IDs from the querystring
     const cid = req.query.companyId;
 
@@ -40,36 +39,21 @@ apiRouter.get('/gltf', async (req, res) => {
     };
 
     WebhookService.registerWebhook(webhookParams, res)
-        .catch((err) => console.error(`Failed to register webhook: ${err}`));
-    
-    const translationParams = {
-        documentId: did,
-        workspaceId: wid,
-        resolution: 'medium',
-        distanceTolerance: 0.00012,
-        angularTolerance: 0.1090830782496456,
-        maximumChordLength: 10
-    };
-    try {
-        const resp = await (partId ? TranslationService.translatePart(gltfElemId, partId, translationParams, res)
-            : TranslationService.translateElement(gltfElemId, translationParams, res));
-        // Store the tid in memory so we know that it's being processed; it will remain 'in-progress' until we
-        // are notified that it is complete, at which point it will be the translation ID.
-        if (resp.contentType.indexOf('json') >= 0) {
-            Object.defineProperty(razaClient, JSON.parse(resp.data).id, {
-                value: 'in-progress',
-                writable: true
-            });
-            console.log("just tried to store tid, updated: ", JSON.stringify(razaClient));
+        // provide the client with the webhook ID, so they know it was register
+        .then((webhookId) => res.status(200).send({ webhookID: webhookId }))
+        .catch((err) => {
+            console.error(`Failed to register webhook: ${err}`);
+            res.status(500).json({ error: err });
         }
-        res.status(200).contentType(resp.contentType).send(resp.data);
-    } catch (err) {
-        // error message should also be sent in server res --> see forwardRequestToFlow()
-        console.log(`Error requesting translation from Onshape: ${err}`);
-    }
+    );
 });
 
 /**
+ * TODO[5][Zain]: IGNORE THIS ROUTE FOR NOW
+ *                confirm with Gideon - how many different systems could a customer
+ *                wish to send their rel pkg to? 
+ *                And, what is the use case around if they decide to move out of Google Drive, if any?
+ *                      --> reason I ask is because I'm not sure if we need to support a "delete webhook btn"?
  * Retrieve the release package in JSON.
  * 
  * GET /api/gltf/:tid
@@ -133,9 +117,14 @@ apiRouter.get('/gltf/:tid', async (req, res) => {
  *      -> 200
  */
 apiRouter.post('/event', (req, res) => {
-    if (req.body.event === 'onshape.model.translation.complete') {
-        // Save in Redis so we can return to client later (& unregister the webhook).
-        // redisClient.set(req.body.translationId, req.body.webhookId);  // [Zain] - old stuff
+    if (req.body.event === ONSHAPE_WORKFLOW_EVENT) {
+        /**
+         * Save in memory so we can return to client later (& unregister the webhook).
+         * TODO[Zain][4] - use a better memory store - e.g., see these links to do using cookies:
+         *      --> https://stackoverflow.com/questions/34674326/node-express-storage-and-retrieval-of-authentication-tokens
+         *      --> https://stackoverflow.com/questions/16209145/how-can-i-set-cookie-in-node-js-using-express-framework
+         */
+        // TODO[Zain]: 
         Object.defineProperty(razaClient, req.body.translationId, {
             value: req.body.webhookId,
             writable: true   //  until we have the webhook id, it's "in-progress"
