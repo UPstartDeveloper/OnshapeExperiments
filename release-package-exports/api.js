@@ -124,7 +124,6 @@ apiRouter.post('/event', (req, res) => {
          *      --> https://stackoverflow.com/questions/34674326/node-express-storage-and-retrieval-of-authentication-tokens
          *      --> https://stackoverflow.com/questions/16209145/how-can-i-set-cookie-in-node-js-using-express-framework
          */
-        // TODO[Zain]: 
         Object.defineProperty(razaClient, req.body.translationId, {
             value: req.body.webhookId,
             writable: true   //  until we have the webhook id, it's "in-progress"

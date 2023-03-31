@@ -1,4 +1,5 @@
 const exportDropdown = document.getElementById("exportDestinationField");
+const exportFormSubmitButton = document.getElementById("exportFormSubmitButton");
 const googleDriveParams = document.getElementById("googleDriveParams");
 const googleDriveEmail = document.getElementById("googleDriveEmailAddressId");
 
@@ -50,4 +51,19 @@ exportDropdown.addEventListener("change", async function() {
     }
 
     // ... logic for other export destinations coming soon(?)
+});
+
+exportFormSubmitButton.addEventListener("click", async function() {
+
+    const resp = await fetch(`/api/notifications${window.location.search}`);
+    const json = await resp.json()
+    if (Object.keys(json).includes("webhookID")) {
+        // TODO[Zain]: make a green modal appear to show the user the notification is enabled
+        console.log(`I have an ID! Here it is: ${json.webhookID}`);
+    } else {
+        // TODO[Zain]: if not, display an error - it should be a red modal
+        console.log(`I have an error: ${resp.error}`);
+    }
+
+
 });
