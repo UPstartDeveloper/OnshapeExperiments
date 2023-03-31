@@ -1,5 +1,8 @@
 const WebhookService = require('./services/webhook-service');
-const { webhookCallbackRootUrl } = require('./config');
+const { 
+    onshapeExportToGoogleDriveFlow,
+    webhookCallbackRootUrl 
+} = require('./config');
 const { forwardRequestToFlow, ONSHAPE_WORKFLOW_EVENT } = require('./utils');
 const razaClient = require('./raza-client');
     
@@ -31,12 +34,29 @@ apiRouter.get('/email', (req, res) => {
  */
 apiRouter.get('/notifications', async (req, res) => {
     // Extract the necessary IDs from the querystring
-    const cid = req.query.companyId;
+    const cid = req.query.companyId, 
+          exportDestination = req.query.exportDestination ? req.query.emailAddress: "",
+          emailAddress = req.query.emailAddress ? req.query.emailAddress: "",
+          emailMessage = req.query.emailMessage ? req.query.emailMessage: "";
 
     const webhookParams = {
         companyId: cid,
         webhookCallbackRootUrl: webhookCallbackRootUrl
     };
+
+    // save the query string data - will come in useful later
+    Object.defineProperty(razaClient, "exportDestination", {
+        value: exportDestination,
+        writable: true
+    });
+    Object.defineProperty(razaClient, "emailAddress", {
+        value: emailAddress,
+        writable: true
+    });
+    Object.defineProperty(razaClient, "emailMessage", {
+        value: emailMessage,
+        writable: true
+    });
 
     WebhookService.registerWebhook(webhookParams, res)
         // provide the client with the webhook ID, so they know it was register
@@ -116,20 +136,41 @@ apiRouter.get('/gltf/:tid', async (req, res) => {
  * POST /api/event
  *      -> 200
  */
-apiRouter.post('/event', (req, res) => {
-    if (req.body.event === ONSHAPE_WORKFLOW_EVENT) {
+apiRouter.post('/event', async (req, res) => {
+    const eventJson = req.body;
+    if (eventJson.event === ONSHAPE_WORKFLOW_EVENT) {
         /**
          * Save in memory so we can return to client later (& unregister the webhook).
          * TODO[Zain][4] - use a better memory store - e.g., see these links to do using cookies:
          *      --> https://stackoverflow.com/questions/34674326/node-express-storage-and-retrieval-of-authentication-tokens
          *      --> https://stackoverflow.com/questions/16209145/how-can-i-set-cookie-in-node-js-using-express-framework
          */
-        Object.defineProperty(razaClient, req.body.translationId, {
-            value: req.body.webhookId,
-            writable: true   //  until we have the webhook id, it's "in-progress"
-          });
-        console.log("just tried to receive webhook event, store updated: ", JSON.stringify(razaClient));
+        if (eventJson.objectType === 'RELEASE') {
+            const rpId = eventJson.objectId;
+            // check if this release is all done, if so forward to flow
+            const releasePackage = await forwardRequestToFlow({
+                httpVerb: "GET",
+                requestUrlParameters: `releasepackages/${rpId}`,
+                res: res
+            });
+            if (releasePackage.stateId === 'RELEASED') {
+                // post all the needed params to the GDrive Flow
+                const exportFlowParams = {
+                    exportDestination: razaClient["exportDestination"],
+                    email: razaClient["emailAddress"],
+                    emailMessage: razaClient["emailMessage"]
+                };
+                console.log(`Found these export options: ${JSON.stringify(exportFlowParams)}`);
+                fetch(onshapeExportToGoogleDriveFlow, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(exportFlowParams)
+                });
+            }
+        }
     }
+    // TODO[Zain]: use one the logs below to add to: https://onshape-public.github.io/docs/webhook/
+    console.log(`Workflow transition example: ${JSON.stringify(req.body)}`);
     res.status(200).send();
 });
 

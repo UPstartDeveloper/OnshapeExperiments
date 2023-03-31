@@ -2,6 +2,7 @@ const exportDropdown = document.getElementById("exportDestinationField");
 const exportFormSubmitButton = document.getElementById("exportFormSubmitButton");
 const googleDriveParams = document.getElementById("googleDriveParams");
 const googleDriveEmail = document.getElementById("googleDriveEmailAddressId");
+const googleDriveEmailMessage = document.getElementById("googleDriveEmailMessageId");
 
 /**
  * Display an error message to the user.
@@ -55,7 +56,10 @@ exportDropdown.addEventListener("change", async function() {
 
 exportFormSubmitButton.addEventListener("click", async function() {
 
-    const resp = await fetch(`/api/notifications${window.location.search}`);
+    const resp = await fetch(`/api/notifications${window.location.search}
+                            &exportDestination=${exportDropdown.value}
+                            &emailAddress=${googleDriveEmail.value}
+                            &emailMessage=${googleDriveEmailMessage.value}`);
     const json = await resp.json()
     if (Object.keys(json).includes("webhookID")) {
         // TODO[Zain]: make a green modal appear to show the user the notification is enabled

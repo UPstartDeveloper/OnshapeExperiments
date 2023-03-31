@@ -29,6 +29,7 @@ module.exports = {
                     body: JSON.stringify(webhookParams)
                 });
                 const respJson = await resp.json();
+                console.log(`Webhook registration res: ${JSON.stringify(respJson)}`);
                 if (resp.ok) {
                     resolve(respJson.id);
                 } else {

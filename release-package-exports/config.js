@@ -11,9 +11,10 @@ const env = process.env.NODE_ENV || 'development';
 // API keys
 const accessKey = process.env.ONSHAPE_API_ACCESSKEY;
 const secretKey = process.env.ONSHAPE_API_SECRETKEY;
-// Where you want to make API requests in Flow
+// Where you want to make API requests in Flow, as a 3rd-party proxy
 const onshapeAPIRequestProxyInFlow = process.env.FLOW_FWD_REQ_TO_ONSHAPE_TRIGGER;
 const onshapeRegisterWebhookFlow = process.env.FLOW_REGISTER_ONSHAPE_WEBHOOK;
+const onshapeExportToGoogleDriveFlow = process.env.FLOW_SHARE_VIA_GOOGLE_DRIVE;
 
 /**
  * Checks if the given string is a URL. A string considered a URL if it can be parsed
@@ -175,5 +176,6 @@ module.exports = {
 
     /** Flow endpoints */
     onshapeAPIRequestProxyInFlow,
-    onshapeRegisterWebhookFlow
+    onshapeRegisterWebhookFlow,
+    onshapeExportToGoogleDriveFlow
 }
