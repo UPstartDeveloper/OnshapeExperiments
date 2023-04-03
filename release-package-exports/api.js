@@ -142,6 +142,7 @@ apiRouter.get('/gltf/:tid', async (req, res) => {
  *      -> 200
  */
 apiRouter.post('/event', async (req, res) => {
+    console.log(`I received a webhook notification! Here: ${JSON.stringify(req.body)}`);
     const eventJson = req.body;
     if (eventJson.event === ONSHAPE_WORKFLOW_EVENT) {
         /**
