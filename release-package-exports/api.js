@@ -143,8 +143,12 @@ apiRouter.get('/gltf/:tid', async (req, res) => {
  */
 apiRouter.post('/event', async (req, res) => {
     console.log(`I received a webhook notification! Here: ${JSON.stringify(req.body)}`);
+    let finalResStatus = 404, finalResBody = {}; // assume no workflow was sent in the notification,
+                                                 // and no data will be sent
     const eventJson = req.body;
     if (eventJson.event === ONSHAPE_WORKFLOW_EVENT) {
+        finalResBody = {'output': `Found a workflow package: ${eventJson}`};
+        finalResStatus = 200;  // a workflow was sent, so this is at least a HTTP 200
         /**
          * Save in memory so we can return to client later (& unregister the webhook).
          * TODO[Zain][4] - use a better memory store - e.g., see these links to do using cookies:
@@ -154,11 +158,20 @@ apiRouter.post('/event', async (req, res) => {
         if (eventJson.objectType === ONSHAPE_RELEASE_OBJECT_TYPE) {
             const rpId = eventJson.objectId;
             // check if this release is all done, if so forward to flow
-            const releasePackage = await forwardRequestToFlow({
+            const releasePackageData = await forwardRequestToFlow({
                 httpVerb: "GET",
                 requestUrlParameters: `releasepackages/${rpId}`,
-                res: res
+                // res: res
             });
+            // TODO[Zain]: debug why releasePackage is undefined?
+            // const releasePakcageContentType = releasePackageData.headers.get('Content-Type');
+            const releasePackage = await releasePackageData.json();
+            const releasePackageLog =  `Found a release package: ${releasePackage}`;
+            
+            // output handling
+            finalResBody = { 'output': releasePackageLog };
+            console.log(releasePackageLog);
+
             if (releasePackage.workflow.state.name === ONSHAPE_RELEASE_STATE_COMPLETED) {
                 // post all the needed params to the GDrive Flow
                 const exportFlowParams = {
@@ -167,17 +180,21 @@ apiRouter.post('/event', async (req, res) => {
                     emailMessage: razaClient["emailMessage"]
                 };
                 console.log(`Found these export options: ${JSON.stringify(exportFlowParams)}`);
-                fetch(onshapeExportToGoogleDriveFlow, {
+                const googleDriveFlowResp = await fetch(onshapeExportToGoogleDriveFlow, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(exportFlowParams)
                 });
+
+                // more output handling
+                finalResStatus = googleDriveFlowResp.status;
+                finalResBody = await googleDriveFlowResp.json()
             }
         }
     }
     // TODO[Zain]: use one the logs below to add to: https://onshape-public.github.io/docs/webhook/
     console.log(`Workflow transition example: ${JSON.stringify(req.body)}`);
-    res.status(200).send();
+    res.status(finalResStatus).send(finalResBody);
 });
 
 module.exports = apiRouter;
