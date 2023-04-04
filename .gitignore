@@ -3,6 +3,7 @@ node_modules/
 dist/
 .vscode/
 .env
+*/.npmrc
 
 *.glb
 *.gltf
