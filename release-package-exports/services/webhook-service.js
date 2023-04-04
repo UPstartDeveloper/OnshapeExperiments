@@ -22,6 +22,7 @@ module.exports = {
                 // add the string we'll need for authorizating the request made to Onshape
                 const encodedString = Buffer.from(`${accessKey}:${secretKey}`).toString('base64');
                 webhookParams.basicAuthSignature = encodedString;
+                console.log(`Params for webhook registration: ${JSON.stringify(webhookParams)}`);
                 // fwd request to Flow!
                 const resp = await fetch(onshapeRegisterWebhookFlow, {
                     method: 'POST',

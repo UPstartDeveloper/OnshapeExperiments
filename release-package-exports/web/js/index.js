@@ -56,10 +56,14 @@ exportDropdown.addEventListener("change", async function() {
 
 exportFormSubmitButton.addEventListener("click", async function() {
 
-    const resp = await fetch(`/api/notifications${window.location.search}
-                            &exportDestination=${exportDropdown.value}
-                            &emailAddress=${googleDriveEmail.value}
-                            &emailMessage=${googleDriveEmailMessage.value}`);
+    const resp = await fetch(
+        // TODO[Zain]: in the future, grab the companyId from the json that gives the email, not query string
+        `/api/notifications${window.location.search}`
+        + `&exportDestination=${exportDropdown.value}`
+        + `&emailAddress=${googleDriveEmail.value}`
+        + `&emailMessage=${googleDriveEmailMessage.value}`
+    );
+
     const json = await resp.json()
     if (Object.keys(json).includes("webhookID")) {
         // TODO[Zain]: make a green modal appear to show the user the notification is enabled
