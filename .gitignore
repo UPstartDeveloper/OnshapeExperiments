@@ -4,6 +4,7 @@ dist/
 .vscode/
 .env
 */.npmrc
+*/sample-responses/*
 
 *.glb
 *.gltf

@@ -159,7 +159,7 @@ apiRouter.post('/event', async (req, res) => {
                 requestUrlParameters: `releasepackages/${rpId}`,
                 res: res
             });
-            if (releasePackage.stateId === ONSHAPE_RELEASE_STATE_COMPLETED) {
+            if (releasePackage.workflow.state.name === ONSHAPE_RELEASE_STATE_COMPLETED) {
                 // post all the needed params to the GDrive Flow
                 const exportFlowParams = {
                     exportDestination: razaClient["exportDestination"],
