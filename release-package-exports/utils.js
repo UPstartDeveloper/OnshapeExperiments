@@ -53,6 +53,16 @@ module.exports = {
     ONSHAPE_WORKFLOW_EVENT: "onshape.workflow.transition",
 
     /**
+     * At the time we register a webhook in Onshape (by POST'ing to /webhooks),
+     * Onshape will immediately "test" out our callback URL, by sending a notification
+     * with the following event type.
+     * 
+     * For more on the event types enumerated by the Onshape API, please see:
+     * https://onshape-public.github.io/docs/webhook/
+     */
+    ONSHAPE_WEBHOOK_REGISTRATION_EVENT: "onshape.webhook.register",
+
+    /**
      * These are Onshape-specific enum strings that describe the state
      * of "Workflow" objects (i.e., one of the resources in the Onshape REST API).
      * 

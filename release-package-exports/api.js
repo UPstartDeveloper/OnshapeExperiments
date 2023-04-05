@@ -7,7 +7,8 @@ const {
     forwardRequestToFlow,
     ONSHAPE_WORKFLOW_EVENT,
     ONSHAPE_RELEASE_OBJECT_TYPE,
-    ONSHAPE_RELEASE_STATE_COMPLETED
+    ONSHAPE_RELEASE_STATE_COMPLETED,
+    ONSHAPE_WEBHOOK_REGISTRATION_EVENT
 } = require('./utils');
 const razaClient = require('./raza-client');
     
@@ -146,7 +147,14 @@ apiRouter.post('/event', async (req, res) => {
     let finalResStatus = 404, finalResBody = {}; // assume no workflow was sent in the notification,
                                                  // and no data will be sent
     const eventJson = req.body;
-    if (eventJson.event === ONSHAPE_WORKFLOW_EVENT) {
+
+    // notification handler for the "trial" notification, which Onshape sends at the time of registering a webhook
+    if (eventJson.event === ONSHAPE_WEBHOOK_REGISTRATION_EVENT) {
+        finalResBody = {'output': `Ready to receive webhook notifications!`};
+        finalResStatus = 200;  // this is status that the docs require us to send: https://onshape-public.github.io/docs/webhook/#webhook-registration
+
+    // notification handler for release management related events
+    } else if (eventJson.event === ONSHAPE_WORKFLOW_EVENT) {
         finalResBody = {'output': `Found a workflow package: ${eventJson}`};
         finalResStatus = 200;  // a workflow was sent, so this is at least a HTTP 200
         /**
@@ -193,7 +201,7 @@ apiRouter.post('/event', async (req, res) => {
         }
     }
     // TODO[Zain]: use one the logs below to add to: https://onshape-public.github.io/docs/webhook/
-    console.log(`Workflow transition example: ${JSON.stringify(req.body)}`);
+    console.log(`Webhook notification example: ${JSON.stringify(req.body)}`);
     res.status(finalResStatus).send(finalResBody);
 });
 
