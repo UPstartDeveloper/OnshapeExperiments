@@ -165,22 +165,28 @@ apiRouter.post('/event', async (req, res) => {
          */
         if (eventJson.objectType === ONSHAPE_RELEASE_OBJECT_TYPE) {
             const rpId = eventJson.objectId;
+
+            // use the rpID to get the audit log, get the entries, and see if 
+            // any has workflowState === RELEASED
             // check if this release is all done, if so forward to flow
-            const releasePackageData = await forwardRequestToFlow({
+            const releasePackageAuditData = await forwardRequestToFlow({
                 httpVerb: "GET",
-                requestUrlParameters: `releasepackages/${rpId}`,
-                // res: res
+                requestUrlParameters: `workflow/obj/${rpId}/auditlog`,
             });
-            // TODO[Zain]: debug why releasePackage is undefined?
-            // const releasePakcageContentType = releasePackageData.headers.get('Content-Type');
-            const releasePackage = await releasePackageData.json();
-            const releasePackageLog =  `Found a release package: ${releasePackage}`;
+            
+            const releasePackageAuditLog = await releasePackageAuditData.json();
+            const releasePackageLogMessage =  `Found an audit log: ${JSON.stringify(releasePackageAuditLog)}`;
             
             // output handling
-            finalResBody = { 'output': releasePackageLog };
-            console.log(releasePackageLog);
+            finalResBody = { 'output': releasePackageAuditLog };
+            console.log(releasePackageLogMessage);
 
-            if (releasePackage.workflow.state.name === ONSHAPE_RELEASE_STATE_COMPLETED) {
+            // are we ready to export?
+            const audits = releasePackageAuditLog.entries.filter(entry => {
+                return entry.workflowState === ONSHAPE_RELEASE_STATE_COMPLETED
+            });
+            const isReadyToExport = audits.length > 0;
+            if (isReadyToExport) {
                 // post all the needed params to the GDrive Flow
                 const exportFlowParams = {
                     exportDestination: razaClient["exportDestination"],
@@ -196,11 +202,12 @@ apiRouter.post('/event', async (req, res) => {
 
                 // more output handling
                 finalResStatus = googleDriveFlowResp.status;
-                finalResBody = await googleDriveFlowResp.json()
+                finalResBody = await googleDriveFlowResp.json();
+                console.log(`Export to Flow complete! Res: ${JSON.stringify(finalResBody)}`);
             }
         }
     }
-    // TODO[Zain]: use one the logs below to add to: https://onshape-public.github.io/docs/webhook/
+    // TODO[Zain][5]: use one the logs below to add to: https://onshape-public.github.io/docs/webhook/
     console.log(`Webhook notification example: ${JSON.stringify(req.body)}`);
     res.status(finalResStatus).send(finalResBody);
 });
