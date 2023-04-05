@@ -60,7 +60,7 @@ module.exports = {
      * For more on the event types enumerated by the Onshape API, please see:
      * https://onshape-public.github.io/docs/webhook/
      */
-    ONSHAPE_WEBHOOK_REGISTRATION_EVENT: "onshape.webhook.register",
+    ONSHAPE_WEBHOOK_REGISTRATION_EVENT: "webhook.register",
 
     /**
      * These are Onshape-specific enum strings that describe the state
