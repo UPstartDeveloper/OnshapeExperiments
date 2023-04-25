@@ -63,6 +63,16 @@ module.exports = {
     ONSHAPE_WEBHOOK_REGISTRATION_EVENT: "webhook.register",
 
     /**
+     * Webhook notifications from Onshape will include the below string,
+     * when it occurs due to some CAD model stored in a document
+     * (e.g. an assembly), being converted into a particular 3D file format. 
+     * 
+     * For more on the event types enumerated by the Onshape API, please see:
+     * https://onshape-public.github.io/docs/webhook/
+     */
+    ONSHAPE_MODEL_TRANSLATION_COMPLETED_EVENT: "onshape.model.translation.complete",
+
+    /**
      * These are Onshape-specific enum strings that describe the state
      * of "Workflow" objects (i.e., one of the resources in the Onshape REST API).
      * 

@@ -15,6 +15,7 @@ const secretKey = process.env.ONSHAPE_API_SECRETKEY;
 const onshapeAPIRequestProxyInFlow = process.env.FLOW_FWD_REQ_TO_ONSHAPE_TRIGGER;
 const onshapeRegisterWebhookFlow = process.env.FLOW_REGISTER_ONSHAPE_WEBHOOK;
 const onshapeExportToGoogleDriveFlow = process.env.FLOW_SHARE_VIA_GOOGLE_DRIVE;
+const onshapeTriggerTranslationsFlow = process.env.FLOW_TRIGGER_TRANSLATION_NOTIFICATIONS;
 
 /**
  * Checks if the given string is a URL. A string considered a URL if it can be parsed
@@ -98,6 +99,7 @@ if (!isValidHttpUrl(oauthUrl))                              errors.push('OAUTH_U
 if (!isValidString(sessionSecret))                          errors.push('SESSION_SECRET must have content');
 if (!((env === 'development') || (env === 'production')))   errors.push("NODE_ENV must be set to either 'development' or 'production'");
 if (!isValidHttpUrl(webhookCallbackRootUrl))                errors.push('WEBHOOK_CALLBACK_ROOT_URL is not a valid HTTP(S) URL');
+if (!isValidHttpUrl(onshapeTriggerTranslationsFlow))        errors.push('FLOW_TRIGGER_TRANSLATION_NOTIFICATIONS is not a valid HTTP(S) URL');
 
 // Halt execution if the app isn't correctly configured.
 if (errors.length !== 0) {
@@ -177,5 +179,6 @@ module.exports = {
     /** Flow endpoints */
     onshapeAPIRequestProxyInFlow,
     onshapeRegisterWebhookFlow,
-    onshapeExportToGoogleDriveFlow
+    onshapeExportToGoogleDriveFlow,
+    onshapeTriggerTranslationsFlow
 }
