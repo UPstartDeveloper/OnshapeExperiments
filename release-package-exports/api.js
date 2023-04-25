@@ -1,6 +1,7 @@
 const WebhookService = require('./services/webhook-service');
 const { 
-    onshapeExportToGoogleDriveFlow,
+    // onshapeExportToGoogleDriveFlow,
+    onshapeTriggerTranslationsFlow,
     webhookCallbackRootUrl 
 } = require('./config');
 const { 
@@ -8,6 +9,7 @@ const {
     ONSHAPE_WORKFLOW_EVENT,
     ONSHAPE_RELEASE_OBJECT_TYPE,
     ONSHAPE_RELEASE_STATE_COMPLETED,
+    ONSHAPE_MODEL_TRANSLATION_COMPLETED_EVENT,
     ONSHAPE_WEBHOOK_REGISTRATION_EVENT
 } = require('./utils');
 const razaClient = require('./raza-client');
@@ -189,16 +191,20 @@ apiRouter.post('/event', async (req, res) => {
             if (isReadyToExport) {
                 // post all the needed params to the GDrive Flow
                 const exportFlowParams = {
-                    exportDestination: razaClient["exportDestination"],
-                    email: razaClient["emailAddress"],
-                    emailMessage: razaClient["emailMessage"]
+                    // exportDestination: razaClient["exportDestination"],
+                    // email: razaClient["emailAddress"],
+                    // emailMessage: razaClient["emailMessage"],
+                    webhookCallbackUrl: `${webhookCallbackRootUrl}/api/event`,
+                    releasePackageId: rpId
                 };
                 console.log(`Found these export options: ${JSON.stringify(exportFlowParams)}`);
-                const googleDriveFlowResp = await fetch(onshapeExportToGoogleDriveFlow, {
+                // TODO[Zain] - rename the res var below - 
+                const googleDriveFlowResp = await fetch(onshapeTriggerTranslationsFlow, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(exportFlowParams)
                 });
+                // TODO[Zain] - parse out the translation Ids - save them, set their status as in-progress
 
                 // more output handling
                 finalResStatus = googleDriveFlowResp.status;
@@ -206,6 +212,14 @@ apiRouter.post('/event', async (req, res) => {
                 console.log(`Export to Flow complete! Res: ${JSON.stringify(finalResBody)}`);
             }
         }
+    } else if (eventJson.event === ONSHAPE_MODEL_TRANSLATION_COMPLETED_EVENT) {
+        // TODO[Zain]: handle the notification - look at board + past code
+        // TODO[Zain]: parse out the translation ID,
+            // in the data store - update it's value to the webhook ID
+        // TODO[Zain]: unregister the webhook - using its ^ID
+        // TODO[Zain]: make a call to get the derivative file using "externaldata" path
+        // TODO[Zain]: if condition - once all the individual translations exported,
+            // can optionally choose to send the final email notification (for GDrive case)
     }
     // TODO[Zain][5]: use one the logs below to add to: https://onshape-public.github.io/docs/webhook/
     console.log(`Webhook notification example: ${JSON.stringify(req.body)}`);
