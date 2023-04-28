@@ -1,5 +1,6 @@
 const WebhookService = require('./services/webhook-service');
 const { 
+    onshapeApiUrl,
     // onshapeExportToGoogleDriveFlow,
     onshapeTriggerTranslationsFlow,
     webhookCallbackRootUrl 
@@ -117,7 +118,7 @@ apiRouter.get('/gltf/:tid', async (req, res) => {
                 forwardRequestToFlow({
                     httpVerb: "GET",
                     requestUrlParameters: [
-                        // `${onshapeApiUrl}`,  // will be injected in Flow itself
+                        `${onshapeApiUrl}`,
                         "documents",
                         "d",
                         `${transJson.documentId}`,
@@ -198,28 +199,58 @@ apiRouter.post('/event', async (req, res) => {
                     releasePackageId: rpId
                 };
                 console.log(`Found these export options: ${JSON.stringify(exportFlowParams)}`);
-                // TODO[Zain] - rename the res var below - 
-                const googleDriveFlowResp = await fetch(onshapeTriggerTranslationsFlow, {
+                const translationTriggerFlowResp = await fetch(onshapeTriggerTranslationsFlow, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(exportFlowParams)
                 });
-                // TODO[Zain] - parse out the translation Ids - save them, set their status as in-progress
-
-                // more output handling
-                finalResStatus = googleDriveFlowResp.status;
-                finalResBody = await googleDriveFlowResp.json();
-                console.log(`Export to Flow complete! Res: ${JSON.stringify(finalResBody)}`);
+                // parse out the translation Ids - save them, set their status as in-progress
+                const flowResJson = translationTriggerFlowResp.json();
+                for (const translationRequestRes in flowResJson.translationRequestResults) {
+                    const translationId = translationRequestRes.id;
+                    Object.defineProperty(razaClient, translationId, {
+                        value: 'in-progress', // TODO[Zain]: replace w/ a constant
+                        writable: true   //  until we have the webhook id, it's "in-progress"
+                    });
+                }
+                finalResStatus = translationTriggerFlowResp.status;
+                finalResBody = await translationTriggerFlowResp.json();
+                console.log(`Request all the translation webhooks! Res: ${JSON.stringify(finalResBody)}`);
             }
         }
     } else if (eventJson.event === ONSHAPE_MODEL_TRANSLATION_COMPLETED_EVENT) {
-        // TODO[Zain]: handle the notification - look at board + past code
-        // TODO[Zain]: parse out the translation ID,
-            // in the data store - update it's value to the webhook ID
-        // TODO[Zain]: unregister the webhook - using its ^ID
-        // TODO[Zain]: make a call to get the derivative file using "externaldata" path
+        // unregister the webhook - using its ^ID
+        WebhookService.unregisterWebhook(eventJson.webhookID);
+        // translated data is ready.
+        const reqUrl = `translations/${req.params.tid}`;
+        const transResp = await forwardRequestToFlow({
+            httpVerb: "GET",
+            requestUrlParameters: reqUrl,
+            // res: res
+        });
+                // in the data store - update it's value to the webhook ID
+        const transJson = await transResp.json();
+        if (transJson.requestState === 'FAILED') {
+            Object.defineProperty(razaClient, eventJson.translationId, {
+                value: transJson.failureReason,
+                writable: true   //  until we have the webhook id, it's "in-progress"
+            });
+        } else {
+            Object.defineProperty(razaClient, eventJson.translationId, {
+                value: [
+                    `${onshapeApiUrl}`,
+                    "documents",
+                    "d",
+                    `${transJson.documentId}`,
+                    "externaldata",
+                    `${transJson.resultExternalDataIds[0]}`, 
+                ].join("/"),
+                writable: true   //  until we have the webhook id, it's "in-progress"
+            });
+        }
         // TODO[Zain]: if condition - once all the individual translations exported,
-            // can optionally choose to send the final email notification (for GDrive case)
+            // TODO - check the # of in-progress values in razaClient - if > 0, we're not ready
+            // TODO[Zain] can (if applicable) redirect to send the final email notification (for GDrive case)
     }
     // TODO[Zain][5]: use one the logs below to add to: https://onshape-public.github.io/docs/webhook/
     console.log(`Webhook notification example: ${JSON.stringify(req.body)}`);
