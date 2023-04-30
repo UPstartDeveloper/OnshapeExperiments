@@ -9,7 +9,7 @@ module.exports = {
      * 
      * @param {Object} onshapeRequestData An object literal to parametrize the request to Onshape via Flow.
      *      @param {string} httpVerb Expected to be either: "GET", "POST", or "DELETE". See the Onshape docs for which is appropiate for your endpoint of interest: https://cad.onshape.com/glassworks/explorer.
-     *      @param {Array<string>} requestUrlParameters A list of strings you wish to be joined (using slashes) to form the path of the request URL.
+     *      @param {string} requestUrlParameters Forms the path of the request URL.
      *      @param {Object} body a JSON object literal of any additional parameters to send in the request
      *      @param {Response} res The response being proxied.
      */
@@ -79,5 +79,12 @@ module.exports = {
      * These will help us detect when our release package has successfully completed, well, releasing!
      */
     ONSHAPE_RELEASE_OBJECT_TYPE: "RELEASE",
-    ONSHAPE_RELEASE_STATE_COMPLETED: "RELEASED"
+    ONSHAPE_RELEASE_STATE_COMPLETED: "RELEASED",
+
+    /** 
+     * On the UI, we will use this string to include an option for users
+     * to export their derivative files to Google Drive. It is 
+     * placed in this file to help our backend stays in sync with the front-end.
+     */
+    GOOGLE_DRIVE_EXPORT_DESTINATION: "googleDrive"
 }

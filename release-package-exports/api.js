@@ -253,9 +253,24 @@ apiRouter.post('/event', async (req, res) => {
                 writable: true
             });
         }
-        // TODO[Zain]: if condition - once all the individual translations exported,
-            // TODO - check the # of in-progress values in razaClient - if > 0, we're not ready
-            // TODO[Zain] can (if applicable) redirect to send the final email notification (for GDrive case)
+        // conditional step - for the final export!
+        const numTranslationsIncomplete = Object.values(translatedFiles).filter(status => status === 'in-progress').length; 
+        if (numTranslationsIncomplete === 0 &&  
+            appSettings.exportDestination === GOOGLE_DRIVE_EXPORT_DESTINATION) { 
+            // TODO[Zain] can (if applicable) redirect to send the final email notification (for GDrive case) 
+            finalResStatus = 302; 
+            
+            // TODO[Zain] - use an async Flow to handle the export to GDrive 
+            /** args: 
+             * FLOW_EXPORT_TRANSLATED_RELEASE_PACKAGE 
+             * // exportDestination: appSettings["exportDestination"], 
+               // email: appSettings["emailAddress"], 
+               // emailMessage: appSettings["emailMessage"], 
+               // translatedFiles: JSON.stringify(translatedFiles) 
+             */ 
+            // TODO[Zain]: update the finalResBody 
+            // TODO[Zain]: reset the translatedFiles to an empty 
+        }     
     }
     // TODO[Zain][5]: use one the logs below to add to: https://onshape-public.github.io/docs/webhook/
     console.log(`Webhook notification example: ${JSON.stringify(req.body)}`);
