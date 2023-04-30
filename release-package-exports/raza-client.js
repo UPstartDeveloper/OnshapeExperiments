@@ -1,4 +1,9 @@
-/* In-memory storage for translation job IDs. */
-let razaClient = {};
+/* In-memory storage for configuration settings set by the user. */
+let appSettings = {};
+/* In-memory storage for translation jobs. */
+let translatedFiles = {};
 
-module.exports = razaClient;
+module.exports = {
+    "appSettings": appSettings,
+    "translatedFiles": translatedFiles
+};

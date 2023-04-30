@@ -7,13 +7,14 @@ const {
 } = require('./config');
 const { 
     forwardRequestToFlow,
+    GOOGLE_DRIVE_EXPORT_DESTINATION,
     ONSHAPE_WORKFLOW_EVENT,
     ONSHAPE_RELEASE_OBJECT_TYPE,
     ONSHAPE_RELEASE_STATE_COMPLETED,
     ONSHAPE_MODEL_TRANSLATION_COMPLETED_EVENT,
     ONSHAPE_WEBHOOK_REGISTRATION_EVENT
 } = require('./utils');
-const razaClient = require('./raza-client');
+const { appSettings, translatedFiles } = require('./raza-client');
     
 const apiRouter = require('express').Router();
 
@@ -54,15 +55,15 @@ apiRouter.get('/notifications', async (req, res) => {
     };
 
     // save the query string data - will come in useful later
-    Object.defineProperty(razaClient, "exportDestination", {
+    Object.defineProperty(appSettings, "exportDestination", {
         value: exportDestination,
         writable: true
     });
-    Object.defineProperty(razaClient, "emailAddress", {
+    Object.defineProperty(appSettings, "emailAddress", {
         value: emailAddress,
         writable: true
     });
-    Object.defineProperty(razaClient, "emailMessage", {
+    Object.defineProperty(appSettings, "emailMessage", {
         value: emailMessage,
         writable: true
     });
@@ -93,7 +94,7 @@ apiRouter.get('/notifications', async (req, res) => {
  *      -> 404 (which may mean that the translation is still being processed)
  */
 apiRouter.get('/gltf/:tid', async (req, res) => {
-    const results = razaClient[req.params.tid];
+    const results = appSettings[req.params.tid];
     console.log("found translation!", JSON.stringify(results));
     // not a valid ID
     if (results === null || results === undefined) {
@@ -133,8 +134,8 @@ apiRouter.get('/gltf/:tid', async (req, res) => {
                 .then(() => console.log(`Webhook ${webhookID} unregistered successfully`))
                 .catch((err) => console.error(`Failed to unregister webhook ${webhookID}: ${JSON.stringify(err)}`));
             // delete the key-value pair in our "store" - [Zain]
-            delete razaClient[req.params.tid];
-            console.log("just tried to delete translation, store updated: ", JSON.stringify(razaClient));
+            delete appSettings[req.params.tid];
+            console.log("just tried to delete translation, store updated: ", JSON.stringify(appSettings));
         }
     }
 });
@@ -190,11 +191,16 @@ apiRouter.post('/event', async (req, res) => {
             });
             const isReadyToExport = audits.length > 0;
             if (isReadyToExport) {
-                // post all the needed params to the GDrive Flow
+                // save the release package metadata for later - will be useful for cloud storage exports
+                const releasePackageJson = await forwardRequestToFlow({
+                    httpVerb: "GET",
+                    requestUrlParameters: `releasepackages/${rpId}?detailed=true`,
+                }).json();
+                translatedFiles["exportFolderName"] = `Release-${releasePackageJson.name}-Export`;
+                translatedFiles["releasePackageId"] = rpId;
+
+                // now, post all the needed params to the translation trigger Flow
                 const exportFlowParams = {
-                    // exportDestination: razaClient["exportDestination"],
-                    // email: razaClient["emailAddress"],
-                    // emailMessage: razaClient["emailMessage"],
                     webhookCallbackUrl: `${webhookCallbackRootUrl}/api/event`,
                     releasePackageId: rpId
                 };
@@ -208,18 +214,18 @@ apiRouter.post('/event', async (req, res) => {
                 const flowResJson = translationTriggerFlowResp.json();
                 for (const translationRequestRes in flowResJson.translationRequestResults) {
                     const translationId = translationRequestRes.id;
-                    Object.defineProperty(razaClient, translationId, {
+                    Object.defineProperty(translatedFiles, translationId, {
                         value: 'in-progress', // TODO[Zain]: replace w/ a constant
                         writable: true   //  until we have the webhook id, it's "in-progress"
                     });
                 }
                 finalResStatus = translationTriggerFlowResp.status;
                 finalResBody = await translationTriggerFlowResp.json();
-                console.log(`Request all the translation webhooks! Res: ${JSON.stringify(finalResBody)}`);
+                console.log(`Requested all the translation webhooks! Res: ${JSON.stringify(finalResBody)}`);
             }
         }
     } else if (eventJson.event === ONSHAPE_MODEL_TRANSLATION_COMPLETED_EVENT) {
-        // unregister the webhook - using its ^ID
+        // unregister the *translation* webhook - using its ^ID
         WebhookService.unregisterWebhook(eventJson.webhookID);
         // translated data is ready.
         const reqUrl = `translations/${req.params.tid}`;
@@ -228,24 +234,23 @@ apiRouter.post('/event', async (req, res) => {
             requestUrlParameters: reqUrl,
             // res: res
         });
-                // in the data store - update it's value to the webhook ID
+        // in the data store - update it's value to the webhook ID
         const transJson = await transResp.json();
         if (transJson.requestState === 'FAILED') {
-            Object.defineProperty(razaClient, eventJson.translationId, {
+            Object.defineProperty(translatedFiles, eventJson.translationId, {
                 value: transJson.failureReason,
                 writable: true   //  until we have the webhook id, it's "in-progress"
             });
         } else {
-            Object.defineProperty(razaClient, eventJson.translationId, {
+            Object.defineProperty(translatedFiles, eventJson.translationId, {
                 value: [
-                    `${onshapeApiUrl}`,
                     "documents",
                     "d",
                     `${transJson.documentId}`,
                     "externaldata",
                     `${transJson.resultExternalDataIds[0]}`, 
                 ].join("/"),
-                writable: true   //  until we have the webhook id, it's "in-progress"
+                writable: true
             });
         }
         // TODO[Zain]: if condition - once all the individual translations exported,
