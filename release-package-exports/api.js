@@ -156,6 +156,7 @@ apiRouter.post('/event', async (req, res) => {
 
     // notification handler for the "trial" notification, which Onshape sends at the time of registering a webhook
     if (eventJson.event === ONSHAPE_WEBHOOK_REGISTRATION_EVENT) {
+        console.log(`Sending a 200 response for the trial notification!`);
         finalResBody = {'output': `Ready to receive webhook notifications!`};
         finalResStatus = 200;  // this is status that the docs require us to send: https://onshape-public.github.io/docs/webhook/#webhook-registration
 
@@ -191,8 +192,9 @@ apiRouter.post('/event', async (req, res) => {
             const audits = releasePackageAuditLog.entries.filter(entry => {
                 return entry.workflowState === ONSHAPE_RELEASE_STATE_COMPLETED
             });
-            const isReadyToExport = audits.length > 0;
-            if (isReadyToExport) {
+            const isReadyToStartTranslation = audits.length > 0;
+            if (isReadyToStartTranslation) {
+                console.log(`Invoking a flow to trigger the translations!`);
                 // save the release package metadata for later - will be useful for cloud storage exports
                 const releasePackageJson = await forwardRequestToFlow({
                     httpVerb: "GET",
@@ -227,6 +229,7 @@ apiRouter.post('/event', async (req, res) => {
             }
         }
     } else if (eventJson.event === ONSHAPE_MODEL_TRANSLATION_COMPLETED_EVENT) {
+        console.log(`Invoking a flow to trigger the translations!`);
         // unregister the *translation* webhook - using its ^ID
         WebhookService.unregisterWebhook(eventJson.webhookID);
         // translated data is ready.
@@ -243,17 +246,20 @@ apiRouter.post('/event', async (req, res) => {
                 value: transJson.failureReason,
                 writable: true   //  until we have the webhook id, it's "in-progress"
             });
+            console.log(`Your translation failed, sorry. Onshape said: ${transJson.failureReason}`);
         } else {
+            const translatedAssetPath = [
+                "documents",
+                "d",
+                `${transJson.documentId}`,
+                "externaldata",
+                `${transJson.resultExternalDataIds[0]}`, 
+            ].join("/");
             Object.defineProperty(translatedFiles, eventJson.translationId, {
-                value: [
-                    "documents",
-                    "d",
-                    `${transJson.documentId}`,
-                    "externaldata",
-                    `${transJson.resultExternalDataIds[0]}`, 
-                ].join("/"),
+                value: translatedAssetPath,
                 writable: true
             });
+            console.log(`Your translation worked! Find it here: ${translatedAssetPath}`);
         }
         // conditional step - for the final export!
         const numTranslationsIncomplete = Object.values(translatedFiles).filter(status => status === ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS).length; 
@@ -268,6 +274,7 @@ apiRouter.post('/event', async (req, res) => {
                 translatedFiles: JSON.stringify(translatedFiles)
             };
             try {
+                console.log(`Invoking the export Flow! Process will continue async...`);
                 fetch(onshapeExportToExternalSystemFlow, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -277,9 +284,11 @@ apiRouter.post('/event', async (req, res) => {
                 finalResBody = {'result': 'Flow has been requested to process your export!'};
             } catch(err) {
                 finalResBody = {'error': err};
+                console.log(`Export Flow invocation error - Flow said: ${err}`);
             }
             // reset the translatedFiles to an empty 
             clearDataStore(translatedFiles);
+            console.log(`translatedFiles should be empty: ${JSON.stringify(translatedFiles)}`);
         }     
     }
     console.log(`Webhook notification example: ${JSON.stringify(req.body)}`);

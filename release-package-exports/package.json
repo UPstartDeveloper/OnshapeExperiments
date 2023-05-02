@@ -4,6 +4,7 @@
   "description": "An example of exporting release packages from Onshape to external systems.",
   "main": "bin/www",
   "scripts": {
+    "dev": "nodemon bin/www",
     "test": "echo \"Error: no test specified\" && exit 1",
     "postbuild": "rollup -c"
   },
