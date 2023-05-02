@@ -1,11 +1,12 @@
 const WebhookService = require('./services/webhook-service');
 const { 
     onshapeApiUrl,
-    // onshapeExportToGoogleDriveFlow,
+    onshapeExportToExternalSystemFlow,
     onshapeTriggerTranslationsFlow,
     webhookCallbackRootUrl 
 } = require('./config');
 const { 
+    clearDataStore,
     forwardRequestToFlow,
     GOOGLE_DRIVE_EXPORT_DESTINATION,
     ONSHAPE_WORKFLOW_EVENT,
@@ -201,22 +202,22 @@ apiRouter.post('/event', async (req, res) => {
                 translatedFiles["releasePackageId"] = rpId;
 
                 // now, post all the needed params to the translation trigger Flow
-                const exportFlowParams = {
+                const triggerFlowParams = {
                     webhookCallbackUrl: `${webhookCallbackRootUrl}/api/event`,
                     releasePackageId: rpId
                 };
-                console.log(`Found these export options: ${JSON.stringify(exportFlowParams)}`);
+                console.log(`Found these export options: ${JSON.stringify(triggerFlowParams)}`);
                 const translationTriggerFlowResp = await fetch(onshapeTriggerTranslationsFlow, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(exportFlowParams)
+                    body: JSON.stringify(triggerFlowParams)
                 });
                 // parse out the translation Ids - save them, set their status as in-progress
                 const flowResJson = translationTriggerFlowResp.json();
                 for (const translationRequestRes in flowResJson.translationRequestResults) {
                     const translationId = translationRequestRes.id;
                     Object.defineProperty(translatedFiles, translationId, {
-                        value: ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS, // TODO[Zain]: replace w/ a constant
+                        value: ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS,
                         writable: true   //  until we have the webhook id, it's "in-progress"
                     });
                 }
@@ -258,22 +259,29 @@ apiRouter.post('/event', async (req, res) => {
         const numTranslationsIncomplete = Object.values(translatedFiles).filter(status => status === ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS).length; 
         if (numTranslationsIncomplete === 0 &&  
             appSettings.exportDestination === GOOGLE_DRIVE_EXPORT_DESTINATION) { 
-            // TODO[Zain] can (if applicable) redirect to send the final email notification (for GDrive case) 
-            finalResStatus = 302; 
-            
-            // TODO[Zain] - use an async Flow to handle the export to GDrive 
-            /** args: 
-             * FLOW_EXPORT_TRANSLATED_RELEASE_PACKAGE 
-             * // exportDestination: appSettings["exportDestination"], 
-               // email: appSettings["emailAddress"], 
-               // emailMessage: appSettings["emailMessage"], 
-               // translatedFiles: JSON.stringify(translatedFiles) 
-             */ 
-            // TODO[Zain]: update the finalResBody 
-            // TODO[Zain]: reset the translatedFiles to an empty 
+            finalResStatus = 302;
+            // use an async Flow to handle the export to whatever external system
+            const exportFlowParams = {
+                exportDestination: appSettings["exportDestination"],
+                email: appSettings["emailAddress"],
+                emailMessage: appSettings["emailMessage"],
+                translatedFiles: JSON.stringify(translatedFiles)
+            };
+            try {
+                fetch(onshapeExportToExternalSystemFlow, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(exportFlowParams)
+                });
+                // update the final result body
+                finalResBody = {'result': 'Flow has been requested to process your export!'};
+            } catch(err) {
+                finalResBody = {'error': err};
+            }
+            // reset the translatedFiles to an empty 
+            clearDataStore(translatedFiles);
         }     
     }
-    // TODO[Zain][5]: use one the logs below to add to: https://onshape-public.github.io/docs/webhook/
     console.log(`Webhook notification example: ${JSON.stringify(req.body)}`);
     res.status(finalResStatus).send(finalResBody);
 });
