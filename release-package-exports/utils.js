@@ -72,6 +72,13 @@ module.exports = {
      */
     ONSHAPE_MODEL_TRANSLATION_COMPLETED_EVENT: "onshape.model.translation.complete",
 
+    /** 
+     * Arbitrary string we use as an intermediary value in our data store,
+     * to communicate that a translation is currently being processed on
+     * Onshape's servers.
+     */
+    ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS: "in-progress",
+
     /**
      * These are Onshape-specific enum strings that describe the state
      * of "Workflow" objects (i.e., one of the resources in the Onshape REST API).

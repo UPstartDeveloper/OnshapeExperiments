@@ -12,6 +12,7 @@ const {
     ONSHAPE_RELEASE_OBJECT_TYPE,
     ONSHAPE_RELEASE_STATE_COMPLETED,
     ONSHAPE_MODEL_TRANSLATION_COMPLETED_EVENT,
+    ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS,
     ONSHAPE_WEBHOOK_REGISTRATION_EVENT
 } = require('./utils');
 const { appSettings, translatedFiles } = require('./raza-client');
@@ -101,7 +102,7 @@ apiRouter.get('/gltf/:tid', async (req, res) => {
         // No record in Redis => not a valid ID (or wasn't saved correctly)
         res.status(404).end();
     } else {
-        if ('in-progress' === results) {
+        if (ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS === results) {
             // Valid ID, but results are not ready yet.
             res.status(202).end();
         } else {
@@ -215,7 +216,7 @@ apiRouter.post('/event', async (req, res) => {
                 for (const translationRequestRes in flowResJson.translationRequestResults) {
                     const translationId = translationRequestRes.id;
                     Object.defineProperty(translatedFiles, translationId, {
-                        value: 'in-progress', // TODO[Zain]: replace w/ a constant
+                        value: ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS, // TODO[Zain]: replace w/ a constant
                         writable: true   //  until we have the webhook id, it's "in-progress"
                     });
                 }
@@ -254,7 +255,7 @@ apiRouter.post('/event', async (req, res) => {
             });
         }
         // conditional step - for the final export!
-        const numTranslationsIncomplete = Object.values(translatedFiles).filter(status => status === 'in-progress').length; 
+        const numTranslationsIncomplete = Object.values(translatedFiles).filter(status => status === ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS).length; 
         if (numTranslationsIncomplete === 0 &&  
             appSettings.exportDestination === GOOGLE_DRIVE_EXPORT_DESTINATION) { 
             // TODO[Zain] can (if applicable) redirect to send the final email notification (for GDrive case) 
