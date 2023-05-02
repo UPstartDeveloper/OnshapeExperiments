@@ -196,10 +196,11 @@ apiRouter.post('/event', async (req, res) => {
             if (isReadyToStartTranslation) {
                 console.log(`Invoking a flow to trigger the translations!`);
                 // save the release package metadata for later - will be useful for cloud storage exports
-                const releasePackageJson = await forwardRequestToFlow({
+                const releasePackageRes = await forwardRequestToFlow({
                     httpVerb: "GET",
                     requestUrlParameters: `releasepackages/${rpId}?detailed=true`,
-                }).json();
+                });
+                const releasePackageJson = releasePackageRes.json();
                 translatedFiles["exportFolderName"] = `Release-${releasePackageJson.name}-Export`;
                 translatedFiles["releasePackageId"] = rpId;
 
