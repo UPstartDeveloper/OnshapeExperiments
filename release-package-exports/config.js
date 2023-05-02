@@ -14,7 +14,8 @@ const secretKey = process.env.ONSHAPE_API_SECRETKEY;
 // Where you want to make API requests in Flow, as a 3rd-party proxy
 const onshapeAPIRequestProxyInFlow = process.env.FLOW_FWD_REQ_TO_ONSHAPE_TRIGGER;
 const onshapeRegisterWebhookFlow = process.env.FLOW_REGISTER_ONSHAPE_WEBHOOK;
-const onshapeExportToGoogleDriveFlow = process.env.FLOW_SHARE_VIA_GOOGLE_DRIVE;
+// const onshapeExportToGoogleDriveFlow = process.env.FLOW_SHARE_VIA_GOOGLE_DRIVE;
+const onshapeExportToExternalSystemFlow = process.env.FLOW_EXPORT_TRANSLATED_RELEASE_PACKAGE;
 const onshapeTriggerTranslationsFlow = process.env.FLOW_TRIGGER_TRANSLATION_NOTIFICATIONS;
 
 /**
@@ -179,6 +180,6 @@ module.exports = {
     /** Flow endpoints */
     onshapeAPIRequestProxyInFlow,
     onshapeRegisterWebhookFlow,
-    onshapeExportToGoogleDriveFlow,
+    onshapeExportToExternalSystemFlow,
     onshapeTriggerTranslationsFlow
 }

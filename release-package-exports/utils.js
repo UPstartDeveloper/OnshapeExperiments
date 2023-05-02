@@ -42,6 +42,18 @@ module.exports = {
         }
     },
 
+    /** 
+     * Clear all key-values from an in-memory data store.
+     * @param {Object} store: the object to be cleared
+     */
+    clearDataStore: store => {
+        for (const variableKey in store){
+            if (store.hasOwn(variableKey)){
+                delete store[variableKey];
+            }
+        }
+    },
+
     /**
      * Webhook notifications from Onshape will include the below string,
      * when it occurs due to a revision or release package transition 
