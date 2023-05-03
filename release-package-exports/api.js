@@ -200,8 +200,8 @@ apiRouter.post('/event', async (req, res) => {
                     httpVerb: "GET",
                     requestUrlParameters: `releasepackages/${rpId}?detailed=true`,
                 });
-                const releasePackageJson = releasePackageRes.json();
-                translatedFiles["exportFolderName"] = `Release-${releasePackageJson.result.name}-Export`;
+                const releasePackageJson = await releasePackageRes.json();
+                translatedFiles["exportFolderName"] = `Release-${releasePackageJson.name}-Export`;
                 translatedFiles["releasePackageId"] = rpId;
 
                 // now, post all the needed params to the translation trigger Flow
