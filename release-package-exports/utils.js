@@ -66,13 +66,14 @@ module.exports = {
 
     /**
      * At the time we register a webhook in Onshape (by POST'ing to /webhooks),
-     * Onshape will immediately "test" out our callback URL, by sending a notification
-     * with the following event type.
+     * Onshape will send "test" events to our callback URL, by sending a notification
+     * with the following event types.
      * 
      * For more on the event types enumerated by the Onshape API, please see:
      * https://onshape-public.github.io/docs/webhook/
      */
     ONSHAPE_WEBHOOK_REGISTRATION_EVENT: "webhook.register",
+    ONSHAPE_WEBHOOK_PING_EVENT: "webhook.ping",
 
     /**
      * Webhook notifications from Onshape will include the below string,

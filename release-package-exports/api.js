@@ -14,6 +14,7 @@ const {
     ONSHAPE_RELEASE_STATE_COMPLETED,
     ONSHAPE_MODEL_TRANSLATION_COMPLETED_EVENT,
     ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS,
+    ONSHAPE_WEBHOOK_PING_EVENT,
     ONSHAPE_WEBHOOK_REGISTRATION_EVENT
 } = require('./utils');
 const { appSettings, translatedFiles } = require('./raza-client');
@@ -155,7 +156,8 @@ apiRouter.post('/event', async (req, res) => {
     const eventJson = req.body;
 
     // notification handler for the "trial" notification, which Onshape sends at the time of registering a webhook
-    if (eventJson.event === ONSHAPE_WEBHOOK_REGISTRATION_EVENT) {
+    if (eventJson.event === ONSHAPE_WEBHOOK_REGISTRATION_EVENT
+        || eventJson.event === ONSHAPE_WEBHOOK_PING_EVENT) {
         console.log(`Sending a 200 response for the trial notification!`);
         finalResBody = {'output': `Ready to receive webhook notifications!`};
         finalResStatus = 200;  // this is status that the docs require us to send: https://onshape-public.github.io/docs/webhook/#webhook-registration
