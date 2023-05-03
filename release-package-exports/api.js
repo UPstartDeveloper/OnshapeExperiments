@@ -216,17 +216,17 @@ apiRouter.post('/event', async (req, res) => {
                     body: JSON.stringify(triggerFlowParams)
                 });
                 // parse out the translation Ids - save them, set their status as in-progress
-                const flowResJson = translationTriggerFlowResp.json();
-                for (const translationRequestRes in flowResJson.translationRequestResults) {
-                    const translationId = translationRequestRes.id;
-                    Object.defineProperty(translatedFiles, translationId, {
+                const flowResJson = await translationTriggerFlowResp.json();
+                console.log(`Parsed the following translation IDs from Flow: ${JSON.stringify(flowResJson)}`);
+                for (const translationRequestRes in flowResJson.data.translationRequestResults) {
+                    Object.defineProperty(translatedFiles, translationRequestRes.id, {
                         value: ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS,
                         writable: true   //  until we have the webhook id, it's "in-progress"
                     });
                 }
-                finalResStatus = translationTriggerFlowResp.status;
+                finalResStatus = translationTriggerFlowResp.success === "true" ? 200: 400;
                 finalResBody = flowResJson;
-                console.log(`Requested all the translation webhooks! Res: ${JSON.stringify(finalResBody)}`);
+                console.log(`Requested all the translation webhooks! Resulting data store: ${JSON.stringify(translatedFiles)}`);
             }
         }
     } else if (eventJson.event === ONSHAPE_MODEL_TRANSLATION_COMPLETED_EVENT) {
