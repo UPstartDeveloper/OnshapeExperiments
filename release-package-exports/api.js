@@ -201,7 +201,7 @@ apiRouter.post('/event', async (req, res) => {
                     requestUrlParameters: `releasepackages/${rpId}?detailed=true`,
                 });
                 const releasePackageJson = releasePackageRes.json();
-                translatedFiles["exportFolderName"] = `Release-${releasePackageJson.name}-Export`;
+                translatedFiles["exportFolderName"] = `Release-${releasePackageJson.result.name}-Export`;
                 translatedFiles["releasePackageId"] = rpId;
 
                 // now, post all the needed params to the translation trigger Flow
@@ -223,10 +223,11 @@ apiRouter.post('/event', async (req, res) => {
                         value: ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS,
                         writable: true   //  until we have the webhook id, it's "in-progress"
                     });
+                    console.log(`Reached the translation trigger for loop! Resulting data store: ${JSON.stringify(Object.entries(translatedFiles))}`);
                 }
                 finalResStatus = translationTriggerFlowResp.success === "true" ? 200: 400;
                 finalResBody = flowResJson;
-                console.log(`Requested all the translation webhooks! Resulting data store: ${JSON.stringify(translatedFiles)}`);
+                console.log(`Requested all the translation webhooks!`);
             }
         }
     } else if (eventJson.event === ONSHAPE_MODEL_TRANSLATION_COMPLETED_EVENT) {
