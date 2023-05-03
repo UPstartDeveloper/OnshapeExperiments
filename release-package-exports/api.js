@@ -221,10 +221,7 @@ apiRouter.post('/event', async (req, res) => {
                 const flowResJson = await translationTriggerFlowResp.json();
                 console.log(`Parsed the following translation IDs from Flow: ${JSON.stringify(flowResJson)}`);
                 for (const translationRequestRes of flowResJson.data.translationRequestResults) {
-                    Object.defineProperty(translatedFiles, translationRequestRes.id, {
-                        value: ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS,
-                        writable: true   //  until we have the webhook id, it's "in-progress"
-                    });
+                    translatedFiles[translationRequestRes.id] = ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS;
                     console.log(`Reached the translation trigger for loop! Resulting data store: ${JSON.stringify(Object.entries(translatedFiles))}`);
                 }
                 finalResStatus = translationTriggerFlowResp.success === "true" ? 200: 400;
@@ -267,6 +264,7 @@ apiRouter.post('/event', async (req, res) => {
         }
         // conditional step - for the final export!
         const numTranslationsIncomplete = Object.values(translatedFiles).filter(status => status === ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS).length; 
+        console.log(`number of 'in-progress' translations remaining: ${numTranslationsIncomplete}`);
         if (numTranslationsIncomplete === 0 &&  
             appSettings.exportDestination === GOOGLE_DRIVE_EXPORT_DESTINATION) { 
             finalResStatus = 302;
