@@ -225,12 +225,12 @@ apiRouter.post('/event', async (req, res) => {
                     });
                 }
                 finalResStatus = translationTriggerFlowResp.status;
-                finalResBody = await translationTriggerFlowResp.json();
+                finalResBody = flowResJson;
                 console.log(`Requested all the translation webhooks! Res: ${JSON.stringify(finalResBody)}`);
             }
         }
     } else if (eventJson.event === ONSHAPE_MODEL_TRANSLATION_COMPLETED_EVENT) {
-        console.log(`Invoking a flow to trigger the translations!`);
+        console.log(`Invoking a flow to retrieve the completed translation!`);
         // unregister the *translation* webhook - using its ^ID
         WebhookService.unregisterWebhook(eventJson.webhookID);
         // translated data is ready.
