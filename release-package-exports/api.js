@@ -234,7 +234,7 @@ apiRouter.post('/event', async (req, res) => {
         // unregister the *translation* webhook - using its ^ID
         WebhookService.unregisterWebhook(eventJson.webhookId);
         // translated data is ready - let's grab it, via the translation ID found in the webhook event
-        const reqUrl = `translations/${eventJson.translationRequestId}`;
+        const reqUrl = `translations/${eventJson.translationId}`;
         const transResp = await forwardRequestToFlow({
             httpVerb: "GET",
             requestUrlParameters: reqUrl,
