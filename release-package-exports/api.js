@@ -82,68 +82,6 @@ apiRouter.get('/notifications', async (req, res) => {
 });
 
 /**
- * TODO[5][Zain]: IGNORE THIS ROUTE FOR NOW
- *                confirm with Gideon - how many different systems could a customer
- *                wish to send their rel pkg to? 
- *                And, what is the use case around if they decide to move out of Google Drive, if any?
- *                      --> reason I ask is because I'm not sure if we need to support a "delete webhook btn"?
- * Retrieve the release package in JSON.
- * 
- * GET /api/gltf/:tid
- *      -> 200, { ...gltf_data }
- *      -or-
- *      -> 500, { error: '...' }
- *      -or-
- *      -> 404 (which may mean that the translation is still being processed)
- */
-apiRouter.get('/gltf/:tid', async (req, res) => {
-    const results = appSettings[req.params.tid];
-    console.log("found translation!", JSON.stringify(results));
-    // not a valid ID
-    if (results === null || results === undefined) {
-        // No record in Redis => not a valid ID (or wasn't saved correctly)
-        res.status(404).end();
-    } else {
-        if (ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS === results) {
-            // Valid ID, but results are not ready yet.
-            res.status(202).end();
-        } else {
-            // GLTF data is ready.
-            const reqUrl = `translations/${req.params.tid}`;
-            const transResp = await forwardRequestToFlow({
-                httpVerb: "GET",
-                requestUrlParameters: reqUrl,
-                // res: res
-            });
-            const transJson = await transResp.json();
-            if (transJson.requestState === 'FAILED') {
-                res.status(500).json({ error: transJson.failureReason });
-            } else {
-                forwardRequestToFlow({
-                    httpVerb: "GET",
-                    requestUrlParameters: [
-                        `${onshapeApiUrl}`,
-                        "documents",
-                        "d",
-                        `${transJson.documentId}`,
-                        "externaldata",
-                        `${transJson.resultExternalDataIds[0]}`, 
-                    ].join("/"),
-                    res: res
-                });
-            }
-            const webhookID = results;
-            WebhookService.unregisterWebhook(webhookID)
-                .then(() => console.log(`Webhook ${webhookID} unregistered successfully`))
-                .catch((err) => console.error(`Failed to unregister webhook ${webhookID}: ${JSON.stringify(err)}`));
-            // delete the key-value pair in our "store" - [Zain]
-            delete appSettings[req.params.tid];
-            console.log("just tried to delete translation, store updated: ", JSON.stringify(appSettings));
-        }
-    }
-});
-
-/**
  * Receive a webhook event.
  * 
  * POST /api/event
@@ -268,9 +206,7 @@ apiRouter.post('/event', async (req, res) => {
         const numTranslationsIncomplete = Object.values(translatedFiles).filter(status => status === ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS).length; 
         console.log(`number of 'in-progress' translations remaining: ${numTranslationsIncomplete}`);
         console.log(`current state of 'appSettings': ${JSON.stringify(appSettings)}`);
-        if (numTranslationsIncomplete === 0 && 
-            // TODO[Zain]: debug this line, see if it checks out 
-            appSettings["exportDestination"] === GOOGLE_DRIVE_EXPORT_DESTINATION) { 
+        if (numTranslationsIncomplete === 0) { 
             finalResStatus = 302;
             // use an async Flow to handle the export to whatever external system
             const exportFlowParams = {
