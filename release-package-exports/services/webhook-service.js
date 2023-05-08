@@ -44,15 +44,15 @@ module.exports = {
     
     /**
      * Unregister the given webhook.
-     * @param {string} webhookID The ID of the webhook to unregister.
+     * @param {string} webhookId The ID of the webhook to unregister.
      * @param {Response} res The response to be proxied from the Onshape API.
      * @returns {Promise<Response,string>} resolves with the response, or rejects with error text.
      */
-    unregisterWebhook: webhookID => {
+    unregisterWebhook: webhookId => {
         return new Promise(async (resolve, reject) => {
             const resp = await forwardRequestToFlow({
                 httpVerb: "DELETE",
-                requestUrlParameters: `webhooks/${webhookID}`,
+                requestUrlParameters: `webhooks/${webhookId}`,
                 // res: res
             });
             if (resp.ok) {

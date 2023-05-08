@@ -65,9 +65,9 @@ exportFormSubmitButton.addEventListener("click", async function() {
     );
 
     const json = await resp.json()
-    if (Object.keys(json).includes("webhookID")) {
+    if (Object.keys(json).includes("webhookId")) {
         // TODO[Zain]: make a green modal appear to show the user the notification is enabled
-        console.log(`I have an ID! Here it is: ${json.webhookID}`);
+        console.log(`I have an ID! Here it is: ${json.webhookId}`);
     } else {
         // TODO[Zain]: if not, display an error - it should be a red modal
         console.log(`I have an error: ${resp.error}`);

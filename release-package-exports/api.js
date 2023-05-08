@@ -73,7 +73,7 @@ apiRouter.get('/notifications', async (req, res) => {
 
     WebhookService.registerWebhook(webhookParams, res)
         // provide the client with the webhook ID, so they know it was register
-        .then((webhookId) => res.status(200).send({ webhookID: webhookId }))
+        .then((webhookId) => res.status(200).send({ "webhookId": webhookId }))
         .catch((err) => {
             console.error(`Failed to register webhook: ${err}`);
             res.status(500).json({ error: err });
@@ -232,7 +232,7 @@ apiRouter.post('/event', async (req, res) => {
     } else if (eventJson.event === ONSHAPE_MODEL_TRANSLATION_COMPLETED_EVENT) {
         console.log(`Invoking a flow to retrieve the completed translation!`);
         // unregister the *translation* webhook - using its ^ID
-        WebhookService.unregisterWebhook(eventJson.webhookID);
+        WebhookService.unregisterWebhook(eventJson.webhookId);
         // translated data is ready.
         const reqUrl = `translations/${req.params.tid}`;
         const transResp = await forwardRequestToFlow({
