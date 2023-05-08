@@ -242,6 +242,8 @@ apiRouter.post('/event', async (req, res) => {
         });
         // in the data store - update it's value to the webhook ID
         const transJson = await transResp.json();
+        console.log(`Found the following translation JSON (tesxt): ${JSON.stringify(transResp)}`);
+        console.log(`Found the following translation JSON (json): ${JSON.stringify(transJson)}`);
         if (transJson.requestState === 'FAILED') {
             Object.defineProperty(translatedFiles, eventJson.translationId, {
                 value: transJson.failureReason,
