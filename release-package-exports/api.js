@@ -267,6 +267,7 @@ apiRouter.post('/event', async (req, res) => {
         // conditional step - for the final export!
         const numTranslationsIncomplete = Object.values(translatedFiles).filter(status => status === ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS).length; 
         console.log(`number of 'in-progress' translations remaining: ${numTranslationsIncomplete}`);
+        console.log(`current state of 'appSettings': ${JSON.stringify(appSettings)}`);
         if (numTranslationsIncomplete === 0 &&  
             appSettings.exportDestination === GOOGLE_DRIVE_EXPORT_DESTINATION) { 
             finalResStatus = 302;
