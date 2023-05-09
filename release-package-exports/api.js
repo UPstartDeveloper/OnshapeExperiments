@@ -1,3 +1,5 @@
+const cookieParser = require('cookie-parser');
+
 const WebhookService = require('./services/webhook-service');
 const { 
     onshapeApiUrl,
@@ -48,10 +50,11 @@ apiRouter.get('/email', (req, res) => {
 apiRouter.get('/notifications', async (req, res) => {
     // Extract the necessary IDs from the querystring
     const cid = req.query.companyId, 
-          exportDestination = req.query.exportDestination ? req.query.emailAddress: "",
+          exportDestination = req.query.exportDestination ? req.query.exportDestination: "",
           emailAddress = req.query.emailAddress ? req.query.emailAddress: "",
           emailMessage = req.query.emailMessage ? req.query.emailMessage: "";
 
+    // TODO[Zain]: pass the vars above to the webhook(s) "data" property, in the Flow(s)
     const webhookParams = {
         companyId: cid,
         webhookCallbackRootUrl: webhookCallbackRootUrl
@@ -70,10 +73,9 @@ apiRouter.get('/notifications', async (req, res) => {
     //     value: emailMessage,
     //     writable: true
     // });
-    // TODO[Zain]: debug if this way of saving state actually works
-    res.cookie("exportDestination", exportDestination);
-    res.cookie("emailAddress", emailAddress);
-    res.cookie("emailMessage", emailMessage);
+    // res.cookie("exportDestination", exportDestination);
+    // res.cookie("emailAddress", emailAddress);
+    // res.cookie("emailMessage", emailMessage);
 
     WebhookService.registerWebhook(webhookParams, res)
         // provide the client with the webhook ID, so they know it was register
@@ -214,6 +216,7 @@ apiRouter.post('/event', async (req, res) => {
             finalResStatus = 302;
             const exportFlowConfig = req.cookies;
             // use an async Flow to handle the export to whatever external system
+            // TODO[Zain]: debug if the 'translatedFiles' var is actually defined?
             const exportFlowParams = {
                 exportDestination: exportFlowConfig["exportDestination"],
                 email: exportFlowConfig["emailAddress"],
