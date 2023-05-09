@@ -48,7 +48,7 @@ module.exports = {
      */
     clearDataStore: store => {
         for (const variableKey in store){
-            if (store.hasOwn(variableKey)){
+            if (Object.hasOwn(store, variableKey)){
                 delete store[variableKey];
             }
         }
