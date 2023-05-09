@@ -58,18 +58,22 @@ apiRouter.get('/notifications', async (req, res) => {
     };
 
     // save the query string data - will come in useful later
-    Object.defineProperty(appSettings, "exportDestination", {
-        value: exportDestination,
-        writable: true
-    });
-    Object.defineProperty(appSettings, "emailAddress", {
-        value: emailAddress,
-        writable: true
-    });
-    Object.defineProperty(appSettings, "emailMessage", {
-        value: emailMessage,
-        writable: true
-    });
+    // Object.defineProperty(appSettings, "exportDestination", {
+    //     value: exportDestination,
+    //     writable: true
+    // });
+    // Object.defineProperty(appSettings, "emailAddress", {
+    //     value: emailAddress,
+    //     writable: true
+    // });
+    // Object.defineProperty(appSettings, "emailMessage", {
+    //     value: emailMessage,
+    //     writable: true
+    // });
+    // TODO[Zain]: debug if this way of saving state actually works
+    res.cookie("exportDestination", exportDestination);
+    res.cookie("emailAddress", emailAddress);
+    res.cookie("emailMessage", emailMessage);
 
     WebhookService.registerWebhook(webhookParams, res)
         // provide the client with the webhook ID, so they know it was register
@@ -208,11 +212,12 @@ apiRouter.post('/event', async (req, res) => {
         console.log(`current state of 'appSettings': ${JSON.stringify(appSettings)}`);
         if (numTranslationsIncomplete === 0) { 
             finalResStatus = 302;
+            const exportFlowConfig = req.cookies;
             // use an async Flow to handle the export to whatever external system
             const exportFlowParams = {
-                exportDestination: appSettings["exportDestination"],
-                email: appSettings["emailAddress"],
-                emailMessage: appSettings["emailMessage"],
+                exportDestination: exportFlowConfig["exportDestination"],
+                email: exportFlowConfig["emailAddress"],
+                emailMessage: exportFlowConfig["emailMessage"],
                 translatedFiles: JSON.stringify(translatedFiles)
             };
             try {
