@@ -224,9 +224,9 @@ apiRouter.post('/event', async (req, res) => {
         // TODO[Zain]: refactor for loop below
         const translatedFilesAsObject = {};
         console.log(`starting for loop! let's see if it works...`);
-        for (const translationProgressKey of translatedFiles.keys()) {
+        for (const [translationProgressKey, translationProgressState] of translatedFiles.dump()) {
             console.log(`in the for loop! collecting translation states... adding ${translationProgressKey}`);
-            translatedFilesAsObject[translationProgressKey] = translatedFiles.get(translationProgressKey);
+            translatedFilesAsObject[translationProgressKey] = translationProgressState;
         }
         const numTranslationsIncomplete = Object.values(translatedFilesAsObject).filter(state => state === ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS).length;
         console.log(`number of 'in-progress' translations remaining: ${numTranslationsIncomplete}`);
