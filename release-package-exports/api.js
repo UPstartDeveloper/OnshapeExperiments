@@ -54,7 +54,6 @@ apiRouter.get('/notifications', async (req, res) => {
           emailAddress = req.query.emailAddress ? req.query.emailAddress: "",
           emailMessage = req.query.emailMessage ? req.query.emailMessage: "";
 
-    // TODO[Zain]: pass the vars above to the webhook(s) "data" property, in the Flow(s)
     const webhookParams = {
         companyId: cid,
         webhookCallbackRootUrl: webhookCallbackRootUrl
@@ -88,6 +87,10 @@ apiRouter.get('/notifications', async (req, res) => {
             res.status(500).json({ error: err });
         }
     );
+    // TODO[Zain]: perhaps delete later - or, only turn on in "dev mode"
+    console.log("resetting the data stores...");
+    translatedFiles.clear();
+    appSettings.clear(); 
 });
 
 /**
