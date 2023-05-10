@@ -76,6 +76,9 @@ apiRouter.get('/notifications', async (req, res) => {
     // res.cookie("exportDestination", exportDestination);
     // res.cookie("emailAddress", emailAddress);
     // res.cookie("emailMessage", emailMessage);
+    appSettings.set("exportDestination", exportDestination);
+    appSettings.set("emailAddress", emailAddress);
+    appSettings.set("emailMessage", emailMessage);
 
     WebhookService.registerWebhook(webhookParams, res)
         // provide the client with the webhook ID, so they know it was register
@@ -147,8 +150,10 @@ apiRouter.post('/event', async (req, res) => {
                     requestUrlParameters: `releasepackages/${rpId}?detailed=true`,
                 });
                 const releasePackageJson = await releasePackageRes.json();
-                translatedFiles["exportFolderName"] = `Release-${releasePackageJson.name}-Export`;
-                translatedFiles["releasePackageId"] = rpId;
+                // translatedFiles["exportFolderName"] = `Release-${releasePackageJson.name}-Export`;
+                // translatedFiles["releasePackageId"] = rpId;
+                translatedFiles.set("exportFolderName", `Release-${releasePackageJson.name}-Export`);
+                translatedFiles.set("releasePackageId", rpId);
 
                 // now, post all the needed params to the translation trigger Flow
                 const triggerFlowParams = {
@@ -165,8 +170,9 @@ apiRouter.post('/event', async (req, res) => {
                 const flowResJson = await translationTriggerFlowResp.json();
                 console.log(`Parsed the following translation IDs from Flow: ${JSON.stringify(flowResJson)}`);
                 for (const translationRequestRes of flowResJson.data.translationRequestResults) {
-                    translatedFiles[translationRequestRes.id] = ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS;
-                    console.log(`Reached the translation trigger for loop! Resulting data store: ${JSON.stringify(Object.entries(translatedFiles))}`);
+                    // translatedFiles[translationRequestRes.id] = ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS;
+                    translatedFiles.set(translationRequestRes.id, ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS);
+                    console.log(`Reached the translation trigger for loop! Resulting data store: ${JSON.stringify(translatedFiles.entries())}`);
                 }
                 finalResStatus = translationTriggerFlowResp.success === "true" ? 200: 400;
                 finalResBody = flowResJson;
@@ -189,10 +195,11 @@ apiRouter.post('/event', async (req, res) => {
         console.log(`Found the following translation JSON (tesxt): ${JSON.stringify(transResp)}`);
         console.log(`Found the following translation JSON (json): ${JSON.stringify(transJson)}`);
         if (transJson.requestState === 'FAILED') {
-            Object.defineProperty(translatedFiles, eventJson.translationId, {
-                value: transJson.failureReason,
-                writable: true   //  until we have the webhook id, it's "in-progress"
-            });
+            // Object.defineProperty(translatedFiles, eventJson.translationId, {
+            //     value: transJson.failureReason,
+            //     writable: true   //  until we have the webhook id, it's "in-progress"
+            // });
+            translatedFiles.set(eventJson.translationId, transJson.failureReason);
             console.log(`Your translation failed, sorry. Onshape said: ${transJson.failureReason}`);
         } else {
             const translatedAssetPath = [
@@ -202,26 +209,33 @@ apiRouter.post('/event', async (req, res) => {
                 "externaldata",
                 `${transJson.resultExternalDataIds[0]}`, 
             ].join("/");
-            Object.defineProperty(translatedFiles, eventJson.translationId, {
-                value: translatedAssetPath,
-                writable: true
-            });
+            // Object.defineProperty(translatedFiles, eventJson.translationId, {
+            //     value: translatedAssetPath,
+            //     writable: true
+            // });
+            translatedFiles.set(eventJson.translationId, translatedAssetPath);
             console.log(`Your translation worked! Find it here: ${translatedAssetPath}`);
         }
         // conditional step - for the final export!
-        const numTranslationsIncomplete = Object.values(translatedFiles).filter(status => status === ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS).length; 
+        // const numTranslationsIncomplete = Object.values(translatedFiles).filter(status => status === ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS).length; 
+        // TODO[Zain]: refactor for loop below
+        const translatedFilesAsObject = {};
+        for (const translationProgressKey of translatedFiles.keys()) {
+            translatedFilesAsObject[translationProgressKey] = translatedFiles.get(translationProgressKey);
+        }
+        const numTranslationsIncomplete = Object.values(translatedFilesAsObject).filter(state => state === ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS).length;
         console.log(`number of 'in-progress' translations remaining: ${numTranslationsIncomplete}`);
         console.log(`current state of 'appSettings': ${JSON.stringify(appSettings)}`);
         if (numTranslationsIncomplete === 0) { 
             finalResStatus = 302;
-            const exportFlowConfig = req.cookies;
+            // const exportFlowConfig = req.cookies;
             // use an async Flow to handle the export to whatever external system
-            console.log(`Invoking the export Flow! Process will continue async. Here is translatedFiles: ${JSON.stringify(translatedFiles)}`);
+            console.log(`Invoking the export Flow! Process will continue async. Here is translatedFiles: ${JSON.stringify(translatedFilesAsObject)}`);
             const exportFlowParams = {
-                exportDestination: exportFlowConfig["exportDestination"],
-                email: exportFlowConfig["emailAddress"],
-                emailMessage: exportFlowConfig["emailMessage"],
-                translatedFiles: JSON.stringify(translatedFiles)
+                exportDestination: appSettings.get("exportDestination"),
+                email: appSettings.get("emailAddress"),
+                emailMessage: appSettings.get("emailMessage"),
+                translatedFiles: JSON.stringify(translatedFilesAsObject)
             };
             try {
                 fetch(onshapeExportToExternalSystemFlow, {
@@ -236,7 +250,8 @@ apiRouter.post('/event', async (req, res) => {
                 console.log(`Export Flow invocation error - Flow said: ${err}`);
             }
             // reset the translatedFiles to an empty 
-            clearDataStore(translatedFiles);
+            // clearDataStore(translatedFiles);
+            translatedFiles.clear();
             console.log(`translatedFiles should be empty: ${JSON.stringify(translatedFiles)}`);
         }     
     }
