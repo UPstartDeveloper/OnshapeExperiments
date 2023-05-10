@@ -216,7 +216,6 @@ apiRouter.post('/event', async (req, res) => {
             finalResStatus = 302;
             const exportFlowConfig = req.cookies;
             // use an async Flow to handle the export to whatever external system
-            // TODO[Zain]: debug if the 'translatedFiles' var is actually defined?
             const exportFlowParams = {
                 exportDestination: exportFlowConfig["exportDestination"],
                 email: exportFlowConfig["emailAddress"],
@@ -224,7 +223,7 @@ apiRouter.post('/event', async (req, res) => {
                 translatedFiles: JSON.stringify(translatedFiles)
             };
             try {
-                console.log(`Invoking the export Flow! Process will continue async...`);
+                console.log(`Invoking the export Flow! Process will continue async. Here is translatedFiles: ${JSON.stringify(translatedFiles)}`);
                 fetch(onshapeExportToExternalSystemFlow, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
