@@ -89,8 +89,8 @@ apiRouter.get('/notifications', async (req, res) => {
     );
     // TODO[Zain]: perhaps delete later - or, only turn on in "dev mode"
     console.log("resetting the data stores...");
-    translatedFiles.clear();
-    appSettings.clear(); 
+    // translatedFiles.clear();
+    // appSettings.clear(); 
 });
 
 /**
