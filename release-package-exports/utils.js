@@ -1,5 +1,6 @@
 const fetch = require('node-fetch');
 const { accessKey, onshapeAPIRequestProxyInFlow, secretKey } = require('./config');
+const { LRUCache } = require('lru-cache');
 
 module.exports = {
 
@@ -52,6 +53,17 @@ module.exports = {
                 delete store[variableKey];
             }
         }
+    },
+
+    /** 
+     * Returns whether a given key-value pair is present in a data store.
+     * @param {LRUCache} store
+     * @param {any} key
+     * @param {any} expectedValue
+     * @returns boolean
+     */
+    hasEntry: (store, key, expectedValue) => {
+        return (store.has(key) && store.get(key) === expectedValue);
     },
 
     /**

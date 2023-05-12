@@ -17,7 +17,8 @@ const {
     ONSHAPE_MODEL_TRANSLATION_COMPLETED_EVENT,
     ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS,
     ONSHAPE_WEBHOOK_PING_EVENT,
-    ONSHAPE_WEBHOOK_REGISTRATION_EVENT
+    ONSHAPE_WEBHOOK_REGISTRATION_EVENT,
+    hasEntry
 } = require('./utils');
 const { appSettings, translatedFiles } = require('./raza-client');
     
@@ -174,8 +175,12 @@ apiRouter.post('/event', async (req, res) => {
                 console.log(`Parsed the following translation IDs from Flow: ${JSON.stringify(flowResJson)}`);
                 for (const translationRequestRes of flowResJson.data.translationRequestResults) {
                     // translatedFiles[translationRequestRes.id] = ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS;
-                    translatedFiles.set(translationRequestRes.id, ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS);
-                    console.log(`Reached the translation trigger for loop! Resulting data store: ${JSON.stringify(translatedFiles.entries())}`);
+                    if (!hasEntry(
+                            translatedFiles, translationRequestRes.id, ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS
+                        )) {
+                        translatedFiles.set(translationRequestRes.id, ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS);
+                        console.log(`Reached the translation trigger for loop! Resulting data store: ${JSON.stringify(translatedFiles.entries())}`);
+                    }
                 }
                 finalResStatus = translationTriggerFlowResp.success === "true" ? 200: 400;
                 finalResBody = flowResJson;
@@ -202,8 +207,12 @@ apiRouter.post('/event', async (req, res) => {
             //     value: transJson.failureReason,
             //     writable: true   //  until we have the webhook id, it's "in-progress"
             // });
-            translatedFiles.set(eventJson.translationId, transJson.failureReason);
-            console.log(`Your translation failed, sorry. Onshape said: ${transJson.failureReason}`);
+            if (!hasEntry(
+                translatedFiles, eventJson.translationId, transJson.failureReason
+            )) {
+                translatedFiles.set(eventJson.translationId, transJson.failureReason);
+                console.log(`Your translation failed, sorry. Onshape said: ${transJson.failureReason}`);
+            }
         } else {
             const translatedAssetPath = [
                 "documents",
@@ -216,8 +225,12 @@ apiRouter.post('/event', async (req, res) => {
             //     value: translatedAssetPath,
             //     writable: true
             // });
-            translatedFiles.set(eventJson.translationId, translatedAssetPath);
-            console.log(`Your translation worked! Find it here: ${translatedAssetPath}`);
+            if (!hasEntry(
+                translatedFiles, eventJson.translationId, translatedAssetPath
+            )) {
+                translatedFiles.set(eventJson.translationId, translatedAssetPath);
+                console.log(`Your translation worked! Find it here: ${translatedAssetPath}`);
+            }
         }
         // conditional step - for the final export!
         // const numTranslationsIncomplete = Object.values(translatedFiles).filter(status => status === ONSHAPE_MODEL_TRANSLATION_STATE_IN_PROGRESS).length; 
