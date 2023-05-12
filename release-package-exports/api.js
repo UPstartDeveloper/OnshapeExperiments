@@ -1,5 +1,3 @@
-const cookieParser = require('cookie-parser');
-
 const WebhookService = require('./services/webhook-service');
 const { 
     // onshapeApiUrl,
@@ -89,7 +87,7 @@ apiRouter.get('/notifications', async (req, res) => {
         }
     );
     // TODO[Zain]: perhaps delete later - or, only turn on in "dev mode"
-    console.log("resetting the data stores...");
+    // console.log("resetting the data stores...");
     // translatedFiles.clear();
     // appSettings.clear(); 
 });
@@ -119,15 +117,12 @@ apiRouter.post('/event', async (req, res) => {
         finalResStatus = 200;  // a workflow was sent, so this is at least a HTTP 200
         /**
          * Save in memory so we can return to client later (& unregister the webhook).
-         * TODO[Zain][4] - use a better memory store - e.g., see these links to do using cookies:
-         *      --> https://stackoverflow.com/questions/34674326/node-express-storage-and-retrieval-of-authentication-tokens
-         *      --> https://stackoverflow.com/questions/16209145/how-can-i-set-cookie-in-node-js-using-express-framework
          */
         if (eventJson.objectType === ONSHAPE_RELEASE_OBJECT_TYPE) {
             const rpId = eventJson.objectId;
 
             // use the rpID to get the audit log, get the entries, and see if 
-            // any has workflowState === RELEASED
+            // any logs have workflowState === RELEASED
             // check if this release is all done, if so forward to flow
             const releasePackageAuditData = await forwardRequestToFlow({
                 httpVerb: "GET",
@@ -145,7 +140,10 @@ apiRouter.post('/event', async (req, res) => {
             const audits = releasePackageAuditLog.entries.filter(entry => {
                 return entry.workflowState === ONSHAPE_RELEASE_STATE_COMPLETED
             });
-            const isReadyToStartTranslation = audits.length > 0;
+            const isReadyToStartTranslation = (
+                audits.length > 0 && 
+                !hasEntry(translatedFiles, "releasePackageId", rpId)
+            );
             if (isReadyToStartTranslation) {
                 console.log(`Invoking a flow to trigger the translations!`);
                 // save the release package metadata for later - will be useful for cloud storage exports
@@ -267,7 +265,7 @@ apiRouter.post('/event', async (req, res) => {
                 finalResBody = {'error': err};
                 console.log(`Export Flow invocation error - Flow said: ${err}`);
             }
-            // reset the translatedFiles to an empty 
+            // reset the translatedFiles to an empty state
             // clearDataStore(translatedFiles);
             translatedFiles.clear();
             console.log(`translatedFiles should be empty: ${JSON.stringify(translatedFiles)}`);
