@@ -269,7 +269,9 @@ apiRouter.post('/event', async (req, res) => {
             // clearDataStore(translatedFiles);
             translatedFiles.clear();
             console.log(`translatedFiles should be empty: ${JSON.stringify(translatedFiles)}`);
-        }     
+        }
+        finalResBody = {'output': `Able to receive updates on the translations!`};
+        finalResStatus = 200;     
     }
     console.log(`Webhook notification example: ${JSON.stringify(req.body)}`);
     res.status(finalResStatus).send(finalResBody);
