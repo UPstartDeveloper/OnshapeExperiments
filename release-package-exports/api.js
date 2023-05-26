@@ -180,7 +180,7 @@ apiRouter.post('/event', async (req, res) => {
                         console.log(`Reached the translation trigger for loop! Resulting data store: ${JSON.stringify(translatedFiles.entries())}`);
                     }
                 }
-                finalResStatus = translationTriggerFlowResp.success === true ? 200: 400;
+                finalResStatus = flowResJson.success === true ? 200: 400;
                 finalResBody = flowResJson;
                 console.log(`Requested all the translation webhooks!`);
             }
