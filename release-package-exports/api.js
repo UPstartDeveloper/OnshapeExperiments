@@ -180,7 +180,7 @@ apiRouter.post('/event', async (req, res) => {
                         console.log(`Reached the translation trigger for loop! Resulting data store: ${JSON.stringify(translatedFiles.entries())}`);
                     }
                 }
-                finalResStatus = translationTriggerFlowResp.success === "true" ? 200: 400;
+                finalResStatus = translationTriggerFlowResp.success === true ? 200: 400;
                 finalResBody = flowResJson;
                 console.log(`Requested all the translation webhooks!`);
             }
@@ -243,7 +243,6 @@ apiRouter.post('/event', async (req, res) => {
         console.log(`number of 'in-progress' translations remaining: ${numTranslationsIncomplete}`);
         console.log(`current state of 'appSettings': ${JSON.stringify(appSettings)}`);
         if (numTranslationsIncomplete === 0) { 
-            finalResStatus = 302;
             // const exportFlowConfig = req.cookies;
             // use an async Flow to handle the export to whatever external system
             console.log(`Invoking the export Flow! Process will continue async. Here is translatedFiles: ${JSON.stringify(translatedFilesAsObject)}`);
