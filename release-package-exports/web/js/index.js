@@ -3,6 +3,7 @@ const exportFormSubmitButton = document.getElementById("exportFormSubmitButton")
 const googleDriveParams = document.getElementById("googleDriveParams");
 const googleDriveEmail = document.getElementById("googleDriveEmailAddressId");
 const googleDriveEmailMessage = document.getElementById("googleDriveEmailMessageId");
+const alertPlaceholder = document.getElementById('liveSuccessAlertPlaceholder');
 
 /**
  * Display an error message to the user.
@@ -17,6 +18,44 @@ const displayError = (msg) => {
     $msgElem.style.font = 'italic';
     $msgElem.innerText = msg;
     $viewport.insertBefore($msgElem, $viewport.firstChild);
+}
+
+/**
+ * Assumes the form has already been submitted.
+ * Provides strings needed to parametrize the success notification.
+ * 
+ * @returns {Object}
+ */
+const defineSuccessMessage = () => {
+    let exportDestination = "", exportDestinationAddress = "";
+    if (exportDropdown.value === "googleDrive") {
+        exportDestination = "Google Drive";  // TODO[localize in the future]
+        exportDestinationAddress = googleDriveEmail.value;
+    }
+    return {
+        exportDestination: exportDestination,
+        exportDestinationAddress: exportDestinationAddress
+    };
+}
+
+/**
+ * 
+ * @param {*} message 
+ * @param {*} type 
+ */
+const appendAlert = (messageArgs, type) => {
+    const wrapper = document.createElement('div');
+    const exportDestination = messageArgs.exportDestination;
+    const exportDestinationAddress = messageArgs.exportDestinationAddress;
+    const message = `Success! I will now export releases to "${exportDestinationAddress}" via "${exportDestination}"!`;
+    wrapper.innerHTML = [
+        `<div class="alert alert-${type} alert-dismissible" role="alert">`,
+        `   <div>${message}</div>`,
+        '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
+        '</div>'
+    ].join('');
+  
+    alertPlaceholder.append(wrapper);
 }
 
 /**
@@ -66,12 +105,13 @@ exportFormSubmitButton.addEventListener("click", async function() {
 
     const json = await resp.json()
     if (Object.keys(json).includes("webhookId")) {
-        // TODO[Zain]: make a green modal appear to show the user the notification is enabled
-        console.log(`I have an ID! Here it is: ${json.webhookId}`);
+        console.log(`I have an Onshape webhook ID! Here it is: ${json.webhookId}`);  // developer feedback
+        // UI feedback
+        const messageArgs = defineSuccessMessage();
+        appendAlert(messageArgs, 'success');
     } else {
         // TODO[Zain]: if not, display an error - it should be a red modal
         console.log(`I have an error: ${resp.error}`);
     }
-
 
 });
