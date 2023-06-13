@@ -110,7 +110,7 @@ apiRouter.get('/gltf', async (req, res) => {
         const resp = await (partId ? TranslationService.translatePart(gltfElemId, partId, translationParams, res)
             : TranslationService.translateElement(gltfElemId, translationParams, res));
         // Store the tid in memory so we know that it's being processed; it will remain 'in-progress' until we
-        // are notified that it is complete, at which point it will be the translation ID.
+        // are notified that it is complete, at which point it will be the webhook ID.
         if (resp.contentType.indexOf('json') >= 0) {
             Object.defineProperty(razaClient, JSON.parse(resp.data).id, {
                 value: 'in-progress',
